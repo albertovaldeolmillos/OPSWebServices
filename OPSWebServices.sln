@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2011
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMessagesBB", "TestMessagesBB\TestMessagesBB.csproj", "{AD350957-3D68-47C6-A842-D9BAB04334D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OPSWebServices", "OPSWebServices\OPSWebServices.csproj", "{ECAC8E5D-0302-471C-BE88-8DA7D7A1768D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD350957-3D68-47C6-A842-D9BAB04334D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD350957-3D68-47C6-A842-D9BAB04334D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD350957-3D68-47C6-A842-D9BAB04334D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD350957-3D68-47C6-A842-D9BAB04334D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECAC8E5D-0302-471C-BE88-8DA7D7A1768D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECAC8E5D-0302-471C-BE88-8DA7D7A1768D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECAC8E5D-0302-471C-BE88-8DA7D7A1768D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECAC8E5D-0302-471C-BE88-8DA7D7A1768D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BBF60C33-59AB-450E-A221-31A489500573}
+	EndGlobalSection
+EndGlobal

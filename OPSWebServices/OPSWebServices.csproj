@@ -1,0 +1,313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProductVersion>7.10.6030</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ECAC8E5D-0302-471C-BE88-8DA7D7A1768D}</ProjectGuid>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon />
+    <AssemblyKeyContainerName />
+    <AssemblyName>OPSWebServices</AssemblyName>
+    <AssemblyOriginatorKeyFile />
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>OPSWebServices</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject />
+    <WebReference_EnableProperties>true</WebReference_EnableProperties>
+    <WebReference_EnableSQLTypes>false</WebReference_EnableSQLTypes>
+    <WebReference_EnableLegacyEventingModel>true</WebReference_EnableLegacyEventingModel>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UseIISExpress>true</UseIISExpress>
+    <UpgradeBackupLocation />
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OPS.Comm.1.2.1.1">
+      <Name>OPS.Comm.1.2.1.1</Name>
+      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Comm.1.2.1.1.dll</HintPath>
+      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    </Reference>
+    <Reference Include="OPS.ComponentsBD.1.2.1.1">
+      <Name>OPS.ComponentsBD.1.2.1.1</Name>
+      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.ComponentsBD.1.2.1.1.dll</HintPath>
+      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    </Reference>
+    <Reference Include="OPS.Globalization.1.2.1.1">
+      <Name>OPS.Globalization.1.2.1.1</Name>
+      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Globalization.1.2.1.1.dll</HintPath>
+      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    </Reference>
+    <Reference Include="OPS.Logger.1.2.1.1">
+      <Name>OPS.Logger.1.2.1.1</Name>
+      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Logger.1.2.1.1.dll</HintPath>
+      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    </Reference>
+    <Reference Include="OPS.Messages.1.2.1.1">
+      <Name>OPS.Messages.1.2.1.1</Name>
+      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Messages.1.2.1.1.dll</HintPath>
+      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Data.OracleClient">
+      <Name>System.Data.OracleClient</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Name>System.Web.Services</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages.asmx.cs">
+      <DependentUpon>Messages.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="MessagesBB.asmx.cs">
+      <DependentUpon>MessagesBB.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="MessagesTest.aspx.cs">
+      <DependentUpon>MessagesTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MessagesTest.aspx.designer.cs">
+      <DependentUpon>MessagesTest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoard.aspx.cs">
+      <DependentUpon>OPSSwitchBoard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoard.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoardAccount.aspx.cs">
+      <DependentUpon>OPSSwitchBoardAccount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardAccount.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoardAccount.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoardGetDateTime.aspx.cs">
+      <DependentUpon>OPSSwitchBoardGetDateTime.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardGetDateTime.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoardGetDateTime.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoardHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardOperation.aspx.cs">
+      <DependentUpon>OPSSwitchBoardOperation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardOperation.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoardOperation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoardResident.aspx.cs">
+      <DependentUpon>OPSSwitchBoardResident.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardResident.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoardResident.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoardSectorList.aspx.cs">
+      <DependentUpon>OPSSwitchBoardSectorList.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardSectorList.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoardSectorList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSSwitchBoardZoneSector.aspx.cs">
+      <DependentUpon>OPSSwitchBoardZoneSector.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OPSSwitchBoardZoneSector.aspx.designer.cs">
+      <DependentUpon>OPSSwitchBoardZoneSector.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OPSTripleDesEncryptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Web References\OPSWebServices\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Content Include="Global.asax">
+      <SubType>Component</SubType>
+    </Content>
+    <Content Include="Messages.asmx">
+      <SubType>Form</SubType>
+    </Content>
+    <Content Include="MessagesBB.asmx" />
+    <Content Include="MessagesTest.aspx">
+      <SubType>Form</SubType>
+    </Content>
+    <Content Include="OPSSwitchBoard.aspx">
+      <SubType>Form</SubType>
+    </Content>
+    <Content Include="OPSSwitchBoardAccount.aspx">
+      <SubType>Form</SubType>
+    </Content>
+    <Content Include="OPSSwitchBoardGetDateTime.aspx" />
+    <Content Include="OPSSwitchBoardOperation.aspx">
+      <SubType>Form</SubType>
+    </Content>
+    <Content Include="OPSSwitchBoardResident.aspx">
+      <SubType>Form</SubType>
+    </Content>
+    <Content Include="OPSSwitchBoardSectorList.aspx" />
+    <Content Include="OPSSwitchBoardZoneSector.aspx" />
+    <Content Include="Style\tree-view.css" />
+    <Content Include="Style\tree-view.xsl" />
+    <Content Include="Style\xmlverbatim.css" />
+    <Content Include="Style\xmlverbatim.xsl" />
+    <Content Include="Style\xmlverbatimwrapper.xsl" />
+    <Content Include="Web.config" />
+    <EmbeddedResource Include="Global.asax.resx">
+      <DependentUpon>Global.asax.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Messages.asmx.resx">
+      <DependentUpon>Messages.asmx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MessagesBB.asmx.resx">
+      <DependentUpon>MessagesBB.asmx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MessagesTest.aspx.resx">
+      <DependentUpon>MessagesTest.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoard.aspx.resx">
+      <DependentUpon>OPSSwitchBoard.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoardAccount.aspx.resx">
+      <DependentUpon>OPSSwitchBoardAccount.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoardGetDateTime.aspx.resx">
+      <DependentUpon>OPSSwitchBoardGetDateTime.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoardOperation.aspx.resx">
+      <DependentUpon>OPSSwitchBoardOperation.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoardResident.aspx.resx">
+      <DependentUpon>OPSSwitchBoardResident.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoardSectorList.aspx.resx">
+      <DependentUpon>OPSSwitchBoardSectorList.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OPSSwitchBoardZoneSector.aspx.resx">
+      <DependentUpon>OPSSwitchBoardZoneSector.aspx.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Web References\OPSWebServices\Messages.disco" />
+    <None Include="Web References\OPSWebServices\Messages.wsdl" />
+    <None Include="Web References\OPSWebServices\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <WebReferences Include="Web References\" />
+    <WebReferenceUrl Include="http://localhost/OPSWebServices/Messages.asmx">
+      <RelPath>Web References\OPSWebServices\</RelPath>
+      <UrlBehavior>Static</UrlBehavior>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent />
+    <PostBuildEvent />
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v15.0\WebApplications\Microsoft.WebApplication.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:52608/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

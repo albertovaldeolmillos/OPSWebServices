@@ -1,0 +1,5 @@
+Se trata de un proyecto para .NET 1.1
+
+Se ha de crear el directorio virtual (OPSWebServices11) que apunte a la carpeta OPSWebServices11. 
+(típicamente en C:\inetpub\wwwroot\OPSWebServices11)
+
