@@ -1,27 +1,23 @@
+using OPS.Comm;
+using OPS.Comm.Becs.Messages;
+using OPS.Components.Data;
+using Oracle.DataAccess.Client;
+
 using System;
-using System.Xml;
-using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Web;
-using System.Web.Services;
-using OPS.Comm.Becs.Messages;
-using OPS.Comm;
-using OPS.Components.Data;
-using System.Data.OracleClient;
-using System.Text;
+using System.Reflection;
 using System.Security.Cryptography;
-using OPS.Comm.Cryptography.TripleDes;
-using OPS.Comm.Channel;
+using System.Text;
+using System.Web.Services;
+using System.Xml;
 
 namespace OPSWebServices
 {
-	/// <summary>
-	/// Summary description for Messages.
-	/// </summary>
-	public class Messages : System.Web.Services.WebService
+    /// <summary>
+    /// Summary description for Messages.
+    /// </summary>
+    public class Messages : System.Web.Services.WebService
 	{
 		static ILogger _logger=null;
 
@@ -149,11 +145,9 @@ namespace OPSWebServices
 
 				if (_logger==null)
 				{
-                    System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();			
-                    _logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-					OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-					OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
-					DatabaseFactory.Logger=_logger;
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+                    DatabaseFactory.Logger = _logger;
+                    
 				}
 				
 				if (Session["MessagesSession"] == null) 
@@ -217,9 +211,7 @@ namespace OPSWebServices
                 System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();			
                 if (_logger == null)
                 {
-                    _logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-                    OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-                    OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
                     DatabaseFactory.Logger = _logger;
                 }
 
@@ -283,12 +275,9 @@ namespace OPSWebServices
                 System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
                 if (_logger == null)
                 {
-                    _logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-                    OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-                    OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
                     DatabaseFactory.Logger = _logger;
                 }
-
                 try
                 {
                     int iUnitId = GetUnitId(doc);
@@ -360,9 +349,7 @@ namespace OPSWebServices
                 System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
                 if (_logger == null)
                 {
-                    _logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-                    OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-                    OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
                     DatabaseFactory.Logger = _logger;
                 }
 
@@ -382,7 +369,7 @@ namespace OPSWebServices
                     cmd.Connection.Open();
 
                     cmd.CommandText = "select uni_ip from units where uni_id="+iUnit.ToString();
-                    strRdo = cmd.ExecuteOracleScalar().ToString(); ;
+                    strRdo = cmd.ExecuteScalar().ToString(); 
 
                 }
                 catch (Exception e)
@@ -430,11 +417,9 @@ namespace OPSWebServices
 				System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
 				if (_logger == null)
 				{
-					_logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-					OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-					OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
-					DatabaseFactory.Logger = _logger;
-				}
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+                    DatabaseFactory.Logger = _logger;
+                }
 
 				OracleConnection con = null;
 				OracleCommand cmd = null;
@@ -467,7 +452,7 @@ namespace OPSWebServices
 
 					cmd.CommandText = "select count(*) from fines where fin_id=" + iFineID.ToString();
 
-					if (cmd.ExecuteOracleScalar().ToString() != "0")
+					if (cmd.ExecuteScalar().ToString() != "0")
 					{ // update
 
 						cmd.CommandText = "update FINES set FIN_DFIN_ID = " + iFineTypeID.ToString() + 
@@ -538,11 +523,9 @@ namespace OPSWebServices
 				System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
 				if (_logger == null)
 				{
-					_logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-					OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-					OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
-					DatabaseFactory.Logger = _logger;
-				}
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+                    DatabaseFactory.Logger = _logger;
+                }
 
                 
 				OracleConnection con = null;
@@ -735,11 +718,9 @@ namespace OPSWebServices
 				System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
 				if (_logger == null)
 				{
-					_logger = new FileLogger(LoggerSeverities.Debug, (string)appSettings.GetValue("ServiceLog", typeof(string)));
-					OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-					OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
-					DatabaseFactory.Logger = _logger;
-				}
+                    _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+                    DatabaseFactory.Logger = _logger;
+                }
 
                 
 				OracleConnection con = null;

@@ -14,7 +14,7 @@ namespace OPSWebServices
 	/// <summary>
 	/// Summary description for OPSSwitchBoardGetDateTime.
 	/// </summary>
-	public class OPSSwitchBoardGetDateTime : System.Web.UI.Page
+	public partial class OPSSwitchBoardGetDateTime : System.Web.UI.Page
 	{
 		private void Page_Load(object sender, System.EventArgs e)
 		{

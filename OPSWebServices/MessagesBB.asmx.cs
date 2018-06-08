@@ -1,24 +1,22 @@
+using OPS.Comm;
+using OPS.Comm.Becs.Messages;
+using OPS.Components.Data;
+using Oracle.DataAccess.Client;
+
 using System;
-using System.Xml;
-using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Web;
-using System.Web.Services;
-using OPS.Comm.Becs.Messages;
-using OPS.Comm;
-using OPS.Components.Data;
-using System.Data.OracleClient;
+using System.Reflection;
 using System.Security.Cryptography;
+using System.Web.Services;
+using System.Xml;
 
 namespace OPSWebServices
 {
-	/// <summary>
-	/// Summary description for Messages.
-	/// </summary>
-	public class MessagesBB : System.Web.Services.WebService
+    /// <summary>
+    /// Summary description for Messages.
+    /// </summary>
+    public class MessagesBB : System.Web.Services.WebService
 	{
 		static ILogger _logger=null;
 
@@ -81,15 +79,16 @@ namespace OPSWebServices
 
 			try
 			{
-
-				if (_logger==null)
+                _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+                ILogger logger = null;
+                DatabaseFactory.Logger = _logger;
+                if (logger == null)
 				{
-                    System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();			
-                    _logger = new FileLogger(LoggerSeverities.Debug, ((string)appSettings.GetValue("ServiceLog", typeof(string))).Replace(".log","BB.log"));
-					OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-					OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
-					DatabaseFactory.Logger=_logger;
-				}
+                    logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+                    logger.AddLog("INCIO", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("INICIADO EL SERVICIO", LoggerSeverities.Info);
+                    DatabaseFactory.Logger = _logger;
+                }
 				
 				if (Session["MessagesSession"] == null) 
 				{
@@ -127,8 +126,9 @@ namespace OPSWebServices
 
 				}
 			}
-			catch( Exception )
+			catch( Exception  err)
 			{
+                Logger_AddLogException(err);
 				bRdo=false;
 			}
 			

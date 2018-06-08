@@ -36,6 +36,8 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -56,6 +58,8 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -76,42 +80,42 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OPS.Comm.1.2.1.1">
-      <Name>OPS.Comm.1.2.1.1</Name>
-      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Comm.1.2.1.1.dll</HintPath>
-      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Dlls\OPSCommon\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="OPS.ComponentsBD.1.2.1.1">
-      <Name>OPS.ComponentsBD.1.2.1.1</Name>
-      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.ComponentsBD.1.2.1.1.dll</HintPath>
-      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    <Reference Include="OPS.Comm">
+      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.Comm.dll</HintPath>
     </Reference>
-    <Reference Include="OPS.Globalization.1.2.1.1">
-      <Name>OPS.Globalization.1.2.1.1</Name>
-      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Globalization.1.2.1.1.dll</HintPath>
-      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    <Reference Include="OPS.ComponentsBD">
+      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.ComponentsBD.dll</HintPath>
     </Reference>
-    <Reference Include="OPS.Logger.1.2.1.1">
-      <Name>OPS.Logger.1.2.1.1</Name>
-      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Logger.1.2.1.1.dll</HintPath>
-      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    <Reference Include="OPS.Globalization">
+      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.Globalization.dll</HintPath>
     </Reference>
-    <Reference Include="OPS.Messages.1.2.1.1">
-      <Name>OPS.Messages.1.2.1.1</Name>
-      <HintPath>..\..\OPSServices\Common\NET 1.1\ops\OPS.Messages.1.2.1.1.dll</HintPath>
-      <AssemblyFolderKey>hklm\dn\ops</AssemblyFolderKey>
+    <Reference Include="OPS.Messages">
+      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.Messages.dll</HintPath>
+    </Reference>
+    <Reference Include="OPSLogger, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2f4989f27bc3dc51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPSLogger.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.DataAccess, Version=4.122.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Dlls\Oracle\Oracle.DataAccess.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
-    <Reference Include="System.Data.OracleClient">
-      <Name>System.Data.OracleClient</Name>
-    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing">
       <Name>System.Drawing</Name>
     </Reference>
@@ -119,12 +123,17 @@
     <Reference Include="System.Web">
       <Name>System.Web</Name>
     </Reference>
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Services">
       <Name>System.Web.Services</Name>
     </Reference>
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs">
@@ -274,6 +283,7 @@
     <EmbeddedResource Include="OPSSwitchBoardZoneSector.aspx.resx">
       <DependentUpon>OPSSwitchBoardZoneSector.aspx.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="FolderProfile.pubxml" />
     <None Include="Web References\OPSWebServices\Messages.disco" />
     <None Include="Web References\OPSWebServices\Messages.wsdl" />
     <None Include="Web References\OPSWebServices\Reference.map">

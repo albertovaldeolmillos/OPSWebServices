@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
 using System.Security.Cryptography;
+using OPS.Comm;
 
 namespace OPSWebServices
 {
@@ -45,10 +46,13 @@ namespace OPSWebServices
 			//
 			InitializeComponent();
 
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
-		}
+            log = new Logger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+            log.AddLog("ARANCA LA APP", OPS.Comm.LoggerSeverities.Debug);
+
+            //
+            // TODO: Add any constructor code after InitializeComponent call
+            //
+        }
 
 		/// <summary>
 		/// Clean up any resources being used.
@@ -190,24 +194,29 @@ namespace OPSWebServices
 			this.ResumeLayout(false);
 
 		}
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
+        private Logger log = null;
+
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
 		static void Main() 
 		{
-			Application.Run(new Form1());
-		}
+            
+            Application.Run(new Form1());
+            
+    }
 
 		private void button1_Click(object sender, System.EventArgs e)
 		{
-
 			TestMessagesBB.MessagesBB.MessagesBB objService=null;
 
 			try
 			{
+                log.AddLog("BUTTON  1 CLICK", LoggerSeverities.Debug);
+
 				objService=new TestMessagesBB.MessagesBB.MessagesBB();		
 				txtInCrypted.Text="";
 				txtOutCrypted.Text="";

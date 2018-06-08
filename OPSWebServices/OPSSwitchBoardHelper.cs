@@ -1,18 +1,17 @@
 using System;
-using System.Data;
-using System.Data.OracleClient;
 using System.Configuration;
-using System.Collections;
 using System.Security.Cryptography;
-using System.Xml;
 using System.Web;
+using System.Xml;
+
+using Oracle.DataAccess.Client;
 
 namespace OPSWebServices
 {
-	/// <summary>
-	/// Summary description for Class1.
-	/// </summary>
-	public sealed class COPSSwitchBoardHelper
+    /// <summary>
+    /// Summary description for Class1.
+    /// </summary>
+    public sealed class COPSSwitchBoardHelper
 	{
 
 		const int DEFAULT_SECTOR_ID= 60001;
@@ -144,7 +143,7 @@ namespace OPSWebServices
 			
 			try
 			{
-				string sConn = ConfigurationSettings.AppSettings["ConnectionString"];
+				string sConn = ConfigurationManager.AppSettings["ConnectionString"];
 				if( sConn == null )
 					throw new Exception("No ConnectionString configuration");
 
@@ -234,7 +233,7 @@ namespace OPSWebServices
 					cmd.CommandText="select count(*) from fines WHERE FIN_VEHICLEID='"+strPlate+"' AND TRUNC(FIN_DATE)=TRUNC(TO_DATE('"+strFechaOp+"','HH24MISSDDMMYY'))";
 
 					
-					if (cmd.ExecuteOracleScalar().ToString() != "0")
+					if (cmd.ExecuteScalar().ToString() != "0")
 					{ 
 						nFinesToday=1;
 					}
@@ -357,7 +356,7 @@ namespace OPSWebServices
 			try
 			{
 
-				string sConn = ConfigurationSettings.AppSettings["ConnectionString"];
+				string sConn = ConfigurationManager.AppSettings["ConnectionString"];
 				if( sConn == null )
 					throw new Exception("No ConnectionString configuration");
 
@@ -613,7 +612,7 @@ namespace OPSWebServices
 			
 			try
 			{
-				string sConn = ConfigurationSettings.AppSettings["ConnectionString"];
+				string sConn = ConfigurationManager.AppSettings["ConnectionString"];
 				if( sConn == null )
 					throw new Exception("No ConnectionString configuration");
 
@@ -854,7 +853,7 @@ namespace OPSWebServices
 			try
 			{
 
-				string sConn = ConfigurationSettings.AppSettings["ConnectionString"];
+				string sConn = ConfigurationManager.AppSettings["ConnectionString"];
 				if( sConn == null )
 				throw new Exception("No ConnectionString configuration");
 
@@ -1193,7 +1192,7 @@ namespace OPSWebServices
 				int nArticleDef=0;
 				try
 				{
-					nArticleDef= Int32.Parse(ConfigurationSettings.AppSettings["ArticleType"]);
+					nArticleDef= Int32.Parse(ConfigurationManager.AppSettings["ArticleType"]);
 				}
 				catch
 				{
@@ -1344,7 +1343,7 @@ namespace OPSWebServices
 			
 			try
 			{
-				string sConn = ConfigurationSettings.AppSettings["ConnectionString"];
+				string sConn = ConfigurationManager.AppSettings["ConnectionString"];
 				if( sConn == null )
 					throw new Exception("No ConnectionString configuration");
 
