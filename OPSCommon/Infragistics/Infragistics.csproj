@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>7.10.6030</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4900D597-00BA-4116-A12E-1A514DC6E483}</ProjectGuid>
+    <SccProjectName>"$/00_OTS/02_SRC/CC_CS_PDA/OPSCommon.root/OPSCommon/Infragistics", TCHBAAAA</SccProjectName>
+    <SccLocalPath>.</SccLocalPath>
+    <SccProvider>MSSCCI:Microsoft Visual SourceSafe</SccProvider>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon />
+    <AssemblyKeyContainerName />
+    <AssemblyName>OPS.Infragistics</AssemblyName>
+    <AssemblyOriginatorKeyFile />
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>OTS.Framework.WebUI.Infragistics</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject />
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>0.0</OldToolsVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\..\..\..\..\..\..\Inetpub\OPSServices\Common\NET 1.1\ops\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\..\..\..\..\..\..\..\Inetpub\OPSServices\Common\NET 1.1\ops\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ComponentsBD\ComponentsBD.csproj">
+      <Name>ComponentsBD</Name>
+      <Project>{3D0AF4E3-E555-4BDA-9CD8-B310DF6F3A7E}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+    <ProjectReference Include="..\Globalization\Globalization.csproj">
+      <Name>Globalization</Name>
+      <Project>{7CAC2A66-51F0-4F2C-AF92-58631EE4DB3B}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+    <Reference Include="Infragistics.UltraChart.Core.v4">
+      <Name>Infragistics.UltraChart.Core.v4</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.UltraChart.Core.v4.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.UltraChart.Data.v4">
+      <Name>Infragistics.UltraChart.Data.v4</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.UltraChart.Data.v4.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.UltraChart.Render.ActiveImage.v4">
+      <Name>Infragistics.UltraChart.Render.ActiveImage.v4</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.UltraChart.Render.ActiveImage.v4.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.UltraChart.Render.v4">
+      <Name>Infragistics.UltraChart.Render.v4</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.UltraChart.Render.v4.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.UltraChart.Resources.v4">
+      <Name>Infragistics.UltraChart.Resources.v4</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.UltraChart.Resources.v4.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.Design.v1">
+      <Name>Infragistics.WebUI.Design.v1</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.Design.v1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.Shared.v2">
+      <Name>Infragistics.WebUI.Shared.v2</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.Shared.v2.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.UltraWebChart.v4">
+      <Name>Infragistics.WebUI.UltraWebChart.v4</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.UltraWebChart.v4.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.UltraWebGrid.v3">
+      <Name>Infragistics.WebUI.UltraWebGrid.v3</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.UltraWebGrid.v3.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.UltraWebListbar.v2.1">
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.UltraWebListbar.v2.1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.UltraWebNavigator.v3.1">
+      <Name>Infragistics.WebUI.UltraWebNavigator.v3.1</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.UltraWebNavigator.v3.1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.UltraWebTab.v2.1">
+      <Name>Infragistics.WebUI.UltraWebTab.v2.1</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.UltraWebTab.v2.1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.UltraWebToolbar.v2.1">
+      <Name>Infragistics.WebUI.UltraWebToolbar.v2.1</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.UltraWebToolbar.v2.1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.WebCombo.v3">
+      <Name>Infragistics.WebUI.WebCombo.v3</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.WebCombo.v3.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.WebDataInput.v1">
+      <Name>Infragistics.WebUI.WebDataInput.v1</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.WebDataInput.v1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.WebDateChooser.v1.1">
+      <Name>Infragistics.WebUI.WebDateChooser.v1.1</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.WebDateChooser.v1.1.dll</HintPath>
+    </Reference>
+    <Reference Include="Infragistics.WebUI.WebNavBar.v3">
+      <Name>Infragistics.WebUI.WebNavBar.v3</Name>
+      <HintPath>..\..\..\..\..\Dlls\infragistics\Infragistics.WebUI.WebNavBar.v3.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UltraWebGridController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UltraWebListBarHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UltraWebToolbarFilterHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent />
+    <PostBuildEvent />
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,519 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>7.10.6030</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6D2C7F9D-D226-4318-A4A1-086758476818}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon />
+    <AssemblyKeyContainerName />
+    <AssemblyName>OPS.Messages</AssemblyName>
+    <AssemblyOriginatorKeyFile>OPSMessages.snk</AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>OPSMessages</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject />
+    <WebReference_EnableProperties>true</WebReference_EnableProperties>
+    <WebReference_EnableSQLTypes>false</WebReference_EnableSQLTypes>
+    <WebReference_EnableLegacyEventingModel>true</WebReference_EnableLegacyEventingModel>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>0.0</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Messaging">
+      <Name>System.Messaging</Name>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Name>System.Web.Services</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <Reference Include="zlibnet, Version=1.3.3.0, Culture=neutral, PublicKeyToken=a9911c577c68b723, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\OPSCommon\OPSComm\OPSComm\bin\x64\Debug\zlibnet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AckMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CargaDescargaComponent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CitizenCardZRGZ.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CmpAlarmsDevices.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CS_M1.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CS_M8_TRANSAX.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M01.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M02.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M03.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M04.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M05.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M06.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M07.cs" />
+    <Compile Include="M08.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M09.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M100.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M101.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M102.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M12.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M14.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M21.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M50.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M51.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M52.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M53.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M54.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M55.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M56.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M57.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M58.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M59.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M60.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M61.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M62.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M63.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M70.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M71.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M72.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M73.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M79.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M80.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M81.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M83.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="M90.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MessagesSession.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsgReceived.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PedRuleEvaluation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\WSGestionarBonosGiropark\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSGetFineAmountGiropark\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSNewPark\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSObtenerImporteAnulacionEYSA_Donostia\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSObtenerImporteAnulacionEYSA_Getxo\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSObtenerImporteAnulacionGiropark\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSObtenerImporteAnulacionSETEX_Castrourdiales\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Web References\WSObtenerImporteAnulacionSETEX_Cordoba\Reference.cs">
+      <DependentUpon>Reference.map</DependentUpon>
+      <SubType>code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="OPSMessages.snk" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSGestionarBonosGiropark\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSGestionarBonosGiropark\webservice_bonos.wsdl" />
+    <None Include="Web References\WSGetFineAmountGiropark\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSGetFineAmountGiropark\ServiceNotify.wsdl" />
+    <None Include="Web References\WSNewPark\GeneralAnswer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WSNewPark\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSNewPark\VehiclePDMOperationAnswer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WSNewPark\WSOPS2NEWPARK.disco" />
+    <None Include="Web References\WSNewPark\WSOPS2NEWPARK.wsdl" />
+    <None Include="Web References\WSObtenerImporteAnulacionEYSA_Donostia\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSObtenerImporteAnulacionEYSA_Donostia\WSAnulacionesDonostia.wsdl" />
+    <None Include="Web References\WSObtenerImporteAnulacionEYSA_Getxo\Anulaciones.wsdl" />
+    <None Include="Web References\WSObtenerImporteAnulacionEYSA_Getxo\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSObtenerImporteAnulacionGiropark\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSObtenerImporteAnulacionGiropark\webservice_anulaciones.wsdl" />
+    <None Include="Web References\WSObtenerImporteAnulacionSETEX_Castrourdiales\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSObtenerImporteAnulacionSETEX_Castrourdiales\SETEX_ConsultaExpediente_CastroUrdiales.wsdl" />
+    <None Include="Web References\WSObtenerImporteAnulacionSETEX_Cordoba\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WSObtenerImporteAnulacionSETEX_Cordoba\SETEX_ConsultaExpediente_Cordoba.wsdl" />
+    <WebReferences Include="Web References\" />
+    <WebReferenceUrl Include="C:\Proyectos\svn\ops\01_trunk\02_SRC\CC\CC\OPSCS.root\OPSCS\OPSMessages\SETEX_ConsultaExpediente_CastroUrdiales.wsdl">
+      <RelPath>Web References\WSObtenerImporteAnulacionSETEX_Castrourdiales\</RelPath>
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <UpdateFromURL>C:\Proyectos\svn\ops\01_trunk\02_SRC\CC\CC\OPSCS.root\OPSCS\OPSMessages\SETEX_ConsultaExpediente_CastroUrdiales.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionSETEX_Castrourdiales_SETEX</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="C:\Proyectos\svn\ops\01_trunk\02_SRC\CC\CC\OPSCS.root\OPSCS\OPSMessages\SETEX_ConsultaExpediente_Cordoba.wsdl">
+      <RelPath>Web References\WSObtenerImporteAnulacionSETEX_Cordoba\</RelPath>
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <UpdateFromURL>C:\Proyectos\svn\ops\01_trunk\02_SRC\CC\CC\OPSCS.root\OPSCS\OPSMessages\SETEX_ConsultaExpediente_Cordoba.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionSETEX_Cordoba_SETEX</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="C:\Proyectos\svn\ops\01_trunk\02_SRC\CC\CC\OPSCS.root\OPSCS\OPSMessages\WSAnulacionesDonostia.wsdl">
+      <RelPath>Web References\WSObtenerImporteAnulacionEYSA_Donostia\</RelPath>
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <UpdateFromURL>C:\Proyectos\svn\ops\01_trunk\02_SRC\CC\CC\OPSCS.root\OPSCS\OPSMessages\WSAnulacionesDonostia.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionEYSA_Donostia_Anulaciones</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://83.56.14.153:8090/SOM_WS/ServiceNotify.asmx">
+      <RelPath>Web References\WSGetFineAmountGiropark\</RelPath>
+      <UrlBehavior>Static</UrlBehavior>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://95.177.110.177:3381/WSOPS2NEWPARK.asmx">
+      <RelPath>Web References\WSNewPark\</RelPath>
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <UpdateFromURL>http://95.177.110.177:3381/WSOPS2NEWPARK.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>OPS_Messages_1_2_1_1_WSNewPark_WSOPS2NewPark</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://www.gesblue.com/admin/webservice_anulaciones.php%3fwsdl">
+      <RelPath>Web References\WSObtenerImporteAnulacionGiropark\</RelPath>
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <UpdateFromURL>http://www.gesblue.com/admin/webservice_anulaciones.php%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionGiropark_anulaciones</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://www.gesblue.com/admin/webservice_bonos.php%3fwsdl">
+      <RelPath>Web References\WSGestionarBonosGiropark\</RelPath>
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <UpdateFromURL>http://www.gesblue.com/admin/webservice_bonos.php%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>OPS_Messages_1_2_1_1_WSGestionarBonosGiropark_bonos</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="https://eysaippre.eysanet.com/ParquimetrosWSVS2012PRE/framework/Anulaciones.asmx%3fWSDL">
+      <RelPath>Web References\WSObtenerImporteAnulacionEYSA_Getxo\</RelPath>
+      <UrlBehavior>Static</UrlBehavior>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="log4net">
+      <Version>2.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="Oracle.ManagedDataAccess">
+      <Version>19.6.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\OPSCommon\ComponentsBD\ComponentsBD.csproj">
+      <Project>{3d0af4e3-e555-4bda-9cd8-b310df6f3a7e}</Project>
+      <Name>ComponentsBD</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPSCommon\Components\Components.csproj">
+      <Project>{20fd5817-5c47-40f1-8749-a8572cb2d83a}</Project>
+      <Name>Components</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPSCommon\IndeDataProvider\IndeDataProvider.csproj">
+      <Project>{a546d4aa-8fde-42aa-a477-a78daad6c1b3}</Project>
+      <Name>IndeDataProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPSCommon\OPSComm\OPSComm\OPSComm.csproj">
+      <Project>{09c08710-6d6f-4fb6-9996-03115826fe74}</Project>
+      <Name>OPSComm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPSCommon\OPSLogger\OPSLogger.csproj">
+      <Project>{8a9b4521-a395-44f7-b3ef-2b89ee90fd44}</Project>
+      <Name>OPSLogger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPSCompute.NET\OPSCompute\OPSCompute.csproj">
+      <Project>{aae58fbe-4911-4191-912d-bf01f4cf9d30}</Project>
+      <Name>OPSCompute</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPSCompute.NET\PDMHelpers\PDMHelpers.csproj">
+      <Project>{597d4a6b-98e9-4559-9743-8ca405b143d8}</Project>
+      <Name>PDMHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FineLib\FineLib.csproj">
+      <Project>{5ea4dd99-6228-44f2-84cc-e10eef230fc1}</Project>
+      <Name>FineLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent />
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

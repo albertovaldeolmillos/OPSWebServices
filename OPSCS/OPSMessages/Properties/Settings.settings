@@ -1,0 +1,24 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="OPSMessages.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="OPS_Messages_1_2_1_1_WSGestionarBonosGiropark_bonos" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://www.gesblue.com/admin/webservice_bonos.php</Value>
+    </Setting>
+    <Setting Name="OPS_Messages_1_2_1_1_WSNewPark_WSOPS2NewPark" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://95.177.110.177:3381/WSOPS2NEWPARK.asmx</Value>
+    </Setting>
+    <Setting Name="OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionEYSA_Donostia_Anulaciones" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://esdcvyewb00p.eysa.local/parquimetrosws/framework/anulaciones.asmx</Value>
+    </Setting>
+    <Setting Name="OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionGiropark_anulaciones" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://www.gesblue.com/admin/webservice_anulaciones.php</Value>
+    </Setting>
+    <Setting Name="OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionSETEX_Castrourdiales_SETEX" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://77.226.247.202/SETEX/SETEX_ConsultaExpediente.asmx</Value>
+    </Setting>
+    <Setting Name="OPS_Messages_1_2_1_1_WSObtenerImporteAnulacionSETEX_Cordoba_SETEX" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://77.226.247.202/SETEX/SETEX_ConsultaExpediente.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

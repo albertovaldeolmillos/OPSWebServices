@@ -10,8 +10,9 @@ using System.Web.Services;
 using OPS.Comm.Becs.Messages;
 using OPS.Comm;
 using OPS.Components.Data;
-using System.Data.OracleClient;
+using Oracle.ManagedDataAccess.Client;
 using System.Security.Cryptography;
+using System.Reflection;
 
 namespace OPSWebServices
 {
@@ -84,11 +85,15 @@ namespace OPSWebServices
 
 				if (_logger==null)
 				{
-                    System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();			
-                    _logger = new FileLogger(LoggerSeverities.Debug, ((string)appSettings.GetValue("ServiceLog", typeof(string))).Replace(".log","BB.log"));
-					OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
-					OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
-					DatabaseFactory.Logger=_logger;
+                    System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
+					_logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
+					DatabaseFactory.Logger = _logger;
+
+					// *** TODO
+					//               _logger = new FileLogger(LoggerSeverities.Debug, ((string)appSettings.GetValue("ServiceLog", typeof(string))).Replace(".log","BB.log"));
+					//OPS.Comm.Messaging.CommMain.Logger.AddLogMessage += new AddLogMessageHandler(Logger_AddLogMessage);
+					//OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
+					//DatabaseFactory.Logger=_logger;
 				}
 				
 				if (Session["MessagesSession"] == null) 
@@ -127,7 +132,7 @@ namespace OPSWebServices
 
 				}
 			}
-			catch( Exception )
+			catch( Exception e)
 			{
 				bRdo=false;
 			}

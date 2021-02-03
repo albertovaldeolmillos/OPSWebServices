@@ -1,0 +1,1336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="wsValidaTicket">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMatricula" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrZona" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrIdioma" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pStrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsValidaTicketResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsValidaTicketResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsValidaReincidents">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMatricula" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrXmlName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsValidaReincidentsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsValidaReincidentsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfXMLDen">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNumPDA" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNotification" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrSom_xlt_url" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDBOIDInstitucion" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pstrDate" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfXMLDenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="TransfXMLDenResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CancelButlleti">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrButlleti" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMotiu" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CancelButlletiResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CancelButlletiResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PayReceipt">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrButlleti" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrImport" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFormaPag" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrIDDevice" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrObserv" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PayReceiptResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="PayReceiptResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfIMGDen">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrImgName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNumPDA" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrImgData" type="s:base64Binary" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfIMGDenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="TransfIMGDenResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfXMLWhite">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrXmlName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNumPDA" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfXMLWhiteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="TransfXMLWhiteResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfXMLWhite_Manual">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pPath" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pFile" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TransfXMLWhite_ManualResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="TransfXMLWhite_ManualResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SOMEnlazar_XmlLog">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrURL" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFileName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SOMEnlazar_XmlLogResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SOMEnlazar_XmlLogResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsReiniciarService">
+        <s:complexType />
+      </s:element>
+      <s:element name="wsReiniciarServiceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsReiniciarServiceResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SOMEnlazar_IMG">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrURL" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFileName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SOMEnlazar_IMGResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SOMEnlazar_IMGResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CCSEnlazar_IMG_ZB">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrURL" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFileName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CCSEnlazar_IMG_ZBResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CCSEnlazar_IMG_ZBResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Crea_ReciboTAO">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pRef" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pExtNum" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrTipIng" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrExaccion" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrParty" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrConcepte1" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pImporte1" type="s:double" />
+            <s:element minOccurs="1" maxOccurs="1" name="pstrDiasPlazo" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="pFecha" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pOtrosDatos" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pstrCobrado" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pstrGenerarC60" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrConcepte2" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pImporte2" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrConcepte3" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pImporte3" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrConcepte4" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pImporte4" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="pRemesa" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pStrDomiciliacion" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Crea_ReciboTAOResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Crea_ReciboTAOResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Carregar_Dir_Err">
+        <s:complexType />
+      </s:element>
+      <s:element name="Carregar_Dir_ErrResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Carregar_Dir_ErrResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Carregar_XML_Daemon">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pPath" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pFile" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Carregar_XML_DaemonResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Carregar_XML_DaemonResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Carregar_Dir_Err_IMG">
+        <s:complexType />
+      </s:element>
+      <s:element name="Carregar_Dir_Err_IMGResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Carregar_Dir_Err_IMGResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Carregar_Tercer_Expedient">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xEntidad" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="xMatricula" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="xDBOIDExp" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Carregar_Tercer_ExpedientResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Carregar_Tercer_ExpedientResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangePassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNumPDA" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodiAgent" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrPasswordActual" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrPasswordNou" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangePasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ChangePasswordResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getPDANewPaswords">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pStrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="numPDA" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="DataUltimContacte" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getPDANewPaswordsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getPDANewPaswordsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPDTEMatricula">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMatricula" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPDTEMatriculaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPDTEMatriculaResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInfoNIF">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNIF" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNumPDA" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInfoNIFResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInfoNIFResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsAnularDenuncia">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrButlleti" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDeviceId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrAgent" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMotiu" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsAnularDenunciaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsAnularDenunciaResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsAnularDenunciaZB">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodAnulacion" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMaquina" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFecha" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHora" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrImporte" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFormaDePago" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrIdAnulacionMaquina" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsAnularDenunciaZBResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="wsAnularDenunciaZBResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsAnularDenunciaDaemondZB">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodAnulacion" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrMaquina" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFecha" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHora" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrImporte" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFormaDePago" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrIdAnulacionMaquina" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrHash" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrFabricante" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsAnularDenunciaDaemondZBResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="wsAnularDenunciaDaemondZBResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsEnviarExpedient">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrExp" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrTipo" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsEnviarExpedientResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsEnviarExpedientResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsEnviarImatgesExpedient">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrExp" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsEnviarImatgesExpedientResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsEnviarImatgesExpedientResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsTestGeneraPDF">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrNotification" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDocname" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsTestGeneraPDFResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsTestGeneraPDFResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="crearSOM_ID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrTaula" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDocname" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="crearSOM_IDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="crearSOM_IDResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsNecesitaActualitzar">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pstrDBOIDInstitucion" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pDate" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="pNumPda" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pCompleto" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="pstrCodIns" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsNecesitaActualitzarResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsNecesitaActualitzarResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="wsValidaTicketSoapIn">
+    <wsdl:part name="parameters" element="tns:wsValidaTicket" />
+  </wsdl:message>
+  <wsdl:message name="wsValidaTicketSoapOut">
+    <wsdl:part name="parameters" element="tns:wsValidaTicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsValidaReincidentsSoapIn">
+    <wsdl:part name="parameters" element="tns:wsValidaReincidents" />
+  </wsdl:message>
+  <wsdl:message name="wsValidaReincidentsSoapOut">
+    <wsdl:part name="parameters" element="tns:wsValidaReincidentsResponse" />
+  </wsdl:message>
+  <wsdl:message name="TransfXMLDenSoapIn">
+    <wsdl:part name="parameters" element="tns:TransfXMLDen" />
+  </wsdl:message>
+  <wsdl:message name="TransfXMLDenSoapOut">
+    <wsdl:part name="parameters" element="tns:TransfXMLDenResponse" />
+  </wsdl:message>
+  <wsdl:message name="CancelButlletiSoapIn">
+    <wsdl:part name="parameters" element="tns:CancelButlleti" />
+  </wsdl:message>
+  <wsdl:message name="CancelButlletiSoapOut">
+    <wsdl:part name="parameters" element="tns:CancelButlletiResponse" />
+  </wsdl:message>
+  <wsdl:message name="PayReceiptSoapIn">
+    <wsdl:part name="parameters" element="tns:PayReceipt" />
+  </wsdl:message>
+  <wsdl:message name="PayReceiptSoapOut">
+    <wsdl:part name="parameters" element="tns:PayReceiptResponse" />
+  </wsdl:message>
+  <wsdl:message name="TransfIMGDenSoapIn">
+    <wsdl:part name="parameters" element="tns:TransfIMGDen" />
+  </wsdl:message>
+  <wsdl:message name="TransfIMGDenSoapOut">
+    <wsdl:part name="parameters" element="tns:TransfIMGDenResponse" />
+  </wsdl:message>
+  <wsdl:message name="TransfXMLWhiteSoapIn">
+    <wsdl:part name="parameters" element="tns:TransfXMLWhite" />
+  </wsdl:message>
+  <wsdl:message name="TransfXMLWhiteSoapOut">
+    <wsdl:part name="parameters" element="tns:TransfXMLWhiteResponse" />
+  </wsdl:message>
+  <wsdl:message name="TransfXMLWhite_ManualSoapIn">
+    <wsdl:part name="parameters" element="tns:TransfXMLWhite_Manual" />
+  </wsdl:message>
+  <wsdl:message name="TransfXMLWhite_ManualSoapOut">
+    <wsdl:part name="parameters" element="tns:TransfXMLWhite_ManualResponse" />
+  </wsdl:message>
+  <wsdl:message name="SOMEnlazar_XmlLogSoapIn">
+    <wsdl:part name="parameters" element="tns:SOMEnlazar_XmlLog" />
+  </wsdl:message>
+  <wsdl:message name="SOMEnlazar_XmlLogSoapOut">
+    <wsdl:part name="parameters" element="tns:SOMEnlazar_XmlLogResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsReiniciarServiceSoapIn">
+    <wsdl:part name="parameters" element="tns:wsReiniciarService" />
+  </wsdl:message>
+  <wsdl:message name="wsReiniciarServiceSoapOut">
+    <wsdl:part name="parameters" element="tns:wsReiniciarServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="SOMEnlazar_IMGSoapIn">
+    <wsdl:part name="parameters" element="tns:SOMEnlazar_IMG" />
+  </wsdl:message>
+  <wsdl:message name="SOMEnlazar_IMGSoapOut">
+    <wsdl:part name="parameters" element="tns:SOMEnlazar_IMGResponse" />
+  </wsdl:message>
+  <wsdl:message name="CCSEnlazar_IMG_ZBSoapIn">
+    <wsdl:part name="parameters" element="tns:CCSEnlazar_IMG_ZB" />
+  </wsdl:message>
+  <wsdl:message name="CCSEnlazar_IMG_ZBSoapOut">
+    <wsdl:part name="parameters" element="tns:CCSEnlazar_IMG_ZBResponse" />
+  </wsdl:message>
+  <wsdl:message name="Crea_ReciboTAOSoapIn">
+    <wsdl:part name="parameters" element="tns:Crea_ReciboTAO" />
+  </wsdl:message>
+  <wsdl:message name="Crea_ReciboTAOSoapOut">
+    <wsdl:part name="parameters" element="tns:Crea_ReciboTAOResponse" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_Dir_ErrSoapIn">
+    <wsdl:part name="parameters" element="tns:Carregar_Dir_Err" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_Dir_ErrSoapOut">
+    <wsdl:part name="parameters" element="tns:Carregar_Dir_ErrResponse" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_XML_DaemonSoapIn">
+    <wsdl:part name="parameters" element="tns:Carregar_XML_Daemon" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_XML_DaemonSoapOut">
+    <wsdl:part name="parameters" element="tns:Carregar_XML_DaemonResponse" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_Dir_Err_IMGSoapIn">
+    <wsdl:part name="parameters" element="tns:Carregar_Dir_Err_IMG" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_Dir_Err_IMGSoapOut">
+    <wsdl:part name="parameters" element="tns:Carregar_Dir_Err_IMGResponse" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_Tercer_ExpedientSoapIn">
+    <wsdl:part name="parameters" element="tns:Carregar_Tercer_Expedient" />
+  </wsdl:message>
+  <wsdl:message name="Carregar_Tercer_ExpedientSoapOut">
+    <wsdl:part name="parameters" element="tns:Carregar_Tercer_ExpedientResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangePassword" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="getPDANewPaswordsSoapIn">
+    <wsdl:part name="parameters" element="tns:getPDANewPaswords" />
+  </wsdl:message>
+  <wsdl:message name="getPDANewPaswordsSoapOut">
+    <wsdl:part name="parameters" element="tns:getPDANewPaswordsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPDTEMatriculaSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPDTEMatricula" />
+  </wsdl:message>
+  <wsdl:message name="GetPDTEMatriculaSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPDTEMatriculaResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInfoNIFSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInfoNIF" />
+  </wsdl:message>
+  <wsdl:message name="GetInfoNIFSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInfoNIFResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsAnularDenunciaSoapIn">
+    <wsdl:part name="parameters" element="tns:wsAnularDenuncia" />
+  </wsdl:message>
+  <wsdl:message name="wsAnularDenunciaSoapOut">
+    <wsdl:part name="parameters" element="tns:wsAnularDenunciaResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsAnularDenunciaZBSoapIn">
+    <wsdl:part name="parameters" element="tns:wsAnularDenunciaZB" />
+  </wsdl:message>
+  <wsdl:message name="wsAnularDenunciaZBSoapOut">
+    <wsdl:part name="parameters" element="tns:wsAnularDenunciaZBResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsAnularDenunciaDaemondZBSoapIn">
+    <wsdl:part name="parameters" element="tns:wsAnularDenunciaDaemondZB" />
+  </wsdl:message>
+  <wsdl:message name="wsAnularDenunciaDaemondZBSoapOut">
+    <wsdl:part name="parameters" element="tns:wsAnularDenunciaDaemondZBResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsEnviarExpedientSoapIn">
+    <wsdl:part name="parameters" element="tns:wsEnviarExpedient" />
+  </wsdl:message>
+  <wsdl:message name="wsEnviarExpedientSoapOut">
+    <wsdl:part name="parameters" element="tns:wsEnviarExpedientResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsEnviarImatgesExpedientSoapIn">
+    <wsdl:part name="parameters" element="tns:wsEnviarImatgesExpedient" />
+  </wsdl:message>
+  <wsdl:message name="wsEnviarImatgesExpedientSoapOut">
+    <wsdl:part name="parameters" element="tns:wsEnviarImatgesExpedientResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsTestGeneraPDFSoapIn">
+    <wsdl:part name="parameters" element="tns:wsTestGeneraPDF" />
+  </wsdl:message>
+  <wsdl:message name="wsTestGeneraPDFSoapOut">
+    <wsdl:part name="parameters" element="tns:wsTestGeneraPDFResponse" />
+  </wsdl:message>
+  <wsdl:message name="crearSOM_IDSoapIn">
+    <wsdl:part name="parameters" element="tns:crearSOM_ID" />
+  </wsdl:message>
+  <wsdl:message name="crearSOM_IDSoapOut">
+    <wsdl:part name="parameters" element="tns:crearSOM_IDResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsNecesitaActualitzarSoapIn">
+    <wsdl:part name="parameters" element="tns:wsNecesitaActualitzar" />
+  </wsdl:message>
+  <wsdl:message name="wsNecesitaActualitzarSoapOut">
+    <wsdl:part name="parameters" element="tns:wsNecesitaActualitzarResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ServiceNotifySoap">
+    <wsdl:operation name="wsValidaTicket">
+      <wsdl:input message="tns:wsValidaTicketSoapIn" />
+      <wsdl:output message="tns:wsValidaTicketSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsValidaReincidents">
+      <wsdl:input message="tns:wsValidaReincidentsSoapIn" />
+      <wsdl:output message="tns:wsValidaReincidentsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLDen">
+      <wsdl:input message="tns:TransfXMLDenSoapIn" />
+      <wsdl:output message="tns:TransfXMLDenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelButlleti">
+      <wsdl:input message="tns:CancelButlletiSoapIn" />
+      <wsdl:output message="tns:CancelButlletiSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PayReceipt">
+      <wsdl:input message="tns:PayReceiptSoapIn" />
+      <wsdl:output message="tns:PayReceiptSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TransfIMGDen">
+      <wsdl:input message="tns:TransfIMGDenSoapIn" />
+      <wsdl:output message="tns:TransfIMGDenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLWhite">
+      <wsdl:input message="tns:TransfXMLWhiteSoapIn" />
+      <wsdl:output message="tns:TransfXMLWhiteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLWhite_Manual">
+      <wsdl:input message="tns:TransfXMLWhite_ManualSoapIn" />
+      <wsdl:output message="tns:TransfXMLWhite_ManualSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SOMEnlazar_XmlLog">
+      <wsdl:input message="tns:SOMEnlazar_XmlLogSoapIn" />
+      <wsdl:output message="tns:SOMEnlazar_XmlLogSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsReiniciarService">
+      <wsdl:input message="tns:wsReiniciarServiceSoapIn" />
+      <wsdl:output message="tns:wsReiniciarServiceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SOMEnlazar_IMG">
+      <wsdl:input message="tns:SOMEnlazar_IMGSoapIn" />
+      <wsdl:output message="tns:SOMEnlazar_IMGSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CCSEnlazar_IMG_ZB">
+      <wsdl:input message="tns:CCSEnlazar_IMG_ZBSoapIn" />
+      <wsdl:output message="tns:CCSEnlazar_IMG_ZBSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Crea_ReciboTAO">
+      <wsdl:input message="tns:Crea_ReciboTAOSoapIn" />
+      <wsdl:output message="tns:Crea_ReciboTAOSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Dir_Err">
+      <wsdl:input message="tns:Carregar_Dir_ErrSoapIn" />
+      <wsdl:output message="tns:Carregar_Dir_ErrSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_XML_Daemon">
+      <wsdl:input message="tns:Carregar_XML_DaemonSoapIn" />
+      <wsdl:output message="tns:Carregar_XML_DaemonSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Dir_Err_IMG">
+      <wsdl:input message="tns:Carregar_Dir_Err_IMGSoapIn" />
+      <wsdl:output message="tns:Carregar_Dir_Err_IMGSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Tercer_Expedient">
+      <wsdl:input message="tns:Carregar_Tercer_ExpedientSoapIn" />
+      <wsdl:output message="tns:Carregar_Tercer_ExpedientSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input message="tns:ChangePasswordSoapIn" />
+      <wsdl:output message="tns:ChangePasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getPDANewPaswords">
+      <wsdl:input message="tns:getPDANewPaswordsSoapIn" />
+      <wsdl:output message="tns:getPDANewPaswordsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPDTEMatricula">
+      <wsdl:input message="tns:GetPDTEMatriculaSoapIn" />
+      <wsdl:output message="tns:GetPDTEMatriculaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoNIF">
+      <wsdl:input message="tns:GetInfoNIFSoapIn" />
+      <wsdl:output message="tns:GetInfoNIFSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenuncia">
+      <wsdl:input message="tns:wsAnularDenunciaSoapIn" />
+      <wsdl:output message="tns:wsAnularDenunciaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenunciaZB">
+      <wsdl:input message="tns:wsAnularDenunciaZBSoapIn" />
+      <wsdl:output message="tns:wsAnularDenunciaZBSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenunciaDaemondZB">
+      <wsdl:input message="tns:wsAnularDenunciaDaemondZBSoapIn" />
+      <wsdl:output message="tns:wsAnularDenunciaDaemondZBSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsEnviarExpedient">
+      <wsdl:input message="tns:wsEnviarExpedientSoapIn" />
+      <wsdl:output message="tns:wsEnviarExpedientSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsEnviarImatgesExpedient">
+      <wsdl:input message="tns:wsEnviarImatgesExpedientSoapIn" />
+      <wsdl:output message="tns:wsEnviarImatgesExpedientSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsTestGeneraPDF">
+      <wsdl:input message="tns:wsTestGeneraPDFSoapIn" />
+      <wsdl:output message="tns:wsTestGeneraPDFSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="crearSOM_ID">
+      <wsdl:input message="tns:crearSOM_IDSoapIn" />
+      <wsdl:output message="tns:crearSOM_IDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsNecesitaActualitzar">
+      <wsdl:input message="tns:wsNecesitaActualitzarSoapIn" />
+      <wsdl:output message="tns:wsNecesitaActualitzarSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceNotifySoap" type="tns:ServiceNotifySoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="wsValidaTicket">
+      <soap:operation soapAction="http://tempuri.org/wsValidaTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsValidaReincidents">
+      <soap:operation soapAction="http://tempuri.org/wsValidaReincidents" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLDen">
+      <soap:operation soapAction="http://tempuri.org/TransfXMLDen" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelButlleti">
+      <soap:operation soapAction="http://tempuri.org/CancelButlleti" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PayReceipt">
+      <soap:operation soapAction="http://tempuri.org/PayReceipt" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfIMGDen">
+      <soap:operation soapAction="http://tempuri.org/TransfIMGDen" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLWhite">
+      <soap:operation soapAction="http://tempuri.org/TransfXMLWhite" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLWhite_Manual">
+      <soap:operation soapAction="http://tempuri.org/TransfXMLWhite_Manual" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SOMEnlazar_XmlLog">
+      <soap:operation soapAction="http://tempuri.org/SOMEnlazar_XmlLog" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsReiniciarService">
+      <soap:operation soapAction="http://tempuri.org/wsReiniciarService" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SOMEnlazar_IMG">
+      <soap:operation soapAction="http://tempuri.org/SOMEnlazar_IMG" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CCSEnlazar_IMG_ZB">
+      <soap:operation soapAction="http://tempuri.org/CCSEnlazar_IMG_ZB" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Crea_ReciboTAO">
+      <soap:operation soapAction="http://tempuri.org/Crea_ReciboTAO" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Dir_Err">
+      <soap:operation soapAction="http://tempuri.org/Carregar_Dir_Err" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_XML_Daemon">
+      <soap:operation soapAction="http://tempuri.org/Carregar_XML_Daemon" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Dir_Err_IMG">
+      <soap:operation soapAction="http://tempuri.org/Carregar_Dir_Err_IMG" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Tercer_Expedient">
+      <soap:operation soapAction="http://tempuri.org/Carregar_Tercer_Expedient" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPDANewPaswords">
+      <soap:operation soapAction="http://tempuri.org/getPDANewPaswords" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPDTEMatricula">
+      <soap:operation soapAction="http://tempuri.org/GetPDTEMatricula" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoNIF">
+      <soap:operation soapAction="http://tempuri.org/GetInfoNIF" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenuncia">
+      <soap:operation soapAction="http://tempuri.org/wsAnularDenuncia" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenunciaZB">
+      <soap:operation soapAction="http://tempuri.org/wsAnularDenunciaZB" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenunciaDaemondZB">
+      <soap:operation soapAction="http://tempuri.org/wsAnularDenunciaDaemondZB" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsEnviarExpedient">
+      <soap:operation soapAction="http://tempuri.org/wsEnviarExpedient" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsEnviarImatgesExpedient">
+      <soap:operation soapAction="http://tempuri.org/wsEnviarImatgesExpedient" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsTestGeneraPDF">
+      <soap:operation soapAction="http://tempuri.org/wsTestGeneraPDF" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="crearSOM_ID">
+      <soap:operation soapAction="http://tempuri.org/crearSOM_ID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsNecesitaActualitzar">
+      <soap:operation soapAction="http://tempuri.org/wsNecesitaActualitzar" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceNotifySoap12" type="tns:ServiceNotifySoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    <wsdl:operation name="wsValidaTicket">
+      <soap12:operation soapAction="http://tempuri.org/wsValidaTicket" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsValidaReincidents">
+      <soap12:operation soapAction="http://tempuri.org/wsValidaReincidents" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLDen">
+      <soap12:operation soapAction="http://tempuri.org/TransfXMLDen" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelButlleti">
+      <soap12:operation soapAction="http://tempuri.org/CancelButlleti" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PayReceipt">
+      <soap12:operation soapAction="http://tempuri.org/PayReceipt" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfIMGDen">
+      <soap12:operation soapAction="http://tempuri.org/TransfIMGDen" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLWhite">
+      <soap12:operation soapAction="http://tempuri.org/TransfXMLWhite" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransfXMLWhite_Manual">
+      <soap12:operation soapAction="http://tempuri.org/TransfXMLWhite_Manual" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SOMEnlazar_XmlLog">
+      <soap12:operation soapAction="http://tempuri.org/SOMEnlazar_XmlLog" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsReiniciarService">
+      <soap12:operation soapAction="http://tempuri.org/wsReiniciarService" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SOMEnlazar_IMG">
+      <soap12:operation soapAction="http://tempuri.org/SOMEnlazar_IMG" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CCSEnlazar_IMG_ZB">
+      <soap12:operation soapAction="http://tempuri.org/CCSEnlazar_IMG_ZB" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Crea_ReciboTAO">
+      <soap12:operation soapAction="http://tempuri.org/Crea_ReciboTAO" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Dir_Err">
+      <soap12:operation soapAction="http://tempuri.org/Carregar_Dir_Err" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_XML_Daemon">
+      <soap12:operation soapAction="http://tempuri.org/Carregar_XML_Daemon" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Dir_Err_IMG">
+      <soap12:operation soapAction="http://tempuri.org/Carregar_Dir_Err_IMG" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Carregar_Tercer_Expedient">
+      <soap12:operation soapAction="http://tempuri.org/Carregar_Tercer_Expedient" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap12:operation soapAction="http://tempuri.org/ChangePassword" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPDANewPaswords">
+      <soap12:operation soapAction="http://tempuri.org/getPDANewPaswords" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPDTEMatricula">
+      <soap12:operation soapAction="http://tempuri.org/GetPDTEMatricula" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoNIF">
+      <soap12:operation soapAction="http://tempuri.org/GetInfoNIF" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenuncia">
+      <soap12:operation soapAction="http://tempuri.org/wsAnularDenuncia" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenunciaZB">
+      <soap12:operation soapAction="http://tempuri.org/wsAnularDenunciaZB" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsAnularDenunciaDaemondZB">
+      <soap12:operation soapAction="http://tempuri.org/wsAnularDenunciaDaemondZB" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsEnviarExpedient">
+      <soap12:operation soapAction="http://tempuri.org/wsEnviarExpedient" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsEnviarImatgesExpedient">
+      <soap12:operation soapAction="http://tempuri.org/wsEnviarImatgesExpedient" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsTestGeneraPDF">
+      <soap12:operation soapAction="http://tempuri.org/wsTestGeneraPDF" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="crearSOM_ID">
+      <soap12:operation soapAction="http://tempuri.org/crearSOM_ID" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsNecesitaActualitzar">
+      <soap12:operation soapAction="http://tempuri.org/wsNecesitaActualitzar" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ServiceNotify">
+    <wsdl:port name="ServiceNotifySoap" binding="tns:ServiceNotifySoap">
+      <soap:address location="http://83.56.14.153:8090/SOM_WS/ServiceNotify.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceNotifySoap12" binding="tns:ServiceNotifySoap12">
+      <soap12:address location="http://83.56.14.153:8090/SOM_WS/ServiceNotify.asmx" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

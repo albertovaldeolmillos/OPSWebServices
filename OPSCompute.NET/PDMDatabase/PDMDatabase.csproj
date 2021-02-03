@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C00C3939-9097-407A-AE08-EBBD45B0BDA8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PDMDatabase</RootNamespace>
+    <AssemblyName>PDMDatabase</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>PDMDatabase.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>PDMDatabase.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>PDMDatabase.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>PDMDatabase.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>PDMDatabase.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\ArticlesFindByIdCommand.cs" />
+    <Compile Include="Commands\ArticlesRulesSelectCommand.cs" />
+    <Compile Include="Commands\DaysSelectCommand.cs" />
+    <Compile Include="Commands\Intervals\IntervalsSelectCommand.cs" />
+    <Compile Include="Commands\Operations\LastOperationInfoCommand.cs" />
+    <Compile Include="Commands\Operations\OperationsSelectByVehicleIdAndArticleDefCommand.cs" />
+    <Compile Include="Commands\Operations\GetActualPayedQuantityForOperationCommand.cs" />
+    <Compile Include="Commands\Parameters\GetHourDifferenceCommand.cs" />
+    <Compile Include="Commands\Residents\ResidentsSelectCommand.cs" />
+    <Compile Include="Commands\Status\StatusGetAllCommand.cs" />
+    <Compile Include="Commands\TablesVersionSelectCommand.cs" />
+    <Compile Include="Commands\Tariffs\TariffsSelectCommand.cs" />
+    <Compile Include="Commands\TimeTablesSelectCommand.cs" />
+    <Compile Include="Commands\GroupsChildsSelectCommand.cs" />
+    <Compile Include="Commands\ArticlesSelectCommand.cs" />
+    <Compile Include="Commands\TariffsIntervalsMaxVersionCommnad.cs" />
+    <Compile Include="Commands\TariffsConstraintsMaxVersionCommand.cs" />
+    <Compile Include="Commands\Vips\VipsSelectCommand.cs" />
+    <Compile Include="Core\BaseCommand.cs" />
+    <Compile Include="Commands\FinesByVehicleIdCommand.cs" />
+    <Compile Include="Commands\FinesSelectCommand.cs" />
+    <Compile Include="Commands\GroupsSelectCommand.cs" />
+    <Compile Include="Commands\Operations\OperationsCountCommand.cs" />
+    <Compile Include="Commands\Operations\OperationsSelectCommand.cs" />
+    <Compile Include="Core\IParseable.cs" />
+    <Compile Include="Extensions\ConnectionExtensions.cs" />
+    <Compile Include="Extensions\DataReaderExtensions.cs" />
+    <Compile Include="MemoryDatabase\IInMemoryTable.cs" />
+    <Compile Include="Commands\DaysDef\DaysDefSelectCommand.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_AlarmsDef.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Status.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Constraints.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_DaysDef.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Days.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_ArticlesRules.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Intervals.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Tariffs.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_TablesVersion.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_TimeTables.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Articles.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_GroupsChilds.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Groups.cs" />
+    <Compile Include="MemoryDatabase\Tables\IMT_Operations.cs" />
+    <Compile Include="MemoryDatabase\InMemoryTable.cs" />
+    <Compile Include="MemoryDatabase\MemoryDatabase.cs" />
+    <Compile Include="MemoryDatabase\Exceptions\MemoryDatabaseTableNotFoundException.cs" />
+    <Compile Include="Models\AlarmsDef.cs" />
+    <Compile Include="Models\AlarmsDevHis.cs" />
+    <Compile Include="Models\Articles.cs" />
+    <Compile Include="Models\ArticlesDef.cs" />
+    <Compile Include="Models\ArticlesDefData.cs" />
+    <Compile Include="Models\ArticlesRules.cs" />
+    <Compile Include="Models\BlackList.cs" />
+    <Compile Include="Models\Constraints.cs" />
+    <Compile Include="Models\Residents.cs" />
+    <Compile Include="Models\Vips.cs" />
+    <Compile Include="Models\Days.cs" />
+    <Compile Include="Models\DaysDef.cs" />
+    <Compile Include="Models\ElecChargers.cs" />
+    <Compile Include="Models\Fines.cs" />
+    <Compile Include="Models\FinesDef.cs" />
+    <Compile Include="Models\Groups.cs" />
+    <Compile Include="Models\GroupsChilds.cs" />
+    <Compile Include="Models\Intervals.cs" />
+    <Compile Include="Models\Operations.cs" />
+    <Compile Include="Models\Platforms.cs" />
+    <Compile Include="Models\ShowArticlesRules.cs" />
+    <Compile Include="Models\SpaceSensors.cs" />
+    <Compile Include="Models\Status.cs" />
+    <Compile Include="Models\StatusModem.cs" />
+    <Compile Include="Models\TablesVersion.cs" />
+    <Compile Include="Models\Tariffs.cs" />
+    <Compile Include="Models\Timetables.cs" />
+    <Compile Include="Models\UMDMStationsSlots.cs" />
+    <Compile Include="Models\UMDMTimeSlots.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
+    <Compile Include="Repositories\StatusRepository.cs" />
+    <Compile Include="Repositories\IntervalsRepository.cs" />
+    <Compile Include="Repositories\ResidentsRepository.cs" />
+    <Compile Include="Repositories\VipsRepository.cs" />
+    <Compile Include="Repositories\TariffsRepository.cs" />
+    <Compile Include="Repositories\ParametersRepository.cs" />
+    <Compile Include="Repositories\OperationsRepository.cs" />
+    <Compile Include="Repositories\ConstraintsRepository.cs" />
+    <Compile Include="Commands\Constraints\ConstraintsSelectCommand.cs" />
+    <Compile Include="Repositories\DaysDefRepository.cs" />
+    <Compile Include="Sql\Days.cs" />
+    <Compile Include="Sql\TablesVersion.cs" />
+    <Compile Include="Sql\ArticlesRules.cs" />
+    <Compile Include="Sql\TimeTables.cs" />
+    <Compile Include="Sql\Fines.cs" />
+    <Compile Include="Sql\Articles.cs" />
+    <Compile Include="Sql\GroupsChilds.cs" />
+    <Compile Include="Sql\Groups.cs" />
+    <Compile Include="Sql\Operation.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TariffM1.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PDMHelpers\PDMHelpers.csproj">
+      <Project>{597D4A6B-98E9-4559-9743-8CA405B143D8}</Project>
+      <Name>PDMHelpers</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PDMDatabase.ruleset" />
+    <None Include="PDMDatabase.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Oracle.ManagedDataAccess">
+      <Version>19.6.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="EsExpedienteAnulable">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Expediente" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="FechaParquimetro" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="EsExpedienteAnulableResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="EsExpedienteAnulableResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ObtenerImporteAnulacion">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Expediente" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="FechaParquimetro" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ObtenerImporteAnulacionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ObtenerImporteAnulacionResult" type="s:decimal" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="EsExpedienteAnulableSoapIn">
+    <wsdl:part name="parameters" element="tns:EsExpedienteAnulable" />
+  </wsdl:message>
+  <wsdl:message name="EsExpedienteAnulableSoapOut">
+    <wsdl:part name="parameters" element="tns:EsExpedienteAnulableResponse" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerImporteAnulacionSoapIn">
+    <wsdl:part name="parameters" element="tns:ObtenerImporteAnulacion" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerImporteAnulacionSoapOut">
+    <wsdl:part name="parameters" element="tns:ObtenerImporteAnulacionResponse" />
+  </wsdl:message>
+  <wsdl:portType name="SETEXSoap">
+    <wsdl:operation name="EsExpedienteAnulable">
+      <wsdl:input message="tns:EsExpedienteAnulableSoapIn" />
+      <wsdl:output message="tns:EsExpedienteAnulableSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerImporteAnulacion">
+      <wsdl:input message="tns:ObtenerImporteAnulacionSoapIn" />
+      <wsdl:output message="tns:ObtenerImporteAnulacionSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SETEXSoap" type="tns:SETEXSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="EsExpedienteAnulable">
+      <soap:operation soapAction="http://tempuri.org/EsExpedienteAnulable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerImporteAnulacion">
+      <soap:operation soapAction="http://tempuri.org/ObtenerImporteAnulacion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="SETEXSoap12" type="tns:SETEXSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    <wsdl:operation name="EsExpedienteAnulable">
+      <soap12:operation soapAction="http://tempuri.org/EsExpedienteAnulable" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerImporteAnulacion">
+      <soap12:operation soapAction="http://tempuri.org/ObtenerImporteAnulacion" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SETEX">
+    <wsdl:port name="SETEXSoap" binding="tns:SETEXSoap">
+      <soap:address location="http://77.226.247.202/SETEX/SETEX_ConsultaExpediente.asmx" />
+    </wsdl:port>
+    <wsdl:port name="SETEXSoap12" binding="tns:SETEXSoap12">
+      <soap12:address location="http://77.226.247.202/SETEX/SETEX_ConsultaExpediente.asmx" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
