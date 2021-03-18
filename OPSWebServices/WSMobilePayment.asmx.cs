@@ -5852,7 +5852,52 @@ namespace OPSWebServices
             bool bRdo = false;
             strMessageOut = null;
 
-            // *** TODO *** Need to replace this method
+            try
+            {
+                Logger_AddLogMessage("OPSMessage::Using web service 1", LoggerSeverities.Info);
+                OPSWebServices.Messages wsMessages = new OPSWebServices.Messages();
+
+                string sUrl = ConfigurationManager.AppSettings["OPSWebServices.Messages"].ToString();
+                if (nContractId > 0)
+                    sUrl = ConfigurationManager.AppSettings["OPSWebServices.Messages" + nContractId.ToString()].ToString();
+                if (sUrl == null)
+                    throw new Exception("No web service url configuration");
+
+                wsMessages.Url = sUrl;
+
+                Logger_AddLogMessage("OPSMessage::Using web service: " + sUrl, LoggerSeverities.Info);
+
+                // Eliminate invalid remote certificate error 
+                ServicePointManager.ServerCertificateValidationCallback = delegate (object s, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors) { return true; };
+
+                strMessageOut = wsMessages.Message(strMessageIn);
+
+                if (strMessageOut != "")
+                {
+                    strMessageOut = strMessageOut.Replace("\r", "").Replace("\n", "");
+                    string strIP = Context.Request.UserHostAddress;
+                    LogMsgDB(strMessageIn, strMessageOut, iVirtualUnit, nContractId);
+                    bRdo = true;
+
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("OPSMessage::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bRdo = false;
+            }
+
+            return bRdo;
+        }
+
+        private bool OPSMessageNewVersion(string strMessageIn, int iVirtualUnit, out string strMessageOut, int nContractId = 0)
+        {
+            bool bRdo = false;
+            strMessageOut = null;
+
+            // *** This version works without the web service, but doesn't work correctly since it doesn't work for each contract individually 
+            // (it doesn't point to each individual scheme, always OPSMUGIPARK).
 
             try
             {
@@ -5936,7 +5981,6 @@ namespace OPSWebServices
 
             return bRdo;
         }
-
 
         private ResultType FindOPSMessageOutputParameters(string xmlOut, out SortedList parametersOut)
         {
@@ -10502,8 +10546,15 @@ namespace OPSWebServices
                             XmlNode numberNode = document.SelectSingleNode("//GeocodeResponse/result/address_component[type='street_number']");
                             strNumber = numberNode.FirstChild.InnerText;
 
-                            XmlNode cityNode = document.SelectSingleNode("//GeocodeResponse/result/address_component[type='locality']");
-                            strCity = cityNode.FirstChild.InnerText;
+                            try
+                            {
+                                XmlNode cityNode = document.SelectSingleNode("//GeocodeResponse/result/address_component[type='locality']");
+                                strCity = cityNode.FirstChild.InnerText;
+                            }
+                            catch(Exception ex)
+                            {
+                                Logger_AddLogMessage("LocateAddressFromGPS::City not fount", LoggerSeverities.Error);
+                            }
 
                             bResult = true;
                         }

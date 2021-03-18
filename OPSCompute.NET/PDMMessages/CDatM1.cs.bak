@@ -828,11 +828,6 @@ namespace PDMCompute
             m_bHistFreeMoneyUsed = bHistFreeMoneyUsed;
         }
 
-        public bool GetOutHistPostPay()
-        {
-            return m_bOutHistPostPay;
-        }
-
         public void SetOutHistPostPay(bool bHistPostPay)
         {
             m_bOutHistPostPay = bHistPostPay;

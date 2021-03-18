@@ -29,6 +29,8 @@ namespace OPSCompute
         private readonly string PARAM_DB_PASSWORD = "DB_PASSWORD";
         private readonly string PARAM_LEVELS_TRACE = "TRACE_LEVELS";
 
+        private readonly int SYSTEM_IDENTIFIER_ZUMARRAGA = 72;
+
         private readonly ITraceable trace;
         private readonly ILoggerManager loggerManager;
         private OPSPDMDatabase database;
@@ -154,6 +156,22 @@ namespace OPSCompute
                             if (!IsVehicleIdResident(m1, ref isResident))
                             {
                                 trace.Write(TraceLevel.Error, "ERROR : IsVehicleIdResident");
+                            }
+                        }
+                    }
+
+                    // Modify tariffs for abonos in Zumarraga
+                    trace.Write(TraceLevel.Info, "System ID %1", GeneralParams.SystemId.ToString());
+                    if (GeneralParams.SystemId == SYSTEM_IDENTIFIER_ZUMARRAGA)
+                    {
+                        if (m1.GetInArticleDef() >= 102 && m1.GetInArticleDef() <= 113)
+                        {
+                            trace.Write(TraceLevel.Info, "Modifying tariffs for Zumarraga");
+                            COPSPlate strVehicleId = m1.GetInVehicleID();
+
+                            if (!database.SetTariffDates(tariffCalculator.GetTree(), m1.GetInArticleDef(), strVehicleId))
+                            {
+                                throw new InvalidOperationException("Setting tariff dates before calling M1");
                             }
                         }
                     }

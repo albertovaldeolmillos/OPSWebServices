@@ -1412,10 +1412,13 @@ namespace PDMCompute
                     {
 
                         // If the day of operation is the day of limit, then we have to set the limit minutes
-                        if (dtOper.Value.Year == GetLimitDateTime().Value.Year &&
-                            dtOper.Value.Day == GetLimitDateTime().Value.Day)
+                        if (GetLimitDateTime().IsValid())
                         {
-                            lLimitTime = GetLimitDateTime().TimeToMinutes();
+                            if (dtOper.Value.Year == GetLimitDateTime().Value.Year &&
+                                dtOper.Value.Day == GetLimitDateTime().Value.Day)
+                            {
+                                lLimitTime = GetLimitDateTime().TimeToMinutes();
+                            }
                         }
 
                         if (!IterateDay(ref dtOper,ref dtLast,ref bStop,ref stIntervalOffset,ref lOperMoneyRest,ref lOperTime, lLimitTime,ref  bDayChange,ref bChangeTariff, ref bFirstBlock))

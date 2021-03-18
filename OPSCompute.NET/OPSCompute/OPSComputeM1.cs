@@ -732,10 +732,136 @@ namespace OPSCompute
 
         private bool ComputeReturn(CDatM1 m1Return, CDatM1 m1)
         {
-            //TODO
-            throw new NotImplementedException();
-        }
+            trace.Write(TraceLevel.Debug, "ComputeReturn");
+            bool fnResult = true;
+            CDatM1 M1ComputeTime = null;
+            CDatM1 M1ReturnWithCompleteHist = null;
 
+            try
+            {
+                bool bM1Plus = false;
+                int nMaxQuantity = 0;
+                COPSDate dt;
+                COPSDate dt2;
+                bool bWholeOperationWithChipCard;
+                bool bWholeOperationWithMobile;
+
+                M1ReturnWithCompleteHist = new CDatM1(loggerManager);
+                m1Return.SetInOperType(OperationDat.DEF_OPERTYPE_PARK);
+                M1ReturnWithCompleteHist.Copy(m1Return);
+
+                m1Return.SetInHistOnlyWithSamePaymentType(true);
+
+                if (!tariffCalculator.GetM1(m1Return, bM1Plus, nMaxQuantity))
+                {
+                    throw new InvalidOperationException("Error computing M1");
+                }
+
+                if (!tariffCalculator.GetM1(M1ReturnWithCompleteHist, bM1Plus, nMaxQuantity))
+                {
+                    throw new InvalidOperationException("Error computing M1");
+                }
+
+                if ((!m1Return.GetOutHistPostPay()) && (!M1ReturnWithCompleteHist.GetOutHistPostPay()))
+                {
+                    dt = m1Return.GetOutOperDateRealIni();
+                    m1.SetOutOperDateIni0(dt);
+                    m1.SetOutOperDateIni(dt);
+
+                    dt2 = m1Return.GetOutOperDateIni();
+                    if (dt2.GetStatus() == COPSDateStatus.Valid)
+                    {
+                        m1.SetOutOperDateEnd(dt2);
+                    }
+                    else
+                    {
+                        m1.SetOutOperDateEnd(dt);
+                    }
+
+                    m1.SetOutAccumulateMoney(m1Return.GetOutRealAccumulateMoney());
+                    m1.SetOutAccumulateTime(m1Return.GetOutRealAccumulateTime());
+
+                    m1.SetInIntervalOffsetMoney(M1ReturnWithCompleteHist.GetOutRealAccumulateMoney() - m1Return.GetOutRealAccumulateMoney());
+                    m1.SetInIntervalOffsetMinutes(M1ReturnWithCompleteHist.GetOutRealAccumulateTime() - m1Return.GetOutRealAccumulateTime());
+
+                    bWholeOperationWithChipCard = m1Return.GetOutWholeOperationWithChipCard() == 1;
+                    bWholeOperationWithMobile = m1Return.GetOutWholeOperationWithMobile() == 1;
+
+                    if (!tariffCalculator.GetM1(m1, bM1Plus, nMaxQuantity))
+                    {
+                        throw new InvalidOperationException("Error computing Return M1");
+                    }
+
+                    if (m1.GetOutResult() <= 0)
+                        m1.SetOutResult(TariffCalculator.M1_NO_RETURN);
+                    else if ((m1.GetInPaymentType() != OperationDat.DEF_OPERPAY_CHIPCARD) && (m1.GetInPaymentType() != OperationDat.DEF_OPERPAY_MOBILE))
+                        m1.SetOutResult(TariffCalculator.M1_NO_RETURN);
+                    else if (m1.GetOutRetImport() <= 0)
+                        m1.SetOutResult(TariffCalculator.M1_NO_RETURN);
+
+                    if (m1.GetOutResult() > 0)
+                    {
+                        string strUnit;
+                        COPSPlate strVehicleId;
+
+                        M1ComputeTime = new CDatM1(loggerManager);
+                        M1ComputeTime.SetInUnit(m1.GetInUnit());
+                        strUnit = m1.GetInUnit().ToString();
+                        M1ComputeTime.SetSrc(strUnit);
+                        dt = m1.GetDate();
+                        M1ComputeTime.SetDate(dt);
+
+                        M1ComputeTime.SetInOperType(OperationDat.DEF_OPERTYPE_PARK);        // DEFINES en operdat.h
+                        M1ComputeTime.SetInDate(dt);
+
+                        M1ComputeTime.SetInArticleDef(m1.GetInArticleDef());
+                        M1ComputeTime.SetInGroup(m1.GetInGroup());
+                        strVehicleId = m1.GetInVehicleID();
+                        M1ComputeTime.SetInVehicleID(strVehicleId);
+
+                        dt = m1Return.GetOutOperDateRealIni();
+
+                        M1ComputeTime.SetInDate(dt);
+                        M1ComputeTime.SetOutOperDateIni0(dt);
+                        M1ComputeTime.SetOutOperDateIni(dt);
+
+                        M1ComputeTime.SetOutMaxImport(m1.GetOutAccumulateMoney());
+                        M1ComputeTime.SetInIntervalOffsetMoney(M1ReturnWithCompleteHist.GetOutRealAccumulateMoney() - m1Return.GetOutRealAccumulateMoney());
+                        M1ComputeTime.SetInIntervalOffsetMinutes(M1ReturnWithCompleteHist.GetOutRealAccumulateTime() - m1Return.GetOutRealAccumulateTime());
+
+                        if (!tariffCalculator.GetM1(M1ComputeTime, bM1Plus, nMaxQuantity, false))
+                        {
+                            throw new InvalidOperationException("Error computing Compute Time M1");
+                        }
+
+                        if (M1ComputeTime.GetOutResult() <= 0)
+                        {
+                            m1.SetOutResult(TariffCalculator.M1_NO_RETURN);
+                        }
+                        else
+                        {
+                            dt = M1ComputeTime.GetOutOperDateEnd();
+                            m1.SetOutOperDateEnd(dt);
+
+                            // Total parking time
+                            m1.SetOutEfMaxTime(M1ComputeTime.GetOutEfMaxTime());
+                        }
+
+                    }
+                }
+                else
+                {
+                    m1.SetOutResult(TariffCalculator.M1_NO_RETURN);
+                }
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = false;
+            }
+
+            return fnResult;
+        }
         private bool OpenDatabase()
         {
             bool fnResult = false;

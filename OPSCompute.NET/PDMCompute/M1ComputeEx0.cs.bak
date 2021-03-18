@@ -47,7 +47,7 @@ namespace PDMCompute
         private bool m_bNotPrunedTreeInit;
         private M1ComputeEx0 m_pm1ComputeExAux;
 
-        private CM1GroupsTree m_Tree ;                   // GroupsTree
+        private CM1GroupsTree m_Tree;                   // GroupsTree
         private CM1GroupsTree m_NotPrunedTree;
 
         // M1 parameters
@@ -217,7 +217,7 @@ namespace PDMCompute
 
         public void SetVehicleId(COPSPlate vehicleId)
         {
-            m_strVehicleId = new COPSPlate( vehicleId.ToString());
+            m_strVehicleId = new COPSPlate(vehicleId.ToString());
         }
         private COPSPlate GetVehicleId()
         {
@@ -295,7 +295,7 @@ namespace PDMCompute
         {
             m_lMaxMinutes = maxMinutes;
         }
-        
+
         private COPSDate GetFinalDateTime()
         {
             return m_dtOperFinal;
@@ -400,7 +400,7 @@ namespace PDMCompute
 
             trace = loggerManager.CreateTracer(GetType());
             m_Tree = new CM1GroupsTree(loggerManager);
-            m_NotPrunedTree =  new CM1GroupsTree(loggerManager);
+            m_NotPrunedTree = new CM1GroupsTree(loggerManager);
 
             //m_CalculateSteps_Steps = null;
             ResetOper();
@@ -524,7 +524,7 @@ namespace PDMCompute
                 {
                     throw new InvalidOperationException("Could not set input data");
                 }
-                
+
 
                 if (m_lResult == M1_OP_OK)
                 {
@@ -544,7 +544,7 @@ namespace PDMCompute
                 {
                     throw new InvalidOperationException("Could not set output data");
                 }
-                
+
 
             }
             catch (Exception error)
@@ -798,7 +798,7 @@ namespace PDMCompute
                             // of the vehicle was computed remotely, so it has no sense to compute it here.
                             // Also in the remote computation returned the accumulated minutes and money
                             // for that vehicle
-                            if ((!bM1Plus) || ( GeneralParams.UnitId == GlobalDefs.CC_UNIT_ID.ToString()))
+                            if ((!bM1Plus) || (GeneralParams.UnitId == GlobalDefs.CC_UNIT_ID.ToString()))
                             {
                                 // Apply history of the vehicle, if vehicle plate was entered
                                 // and the type of article needds it
@@ -878,7 +878,7 @@ namespace PDMCompute
                             {
                                 SetMaxMoney(lMoney);
                             }
-                            else if ((bM1Plus) && (GetMaxMoney() == GlobalDefs.DEF_UNDEFINED_VALUE) && ( GeneralParams.UnitId == GlobalDefs.CC_UNIT_ID.ToString()))
+                            else if ((bM1Plus) && (GetMaxMoney() == GlobalDefs.DEF_UNDEFINED_VALUE) && (GeneralParams.UnitId == GlobalDefs.CC_UNIT_ID.ToString()))
                             {
                                 SetMaxMoney(lMoney);
                             }
@@ -1018,7 +1018,7 @@ namespace PDMCompute
 
                     if ((!bM1Plus) && (m_lResult == M1_OP_OK) && (GeneralParams.UnitId == GlobalDefs.CC_UNIT_ID.ToString()))
                     {
-                        
+
                         COPSDate dtOper = GetInitialDateTime().Copy();
 
                         COPSDate dtMaxDate = new COPSDate();
@@ -1096,7 +1096,7 @@ namespace PDMCompute
             }
 
             return fnResult;
-            
+
         }
 
         private bool AddMinutesToDate(bool bApplyHistory, ref COPSDate dtDate, ref COPSDate dtMaxDate, long lMinutes, ref COPSDate dtResult, ref long lMoney, ref long plMinutes)
@@ -1229,6 +1229,10 @@ namespace PDMCompute
         {
             m_bApplyVehicleHistory = bApplyHistory;
         }
+
+        public override bool GetApplyVehicleHistory() { return m_bApplyVehicleHistory; }
+
+        public override long GetRealCurrMinutes() { return m_lRealCurrMinutes; }
 
         private bool ComputeReturn(ref bool bChangeTariff)
         {
@@ -2294,6 +2298,7 @@ namespace PDMCompute
                     while ((m_lCalculateSteps_CurrentValue) <= (m_lRealCurrMinutes + lOpMinutes))
                     {
                         stStepCalculation pstStepCalculation = new stStepCalculation();
+                        pstStepCalculation.dtDate = new COPSDate();
 
                         pstStepCalculation.lMinutes = m_lCalculateSteps_CurrentValue;
 
@@ -4108,7 +4113,7 @@ namespace PDMCompute
 
                     trace.Write(TraceLevel.Info, $"Final date of operation plus Reentry time: {dtAddedDate.fstrGetTraceString()}, Exist Time Reset: {bTimeReset}");
 
-                    bReentry = ((dtGrpLast <= dtAddedDate) || (!bTimeReset));
+                    bReentry = ((dtGrpLast <= dtAddedDate) && (!bTimeReset));
 
                 }
             }
@@ -4161,7 +4166,7 @@ namespace PDMCompute
 
                     trace.Write(TraceLevel.Info, $"Final date of operation post pay time: {dtAddedDate.fstrGetTraceString()}, Exist Time Reset: {bTimeReset}");
 
-                    bPostPay = ((dtGrpLast <= dtAddedDate) || (!bTimeReset));
+                    bPostPay = ((dtGrpLast <= dtAddedDate) && (!bTimeReset));
                     
                 }
             }
@@ -4217,7 +4222,7 @@ namespace PDMCompute
 
                     trace.Write(TraceLevel.Info, $"Final date of operation plus courtesy time: {dtAddedDate.fstrGetTraceString()}, Exist Time Reset: {bTimeReset}");
 
-                    bIntraZoneCourtesy = ((dtGrpLast <= dtAddedDate) || (!bTimeReset));
+                    bIntraZoneCourtesy = ((dtGrpLast <= dtAddedDate) && (!bTimeReset));
                 }
             }
             catch (Exception error)
@@ -4266,7 +4271,7 @@ namespace PDMCompute
 
                     trace.Write(TraceLevel.Info, $"Final date of operation plus courtesy time: {dtAddedDate.fstrGetTraceString()}, Exist Time Reset: {bTimeReset}");
 
-                    bZoneCourtesy = ((dtGrpLast <= dtAddedDate) || (!bTimeReset));
+                    bZoneCourtesy = ((dtGrpLast <= dtAddedDate) && (!bTimeReset));
                     
                 }
             }
