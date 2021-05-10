@@ -31,7 +31,7 @@
     <UseIISExpress>false</UseIISExpress>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <Use64BitIISExpress />
+    <Use64BitIISExpress>true</Use64BitIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -61,6 +61,7 @@
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -131,15 +132,19 @@
     </Reference>
     <Reference Include="OPS.Comm, Version=1.2.1.1, Culture=neutral, PublicKeyToken=01255d674c058da0, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\OPSCommon\OPSComm\OPSComm\bin\x64\Release\OPS.Comm.dll</HintPath>
+      <HintPath>..\OPSCommon\OPSComm\OPSComm\bin\Debug\OPS.Comm.dll</HintPath>
+    </Reference>
+    <Reference Include="OPS.ComponentsBD, Version=1.2.1.1, Culture=neutral, PublicKeyToken=6e2de7211c9a9527, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OPSCommon\ComponentsBD\bin\Debug\OPS.ComponentsBD.dll</HintPath>
     </Reference>
     <Reference Include="OPS.Messages, Version=4.1.1.1, Culture=neutral, PublicKeyToken=895a5643fe920539, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\OPSCS\OPSMessages\bin\x64\Release\OPS.Messages.dll</HintPath>
+      <HintPath>..\OPSCS\OPSMessages\bin\Debug\OPS.Messages.dll</HintPath>
     </Reference>
     <Reference Include="OPSLogger, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2f4989f27bc3dc51, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\OPSCommon\OPSLogger\bin\Release\OPSLogger.dll</HintPath>
+      <HintPath>..\OPSCommon\OPSLogger\bin\Debug\OPSLogger.dll</HintPath>
     </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>..\packages\Oracle.ManagedDataAccess.19.8.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
@@ -256,10 +261,6 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OPSCommon\ComponentsBD\ComponentsBD.csproj">
-      <Project>{3d0af4e3-e555-4bda-9cd8-b310df6f3a7e}</Project>
-      <Name>ComponentsBD</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OPSCommon\Globalization\Globalization.csproj">
       <Project>{7cac2a66-51f0-4f2c-af92-58631ee4db3b}</Project>
       <Name>Globalization</Name>
