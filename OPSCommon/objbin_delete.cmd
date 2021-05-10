@@ -1,0 +1,27 @@
+del /F /S /Q .\Collections\obj\*.*
+del /F /S /Q .\Collections\bin\*.*
+del /F /S /Q .\CommLib\obj\*.*
+del /F /S /Q .\CommLib\bin\*.*
+del /F /S /Q .\Components\obj\*.*
+del /F /S /Q .\Components\bin\*.*
+del /F /S /Q .\ComponentsBD\obj\*.*
+del /F /S /Q .\ComponentsBD\bin\*.*
+del /F /S /Q .\Data\obj\*.*
+del /F /S /Q .\Data\bin\*.*
+del /F /S /Q .\Globalization\obj\*.*
+del /F /S /Q .\Globalization\bin\*.*
+del /F /S /Q .\IndeDataProvider\obj\*.*
+del /F /S /Q .\IndeDataProvider\bin\*.*
+del /F /S /Q .\infragistics\obj\*.*
+del /F /S /Q .\infragistics\bin\*.*
+del /F /S /Q .\OPSComm\OPSComm\obj\*.*
+del /F /S /Q .\OPSComm\OPSComm\bin\*.*
+del /F /S /Q .\OPSCommMedia\OPSCommMedia\obj\*.*
+del /F /S /Q .\OPSCommMedia\OPSCommMedia\bin\*.*
+del /F /S /Q .\OPSLogger\obj\*.*
+del /F /S /Q .\OPSLogger\bin\*.*
+del /F /S /Q .\OPSMsgConfig\OPSMsgConfig\obj\*.*
+del /F /S /Q .\OPSMsgConfig\OPSMsgConfig\bin\*.*
+del /F /S /Q .\OPSMSMQ\obj\*.*
+del /F /S /Q .\OPSMSMQ\bin\*.*
+

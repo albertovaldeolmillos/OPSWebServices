@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>ZLib .NET Wrapper - Documentation</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <style type="text/css">
+  <!--
+  pre {
+    font-family: "Courier New", Courier, mono;
+    font-size: 10pt;
+    background-color: #EBEBEB;
+    padding: 14px;
+  }
+  .Desc {
+    margin-left: 1in;
+  }
+  .Desc2 {
+    text-indent: -1in;
+    margin-left: 2.5in;
+  }
+  .Desc3 {
+    text-indent: -0.5in;
+    margin-left: 2in;
+  }
+  .Resource {
+    padding: 0px;
+    margin-left: .5in;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+  }
+  -->
+  </style>
+</head>
+
+<body>
+<h1>ZLib .NET Wrapper</h1>
+<p>
+This project contains the following classes:
+</p>
+<ul>
+  <li>
+    <b>CompressionStream</b> - a <b>Stream</b>-derived class that can be used to 
+    compress or decompress data using ZLib's <b>deflate</b> and <b>inflate</b> 
+    functions.
+  <li>
+    <b>ZLibException</b> - an <b>Exception</b>-derived class thrown if ZLib 
+    generates an error.
+  <li>
+    <b>Compress</b> - a <b>BinaryWriter</b>-derived class that wraps a <b>CompressionStream</b> 
+    object.
+  <li>
+    <b>Decompress</b> - a <b>BinaryReader</b>-derived class that wraps a <b>CompressionStream</b> 
+    object.
+  <li>
+    <b>Base64Stream</b> - a <b>Stream</b>-derived class that can be used to encode 
+    or decode Base-64 text data.
+</ul>
+<p>
+Note that since this is a mixed mode .DLL implementation, the client application 
+must call, <strong>ManagedZLib.ManagedZLib.Initialize()</strong> before using 
+the compression classes, and call <strong>ManagedZLib.ManagedZLib.Terminate()</strong> 
+to release the .DLL's resources. See the following for more information:
+</p>
+<ul>
+  <li>
+    <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dv_vstechart/html/vcconMixedDLLLoadingProblem.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dv_vstechart/html/vcconMixedDLLLoadingProblem.asp</a>
+  </li>
+  <li>
+    <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vcmex/html/vcconconvertingmanagedextensionsforcprojectsfrompureintermediatelanguagetomixedmode.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vcmex/html/vcconconvertingmanagedextensionsforcprojectsfrompureintermediatelanguagetomixedmode.asp</a>
+  </li>
+</ul>
+<p>
+&nbsp;
+</p>
+<h2>CompressionStream</h2>
+<pre>ManagedZLib.CompressionStream : System.IO.Stream</pre>
+<p class="Desc">
+This class wraps the ZLib <strong>deflate</strong> and <strong>inflate</strong> 
+functions in a .NET <strong>System.Stream</strong> object.
+</p>
+<pre>CompressionStream( Stream stream, CompressionOptions option )</pre>
+<p class="Desc">
+Creates an instance of the compression stream object.
+</p>
+<p class="Desc2">
+<strong>stream</strong> - The underlying stream that will be used to either read 
+compressed data from or write compressed data to.
+</p>
+<p class="Desc2">
+<strong>option</strong> - Specify the option to use when opening the compression 
+stream object. The following options are available:
+</p>
+<ul>
+  <li class="Desc3">
+    <strong>CompressionOptions.Decompress</strong> - Decompress data.
+  </li>
+  <li class="Desc3">
+    <strong>CompressionOptions.Compress</strong> - Compress data using the default 
+    compression level.
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressNone</strong> - Do not compress data (although 
+    header information will be added).
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressFast</strong> - Compress using the fastest 
+    method.
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelZero</strong> - Same as <strong>CompressionOptions.CompressNone</strong>.
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelOne</strong> - Same as <strong>CompressionOptions.CompressFast</strong>.
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelTwo</strong> - Compress data better, but 
+    slower.
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelThree</strong>
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelFour</strong>
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelFive</strong>
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelSix</strong>
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelSeven</strong>
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelEight</strong>
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressLevelNine</strong> - Same as <strong>CompressionOptions.CompressBest</strong>.
+  <li class="Desc3">
+    <strong>CompressionOptions.CompressBest</strong> - Compress using the best 
+    compression, but the slowest speed.
+  </li>
+</ul>
+<pre>static string ZLibVersion</pre>
+<p class="Desc">
+Returns the version of ZLib being used for the compression ("1.2.2").
+</p>
+<pre>static CompressionOptions GetLevel( int level )</pre>
+<p class="Desc">
+Translates a numeric level (0-9) into one of the <strong>CompressionOptions</strong> 
+enumerated values. Invalid values are just translated in the default compression 
+level.
+</p>
+<p>
+The following properties are used to obtain information about the compression or 
+decompression. Each of these properties are available after the stream has been 
+closed.
+</p>
+<pre>unsigned int CRC</pre>
+<p class="Desc">
+Returns the CRC of the uncompressed data.
+</p>
+<pre>unsigned long BytesIn</pre>
+<p class="Desc">
+When compressing data, returns the number of uncompressed bytes written to this 
+stream object. When decompressing data, returns the number of compressed bytes 
+read from the source stream.
+</p>
+<pre>unsigned long BytesOut</pre>
+<p class="Desc">
+When compressing data, returns the number of compressed bytes written to the 
+destination stream. When decompressing data, returns the number of uncompressed 
+bytes read from this stream object.
+</p>
+<pre>double CompressionRatio</pre>
+<p class="Desc">
+Returns the percent compression of the data.
+</p>
+<p>
+Two thin wrapper classes are also available, <strong>Compress</strong> (derived 
+from <strong>BinaryWriter</strong>) and <strong>Decompress</strong> (derived 
+from <strong>BinaryReader</strong>). These classes are used exactly like the 
+concrete <strong>BinaryWriter</strong> and <strong>BinaryReader</strong> classes, 
+except that a <strong>CompressionStream</strong>  object is inserted between the 
+class and the stream object you provide. Also these classes publish the same <strong>CRC</strong>, 
+<strong>BytesIn</strong>, <strong>BytesOut</strong>, and <strong>CompressionRatio</strong> 
+properties as the <strong>CompressionStream</strong> object.
+</p>
+<p>
+&nbsp;
+</p>
+<h2>Base64Stream</h2>
+<pre>ManagedZLib.Base64Stream : System.IO.Stream</pre>
+<p class="Desc">
+This class wraps the Base-64 encoding and decoding functions in a .NET <strong>System.Stream</strong> 
+object.
+</p>
+<pre>Base64Stream( Stream stream, Base64Options option )</pre>
+<p class="Desc">
+Creates an instance of the Base-64 stream object.
+</p>
+<p class="Desc2">
+<strong>stream</strong> - The underlying stream that will be used to either read 
+decoded data from or write encoded data to.
+</p>
+<p class="Desc2">
+<strong>option</strong> - Specify the option to use when opening the compression 
+stream object. The following options are available:
+</p>
+<ul>
+  <li class="Desc3">
+    <strong>Base64Options.Encode</strong> - Encode into Base-64 data stream.
+  </li>
+  <li class="Desc3">
+    <strong>Base64Options.Decode</strong> - Decode Base-64 data stream.
+  </li>
+</ul>
+<p>
+&nbsp;
+</p>
+<h2>Additional Resources</h2>
+<p class="Resource">
+<a href="http://sourceforge.net/projects/zlibnetwrapper/">Project Home Page</a>
+</p>
+<p class="Resource">
+<a href="http://www.gzip.org/zlib/">ZLib Home Page</a>
+</p>
+<p class="Resource">
+<a href="ReadMe.txt">Product License</a>
+</p>
+<p class="Resource">
+<a href="ChangeLog.txt">Change Log</a>
+</p>
+</body>
+</html>

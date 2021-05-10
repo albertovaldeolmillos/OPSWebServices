@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="ZLibSource">
+      <UniqueIdentifier>{4bb204f5-feab-4413-b210-47c7e7415357}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ZLibSource\Header">
+      <UniqueIdentifier>{37febaa5-e909-4672-9ce4-a6fad847d8f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ZLibSource\Source">
+      <UniqueIdentifier>{d247de04-fc27-4f90-8e15-6f645594a675}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Base64Stream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Compress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompressBound.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompressionStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Decompress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagedZLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\adler32.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\crc32.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\deflate.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\infback.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\inffast.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\inflate.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\inftrees.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\trees.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ZLibSource\zutil.c">
+      <Filter>ZLibSource\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Base64Stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Compress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CompressionStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Decompress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagedZLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\crc32.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\deflate.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\inffast.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\inffixed.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\inflate.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\inftrees.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\trees.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\zconf.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\zconf.in.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\zlib.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ZLibSource\zutil.h">
+      <Filter>ZLibSource\Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ManagedZlib.snk">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Documentation.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ChangeLog.txt" />
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

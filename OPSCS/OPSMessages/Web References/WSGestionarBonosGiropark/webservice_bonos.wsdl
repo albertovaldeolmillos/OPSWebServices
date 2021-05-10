@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="urn:bonos" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="urn:bonos" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema targetNamespace="urn:bonos">
+      <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:import namespace="http://schemas.xmlsoap.org/wsdl/" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ExisteBonoRequest">
+    <wsdl:part name="CodigoPoblacion" type="s:int" />
+    <wsdl:part name="Bono" type="s:string" />
+    <wsdl:part name="FechaParquimetro" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExisteBonoResponse">
+    <wsdl:part name="return" type="s:int" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerTiempoBonoRequest">
+    <wsdl:part name="CodigoPoblacion" type="s:int" />
+    <wsdl:part name="Bono" type="s:long" />
+    <wsdl:part name="FechaParquimetro" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerTiempoBonoResponse">
+    <wsdl:part name="return" type="s:int" />
+  </wsdl:message>
+  <wsdl:message name="UsarBonoRequest">
+    <wsdl:part name="CodigoPoblacion" type="s:int" />
+    <wsdl:part name="Importe" type="s:int" />
+    <wsdl:part name="Bono" type="s:long" />
+    <wsdl:part name="FechaPago" type="s:string" />
+    <wsdl:part name="NumeroParquimetro" type="s:int" />
+    <wsdl:part name="NumeroOperacion" type="s:int" />
+  </wsdl:message>
+  <wsdl:message name="UsarBonoResponse">
+    <wsdl:part name="return" type="s:int" />
+  </wsdl:message>
+  <wsdl:portType name="bonosPortType">
+    <wsdl:operation name="ExisteBono">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Indica el estado del bono</documentation>
+      <wsdl:input message="tns:ExisteBonoRequest" />
+      <wsdl:output message="tns:ExisteBonoResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerTiempoBono">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Devuelve el tiempo de un bono</documentation>
+      <wsdl:input message="tns:ObtenerTiempoBonoRequest" />
+      <wsdl:output message="tns:ObtenerTiempoBonoResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="UsarBono">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">Usa el bono y devuelve el número de bonos usados(1 o 0)</documentation>
+      <wsdl:input message="tns:UsarBonoRequest" />
+      <wsdl:output message="tns:UsarBonoResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="bonosBinding" type="tns:bonosPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <wsdl:operation name="ExisteBono">
+      <soap:operation soapAction="urn:bonos#ExisteBono" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:bonos" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:bonos" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerTiempoBono">
+      <soap:operation soapAction="urn:bonos#ObtenerTiempoBono" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:bonos" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:bonos" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UsarBono">
+      <soap:operation soapAction="urn:bonos#UsarBono" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="urn:bonos" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="urn:bonos" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="bonos">
+    <wsdl:port name="bonosPort" binding="tns:bonosBinding">
+      <soap:address location="http://www.gesblue.com/admin/webservice_bonos.php" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

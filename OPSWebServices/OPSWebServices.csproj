@@ -28,9 +28,10 @@
     <WebReference_EnableLegacyEventingModel>true</WebReference_EnableLegacyEventingModel>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <UseIISExpress>true</UseIISExpress>
-    <UpgradeBackupLocation />
-    <Use64BitIISExpress />
+    <UseIISExpress>false</UseIISExpress>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <Use64BitIISExpress>true</Use64BitIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -38,6 +39,7 @@
     <UseGlobalApplicationHostFile />
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <OldToolsVersion>15.0</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -59,7 +61,7 @@
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -81,32 +83,71 @@
     <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=AMD64">
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\packages\Portable.BouncyCastle.1.8.5\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Jot, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Jot.Jwt.Token.Authorization.1.2\lib\net40\Jot.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OPS.Comm, Version=1.2.1.1, Culture=neutral, PublicKeyToken=01255d674c058da0, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Dlls\OPSCommon\log4net.dll</HintPath>
+      <HintPath>..\OPSCommon\OPSComm\OPSComm\bin\Debug\OPS.Comm.dll</HintPath>
     </Reference>
-    <Reference Include="OPS.Comm">
-      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.Comm.dll</HintPath>
-    </Reference>
-    <Reference Include="OPS.ComponentsBD">
-      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.ComponentsBD.dll</HintPath>
-    </Reference>
-    <Reference Include="OPS.Globalization">
-      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.Globalization.dll</HintPath>
-    </Reference>
-    <Reference Include="OPS.Messages">
-      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPS.Messages.dll</HintPath>
-    </Reference>
-    <Reference Include="OPSLogger, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2f4989f27bc3dc51, processorArchitecture=MSIL">
+    <Reference Include="OPS.ComponentsBD, Version=1.2.1.1, Culture=neutral, PublicKeyToken=6e2de7211c9a9527, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Dlls\OPSCommon\OPSLogger.dll</HintPath>
+      <HintPath>..\OPSCommon\ComponentsBD\bin\Debug\OPS.ComponentsBD.dll</HintPath>
     </Reference>
-    <Reference Include="Oracle.DataAccess, Version=4.122.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=AMD64">
+    <Reference Include="OPS.Messages, Version=4.1.1.1, Culture=neutral, PublicKeyToken=895a5643fe920539, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Dlls\Oracle\Oracle.DataAccess.dll</HintPath>
+      <HintPath>..\OPSCS\OPSMessages\bin\Debug\OPS.Messages.dll</HintPath>
+    </Reference>
+    <Reference Include="OPSLogger, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2f4989f27bc3dc51, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OPSCommon\OPSLogger\bin\Debug\OPSLogger.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.19.8.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -143,6 +184,7 @@
       <DependentUpon>Global.asax</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ITextEvents.cs" />
     <Compile Include="Messages.asmx.cs">
       <DependentUpon>Messages.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -158,58 +200,6 @@
     <Compile Include="MessagesTest.aspx.designer.cs">
       <DependentUpon>MessagesTest.aspx</DependentUpon>
     </Compile>
-    <Compile Include="OPSSwitchBoard.aspx.cs">
-      <DependentUpon>OPSSwitchBoard.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoard.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoard.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OPSSwitchBoardAccount.aspx.cs">
-      <DependentUpon>OPSSwitchBoardAccount.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardAccount.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoardAccount.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OPSSwitchBoardGetDateTime.aspx.cs">
-      <DependentUpon>OPSSwitchBoardGetDateTime.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardGetDateTime.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoardGetDateTime.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OPSSwitchBoardHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardOperation.aspx.cs">
-      <DependentUpon>OPSSwitchBoardOperation.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardOperation.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoardOperation.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OPSSwitchBoardResident.aspx.cs">
-      <DependentUpon>OPSSwitchBoardResident.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardResident.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoardResident.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OPSSwitchBoardSectorList.aspx.cs">
-      <DependentUpon>OPSSwitchBoardSectorList.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardSectorList.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoardSectorList.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="OPSSwitchBoardZoneSector.aspx.cs">
-      <DependentUpon>OPSSwitchBoardZoneSector.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="OPSSwitchBoardZoneSector.aspx.designer.cs">
-      <DependentUpon>OPSSwitchBoardZoneSector.aspx</DependentUpon>
-    </Compile>
     <Compile Include="OPSTripleDesEncryptor.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -218,6 +208,13 @@
       <SubType>code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="WSMobilePayment.asmx.cs">
+      <DependentUpon>WSMobilePayment.asmx</DependentUpon>
+    </Compile>
+    <Compile Include="WSUserManagement.asmx.cs">
+      <DependentUpon>WSUserManagement.asmx</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Content Include="Global.asax">
       <SubType>Component</SubType>
@@ -229,27 +226,14 @@
     <Content Include="MessagesTest.aspx">
       <SubType>Form</SubType>
     </Content>
-    <Content Include="OPSSwitchBoard.aspx">
-      <SubType>Form</SubType>
-    </Content>
-    <Content Include="OPSSwitchBoardAccount.aspx">
-      <SubType>Form</SubType>
-    </Content>
-    <Content Include="OPSSwitchBoardGetDateTime.aspx" />
-    <Content Include="OPSSwitchBoardOperation.aspx">
-      <SubType>Form</SubType>
-    </Content>
-    <Content Include="OPSSwitchBoardResident.aspx">
-      <SubType>Form</SubType>
-    </Content>
-    <Content Include="OPSSwitchBoardSectorList.aspx" />
-    <Content Include="OPSSwitchBoardZoneSector.aspx" />
     <Content Include="Style\tree-view.css" />
     <Content Include="Style\tree-view.xsl" />
     <Content Include="Style\xmlverbatim.css" />
     <Content Include="Style\xmlverbatim.xsl" />
     <Content Include="Style\xmlverbatimwrapper.xsl" />
     <Content Include="Web.config" />
+    <Content Include="WSMobilePayment.asmx" />
+    <Content Include="WSUserManagement.asmx" />
     <EmbeddedResource Include="Global.asax.resx">
       <DependentUpon>Global.asax.cs</DependentUpon>
     </EmbeddedResource>
@@ -262,28 +246,8 @@
     <EmbeddedResource Include="MessagesTest.aspx.resx">
       <DependentUpon>MessagesTest.aspx.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoard.aspx.resx">
-      <DependentUpon>OPSSwitchBoard.aspx.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoardAccount.aspx.resx">
-      <DependentUpon>OPSSwitchBoardAccount.aspx.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoardGetDateTime.aspx.resx">
-      <DependentUpon>OPSSwitchBoardGetDateTime.aspx.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoardOperation.aspx.resx">
-      <DependentUpon>OPSSwitchBoardOperation.aspx.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoardResident.aspx.resx">
-      <DependentUpon>OPSSwitchBoardResident.aspx.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoardSectorList.aspx.resx">
-      <DependentUpon>OPSSwitchBoardSectorList.aspx.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OPSSwitchBoardZoneSector.aspx.resx">
-      <DependentUpon>OPSSwitchBoardZoneSector.aspx.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="FolderProfile.pubxml" />
+    <None Include="packages.config" />
     <None Include="Web References\OPSWebServices\Messages.disco" />
     <None Include="Web References\OPSWebServices\Messages.wsdl" />
     <None Include="Web References\OPSWebServices\Reference.map">
@@ -296,21 +260,26 @@
       <UrlBehavior>Static</UrlBehavior>
     </WebReferenceUrl>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OPSCommon\Globalization\Globalization.csproj">
+      <Project>{7cac2a66-51f0-4f2c-af92-58631ee4db3b}</Project>
+      <Name>Globalization</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent />
     <PostBuildEvent />
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v15.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>60485</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:52608/</IISUrl>
+          <IISUrl>http://localhost/OPSWebServices40</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -320,4 +289,5 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v16.0\WebApplications\Microsoft.WebApplication.targets" />
 </Project>

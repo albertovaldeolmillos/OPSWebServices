@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="IsDBAlive">
+        <s:complexType />
+      </s:element>
+      <s:element name="IsDBAliveResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsDBAliveResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HeartBeat">
+        <s:complexType />
+      </s:element>
+      <s:element name="HeartBeatResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="HeartBeatResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCurrentVersion">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCurrentVersionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCurrentVersionResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="NewVehicleOperation">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="vPDMo" type="tns:VehiclePDMOperation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="VehiclePDMOperation">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="NType" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="SPlate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SPaymentDate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SExpiryDate" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="NTariffID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="NQuantity" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="BOnline" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="NewVehicleOperationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="NewVehicleOperationResult" type="tns:VehiclePDMOperationAnswer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="VehiclePDMOperationAnswer">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="NRdo" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="SRdo" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="NTariffID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="SID" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="PenaltyControlNotice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="vPCNo" type="tns:VehiclePCNOperation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="VehiclePCNOperation">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="NType" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="PenaltyControlNoticeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="PenaltyControlNoticeResult" type="tns:GeneralAnswer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GeneralAnswer">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="NRdo" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="SRdo" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="IsDBAliveSoapIn">
+    <wsdl:part name="parameters" element="tns:IsDBAlive" />
+  </wsdl:message>
+  <wsdl:message name="IsDBAliveSoapOut">
+    <wsdl:part name="parameters" element="tns:IsDBAliveResponse" />
+  </wsdl:message>
+  <wsdl:message name="HeartBeatSoapIn">
+    <wsdl:part name="parameters" element="tns:HeartBeat" />
+  </wsdl:message>
+  <wsdl:message name="HeartBeatSoapOut">
+    <wsdl:part name="parameters" element="tns:HeartBeatResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCurrentVersionSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCurrentVersion" />
+  </wsdl:message>
+  <wsdl:message name="GetCurrentVersionSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCurrentVersionResponse" />
+  </wsdl:message>
+  <wsdl:message name="NewVehicleOperationSoapIn">
+    <wsdl:part name="parameters" element="tns:NewVehicleOperation" />
+  </wsdl:message>
+  <wsdl:message name="NewVehicleOperationSoapOut">
+    <wsdl:part name="parameters" element="tns:NewVehicleOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="PenaltyControlNoticeSoapIn">
+    <wsdl:part name="parameters" element="tns:PenaltyControlNotice" />
+  </wsdl:message>
+  <wsdl:message name="PenaltyControlNoticeSoapOut">
+    <wsdl:part name="parameters" element="tns:PenaltyControlNoticeResponse" />
+  </wsdl:message>
+  <wsdl:portType name="WSOPS2NewParkSoap">
+    <wsdl:operation name="IsDBAlive">
+      <wsdl:input message="tns:IsDBAliveSoapIn" />
+      <wsdl:output message="tns:IsDBAliveSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HeartBeat">
+      <wsdl:input message="tns:HeartBeatSoapIn" />
+      <wsdl:output message="tns:HeartBeatSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentVersion">
+      <wsdl:input message="tns:GetCurrentVersionSoapIn" />
+      <wsdl:output message="tns:GetCurrentVersionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="NewVehicleOperation">
+      <wsdl:input message="tns:NewVehicleOperationSoapIn" />
+      <wsdl:output message="tns:NewVehicleOperationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PenaltyControlNotice">
+      <wsdl:input message="tns:PenaltyControlNoticeSoapIn" />
+      <wsdl:output message="tns:PenaltyControlNoticeSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WSOPS2NewParkSoap" type="tns:WSOPS2NewParkSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="IsDBAlive">
+      <soap:operation soapAction="http://tempuri.org/IsDBAlive" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HeartBeat">
+      <soap:operation soapAction="http://tempuri.org/HeartBeat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentVersion">
+      <soap:operation soapAction="http://tempuri.org/GetCurrentVersion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NewVehicleOperation">
+      <soap:operation soapAction="http://tempuri.org/NewVehicleOperation" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PenaltyControlNotice">
+      <soap:operation soapAction="http://tempuri.org/PenaltyControlNotice" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WSOPS2NewParkSoap12" type="tns:WSOPS2NewParkSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    <wsdl:operation name="IsDBAlive">
+      <soap12:operation soapAction="http://tempuri.org/IsDBAlive" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HeartBeat">
+      <soap12:operation soapAction="http://tempuri.org/HeartBeat" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentVersion">
+      <soap12:operation soapAction="http://tempuri.org/GetCurrentVersion" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NewVehicleOperation">
+      <soap12:operation soapAction="http://tempuri.org/NewVehicleOperation" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PenaltyControlNotice">
+      <soap12:operation soapAction="http://tempuri.org/PenaltyControlNotice" style="document" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      <wsdl:input>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="WSOPS2NewPark">
+    <wsdl:port name="WSOPS2NewParkSoap" binding="tns:WSOPS2NewParkSoap">
+      <soap:address location="http://95.177.110.177:3381/WSOPS2NEWPARK.asmx" />
+    </wsdl:port>
+    <wsdl:port name="WSOPS2NewParkSoap12" binding="tns:WSOPS2NewParkSoap12">
+      <soap12:address location="http://95.177.110.177:3381/WSOPS2NEWPARK.asmx" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

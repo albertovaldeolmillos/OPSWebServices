@@ -1,0 +1,185 @@
+﻿
+using PDMDatabase.Commands;
+using PDMDatabase.Models;
+using PDMHelpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Data;
+using PDMDatabase.Repositories;
+
+namespace PDMDatabase.MemoryDatabase
+{
+    public class IMT_Tariffs : InMemoryTable<Tariffs>
+    {
+        TariffsRepository repository;
+
+        public IMT_Tariffs(ILoggerManager loggerManager, TariffsRepository repository) : base(repository.Connection) {
+            trace = loggerManager.CreateTracer(this.GetType());
+            this.repository = repository;
+            this.repository.Trace = trace;
+        }
+
+        public override void LoadData()
+        {
+            trace?.Write(TraceLevel.Debug, "IMT_Tariffs::LoadData");
+
+            try
+            {
+                Data = repository.GetAll(Version);
+                IsLoaded = true;
+            }
+            catch (Exception error)
+            {
+                trace?.Write(TraceLevel.Error, error.ToLogString());
+                IsLoaded = false;
+            }
+        }
+
+        public bool GetTariffTimeTable(long lTariff, long dayType, COPSDate dtOper, long numDaysPassed, IMT_TimeTables timetables, bool considerCloseInterval, out Tariffs outTariff, out Timetables outTimetable)
+        {
+            trace.Write(TraceLevel.Debug, "IMT_Tariffs::GetTariffTimeTable");
+            bool fnResult = true;
+
+            outTariff = null;
+            outTimetable = null;
+
+
+            try
+            {
+                Guard.IsNull(dtOper, nameof(dtOper));
+
+               
+                int totalMinutes = dtOper.TimeToMinutes();
+
+                trace.Write(TraceLevel.Info, $@"QUERY: Which are the Time Table, Init Hour, End Hour  for the Tariff({lTariff}) at this Hour({totalMinutes/60:D2}:{totalMinutes%60:D2}) for Day({dayType})?");
+
+                IEnumerable<Tariffs> tariffs = Data.Where(w =>
+                                                           w.TAR_ID == lTariff &&
+                                                           w.TAR_DDAY_ID == dayType &&
+                                                           (w.TAR_INIDATE.GetStatus() == COPSDateStatus.Valid && w.TAR_INIDATE <= dtOper) &&
+                                                           (w.TAR_ENDDATE.GetStatus() == COPSDateStatus.Valid && w.TAR_ENDDATE > dtOper)
+                                              );
+
+                bool timtableHasBeenFound = false;
+
+                if (tariffs.Any())
+                {
+                    bool bApplyTariff = false;
+
+                    foreach (Tariffs tariff in tariffs)
+                    {
+                        if (numDaysPassed != GlobalDefs.DEF_UNDEFINED_VALUE)
+                        {
+                            bApplyTariff = (tariff.TAR_NUMDAYS_PASSED.HasValue && tariff.TAR_NUMDAYS_PASSED.Value == numDaysPassed);
+                        }
+                        else
+                        {
+                            bApplyTariff = !tariff.TAR_NUMDAYS_PASSED.HasValue;
+                        }
+
+                        if (bApplyTariff)
+                        {
+                            Timetables foundTimeTable = timetables.GetIniEndFromTimId(tariff.TAR_TIM_ID.Value);
+                            trace.Write(TraceLevel.Info, $"Minutes ({totalMinutes:D2}) TimTabIni ({foundTimeTable.TIM_INI:D2}) TimTabEnd ({foundTimeTable.TIM_END:D2})");
+
+                            bool getTimetable = false;
+
+                            if (considerCloseInterval)
+                            {
+                                getTimetable = totalMinutes <= foundTimeTable.TIM_END && totalMinutes >= foundTimeTable.TIM_INI;
+                            }
+                            else
+                            {
+                                getTimetable = totalMinutes < foundTimeTable.TIM_END && totalMinutes >= foundTimeTable.TIM_INI;
+                            }
+
+                            if (getTimetable)
+                            {
+                                trace.Write(TraceLevel.Info, $"Interval Found Minutes {totalMinutes/60:D2}:{totalMinutes%60:D2} < {foundTimeTable.TIM_INI/60:D2}:{foundTimeTable.TIM_INI % 60:D2}");
+
+                                outTariff = tariff;
+                                outTimetable = foundTimeTable;
+                                timtableHasBeenFound = true;
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = false;
+            }
+
+            return fnResult;
+        }
+
+        public bool ExistTimeTable(IMT_TimeTables timetablesTable, long lTariff, long dayType, COPSDate dtOper, ref bool bBlockFound, bool bConsiderCloseInterval)
+        {
+
+            trace.Write(TraceLevel.Debug, "CiMD_Tariffs::ExistTimeTable");
+            bool fnResult = true;
+
+            try
+            {
+                bBlockFound = false;
+                int minutes = dtOper.TimeToMinutes();
+
+                trace.Write(TraceLevel.Info, $"QUERY : Which are the Time Table, Init Hour, End Hour for the Tariff({lTariff}) at this Hour({minutes / 60}:{minutes % 60}) for Day({dayType})?");
+
+                int nTimIni = -1;
+                int nTimEnd = -1;
+
+                IEnumerable<Tariffs> tariffs = Data.Where(w =>
+                                                           w.TAR_ID == lTariff &&
+                                                           w.TAR_DDAY_ID == dayType &&
+                                                           (w.TAR_INIDATE.GetStatus() == COPSDateStatus.Valid && w.TAR_INIDATE <= dtOper) &&
+                                                           (w.TAR_ENDDATE.GetStatus() == COPSDateStatus.Valid && w.TAR_ENDDATE > dtOper)
+                                                );
+
+                foreach (Tariffs tariff in tariffs )
+                {
+                    int nDummyTimIni = -1;
+                    int nDummyTimEnd = -1;
+
+                    Timetables foundTimeTable = timetablesTable.GetIniEndFromTimId(tariff.TAR_TIM_ID.Value);
+                    trace.Write(TraceLevel.Info, $"Minutes ({minutes:D2}) TimTabIni ({foundTimeTable.TIM_INI:D2}) TimTabEnd ({foundTimeTable.TIM_END:D2})");
+
+                    bool bGetTimetable = false;
+
+                    if (bConsiderCloseInterval)
+                    {
+                        bGetTimetable = ((minutes <= nDummyTimEnd) && (minutes >= nDummyTimIni));
+                    }
+                    else
+                    {
+                        bGetTimetable = ((minutes < nDummyTimEnd) && (minutes >= nDummyTimIni));
+                    }
+
+                    if (bGetTimetable)
+                    {
+
+                        trace.Write(TraceLevel.Info, $"Interval Found Minutes {minutes / 60:D2}:{minutes % 60:D2} < {foundTimeTable.TIM_INI / 60:D2}:{foundTimeTable.TIM_INI % 60:D2}");
+
+                        bBlockFound = true;
+                        break;
+                    }
+                }
+
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = false;
+            }
+
+            return fnResult;
+
+        }
+    }
+}

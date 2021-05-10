@@ -1,0 +1,954 @@
+﻿using Microsoft.Win32;
+using OPSCompute.Exceptions;
+using PDMCompute;
+using PDMHelpers;
+using PDMMessages;
+using System;
+using System.Collections.Generic;
+using System.Xml;
+
+namespace OPSCompute
+{
+    public partial class OPSComputeM1
+    {
+        private readonly string PARAM_UNIT_ID = "UNIT_ID";
+        private readonly string PARAM_TARIFF = "TARIFF";
+        private readonly string PARAM_SUBTARIFF = "SUBTARIFF";
+        private readonly string PARAM_DEFAULT_ARTICLE_DEF = "DEFAULT_ARTICLE_DEF";
+        private readonly string PARAM_MIN_COIN = "MIN_COIN";
+        private readonly string PARAM_LOOK_OTHER_GROUPS	= "LOOK_OTHER_GROUPS";
+        private readonly string PARAM_SYSTEM_IDENTIFIER	= "SYSTEM_IDENTIFIER";
+        private readonly string PARAM_DB_CONNECTION = "DB_CONNECTION";
+        private readonly string PARAM_DB_USER = "DB_USER";
+        private readonly string PARAM_SERVER_TRACE = "SERVER_TRACE";
+        private readonly string PARAM_SERVICE_TRACE	= "SERVICE_TRACE";
+        private readonly string PARAM_PORT_TRACE = "PORT_TRACE";
+        private readonly string PARAM_TRACE_M1 = "TRACE_M1";
+        private readonly string PARAM_TRACE_IMD	= "TRACE_IMD";
+        private readonly string PARAM_TRACE_DB  = "TRACE_DB";
+        private readonly string PARAM_DB_PASSWORD = "DB_PASSWORD";
+        private readonly string PARAM_LEVELS_TRACE = "TRACE_LEVELS";
+
+        private readonly int SYSTEM_IDENTIFIER_ZUMARRAGA = 72;
+
+        private readonly ITraceable trace;
+        private readonly ILoggerManager loggerManager;
+        private OPSPDMDatabase database;
+        private ParamLoader paramLoader = null;
+        private TariffCalculator tariffCalculator;
+        private bool lookOtherGroups;
+        private int defaultArticleDef = GlobalDefs.DEF_UNDEFINED_VALUE;
+        private int m1AppliedHistory = 1;
+        private int m1RealCurrMinutes = 0;
+
+        private static OPSComputeM1 instance;
+
+        private OPSComputeM1(ILoggerManager loggerManager = null)
+        {
+            this.loggerManager = loggerManager ?? new PDMHelpers.LoggerManager();
+            this.trace = this.loggerManager.CreateTracer(this.GetType());
+            this.paramLoader = new ParamLoader(this.loggerManager);
+        }
+
+        public static OPSComputeM1 GetInstance (ILoggerManager loggerManager = null) {
+            return instance ?? new OPSComputeM1(loggerManager);
+        }
+
+        public int fnM1(string pStrIn, string pRegEntry,ref  string pStrOut,ref string pStrOutM50, int nSize, bool bApplyHistory, bool bUseDefaultArticleDef)
+        {
+            int nRes = 1;
+
+            try
+            {
+                Guard.IsNullOrEmptyString(pStrIn, nameof(pStrIn));
+
+                LoadParams(pRegEntry);
+                trace.Write(TraceLevel.Debug, $"GeneralParams.UnitId loaded  {GeneralParams.UnitId}");
+
+                CDatM1 m1 = new CDatM1(loggerManager);
+                CDatM1 m1Return = new CDatM1(loggerManager);
+                CDatM1 m1Amp = new CDatM1(loggerManager);
+                COPSPacket opsPacket = new COPSPacket(loggerManager);
+                bool exitCurrentOperationInOtherGroup = false;
+
+                trace.Write(TraceLevel.Info, "Waiting For Unlock .....");
+
+                //TODO : Añadir en lock toda la seccion
+                trace.Write(TraceLevel.Info, "Inside Lock .....");
+
+                if (!OpenDatabase()) {
+                    throw new InvalidOperationException("Open database has failed");
+                }
+
+                if (!InitComputeM1()) {
+                    throw new InvalidOperationException("Compute1 initialization has failed");
+                }
+
+                tariffCalculator.SetDBB(database);
+
+                opsPacket.Parse(pStrIn);
+                if (opsPacket.GetMsg(0) == null) {
+                    throw new InvalidOperationException("OPSPacket doesn't conatin any message");
+                }
+
+                if (!m1.SetData(opsPacket.GetMsg(0))) {
+                    throw new InvalidOperationException("M1 Extracting data from OPSPacket");
+                }
+
+                if (m1.GetInArticleDef() == GlobalDefs.DEF_UNDEFINED_VALUE)
+                {
+                    trace.Write(TraceLevel.Debug, $"Set M1 InArticleDef from parameters");
+                    m1.SetInArticleDef(defaultArticleDef);
+                }
+
+                if (tariffCalculator == null)
+                {
+                    throw new InvalidOperationException("TariffCalculator is NULL");
+                }
+
+                trace.Write(TraceLevel.Info, "FnM1 ");
+                m1.Trace();
+
+                if (!database.IsOpened())
+                {
+                    trace.Write(TraceLevel.Info, "Database is not connected");
+
+                    if(!database.Close())
+                        trace.Write(TraceLevel.Error, "ERROR Closing Database");
+
+                    if (!OpenDatabase()) {
+                        throw new InvalidOperationException("Open database has failed");
+                    }
+                }
+
+                if (m1.GetInOperType() == OperationDat.DEF_OPERTYPE_RETN)
+                {
+                    if (!m1Return.SetData(opsPacket.GetMsg(0)))
+                    {
+                        throw new InvalidOperationException("M1RETURN Extracting data from OPSPacket");
+                    }
+
+                    if (m1Return.GetInArticleDef() == GlobalDefs.DEF_UNDEFINED_VALUE)
+                    {
+                        trace.Write(TraceLevel.Debug, $"Set M1RETURN InArticleDef from parameters");
+                        m1.SetInArticleDef(defaultArticleDef);
+                    }
+
+                    if (!ComputeReturn(m1Return, m1))
+                    {
+                        trace.Write(TraceLevel.Info, $"ERROR: Computing Return");
+                    }
+                }
+                else {
+                    bool isVIP = false;
+                    bool isResident = false;
+
+                    if (!bUseDefaultArticleDef) {
+
+
+                        if (!IsVehicleIdVIP(m1, ref isVIP))
+                        {
+                            trace.Write(TraceLevel.Error, "ERROR : IsVehicleIdVIP");
+                        }
+
+                        if (!isVIP)
+                        {
+                            if (!IsVehicleIdResident(m1, ref isResident))
+                            {
+                                trace.Write(TraceLevel.Error, "ERROR : IsVehicleIdResident");
+                            }
+                        }
+                    }
+
+                    // Modify tariffs for abonos in Zumarraga
+                    trace.Write(TraceLevel.Info, "System ID %1", GeneralParams.SystemId.ToString());
+                    if (GeneralParams.SystemId == SYSTEM_IDENTIFIER_ZUMARRAGA)
+                    {
+                        if (m1.GetInArticleDef() >= 102 && m1.GetInArticleDef() <= 113)
+                        {
+                            trace.Write(TraceLevel.Info, "Modifying tariffs for Zumarraga");
+                            COPSPlate strVehicleId = m1.GetInVehicleID();
+
+                            if (!database.SetTariffDates(tariffCalculator.GetTree(), m1.GetInArticleDef(), strVehicleId))
+                            {
+                                throw new InvalidOperationException("Setting tariff dates before calling M1");
+                            }
+                        }
+                    }
+
+                    bool bM1Plus = false;
+                    int nMaxQuantity = (int)m1.GetOutIntAcumul();
+
+                    if (!tariffCalculator.GetM1(m1, bM1Plus, nMaxQuantity, bApplyHistory))
+                    {
+                        trace.Write(TraceLevel.Info, "ERROR : GetM1");
+                    }
+
+                    m1AppliedHistory = (tariffCalculator.GetApplyVehicleHistory()) ? 1: 0;
+                    m1RealCurrMinutes = (int)tariffCalculator.GetRealCurrMinutes();
+
+                    if (lookOtherGroups)
+                    {
+                        m1Amp = new CDatM1(loggerManager);
+                        if (m1Amp == null)
+                        {
+                            throw new InvalidOperationException("ERROR : pM1 is NULL");
+                        }
+
+                        if (!m1Amp.SetData(opsPacket.GetMsg(0)))
+                        {
+                            throw new InvalidOperationException("ERROR : pM1 Extracting data from OPSPacket");
+                        }
+
+                        if (m1Amp.GetInArticleDef() == GlobalDefs.DEF_UNDEFINED_VALUE)
+                        {
+                            m1Amp.SetInArticleDef(defaultArticleDef);
+                        }
+
+
+                        if (!ComputeAmpliation(m1Amp, ref exitCurrentOperationInOtherGroup))
+                        {
+                            trace.Write(TraceLevel.Info, "ERROR : Computing Ampliation");
+                        }
+                    }
+
+                }
+
+                m1.Trace();
+
+                string szOutMessage;
+                string szOutMessageM50;
+
+                //// Format Result Message
+                szOutMessage = FormatOutMessage(m1, true, "A");
+                if (exitCurrentOperationInOtherGroup && m1Amp != null)
+                {
+                    szOutMessage = FormatOutMessage(m1Amp, false, "B");
+                }
+
+                szOutMessageM50 = FormatOutMessageM50(m1);
+
+                trace.Write(TraceLevel.Info, $"Message {szOutMessage}");
+                trace.Write(TraceLevel.Info, $"Message 50 {szOutMessageM50}");
+
+                pStrOut = szOutMessage;
+                pStrOutM50 = szOutMessageM50;
+
+                ////// Format Result Message
+                //XmlDocument xmlMessage = FormatOutMessage(m1, true, "A");
+                //if (exitCurrentOperationInOtherGroup && m1Amp != null)
+                //{
+                //    xmlMessage = FormatOutMessage(m1Amp, false, "B", xmlMessage);
+                //}
+
+                //szOutMessage = xmlMessage.InnerXml;
+                //xmlMessage.RemoveAll();
+
+                //xmlMessage = FormatOutMessageM50(m1);
+                //szOutMessageM50 = xmlMessage.InnerXml;
+
+                //trace.Write(TraceLevel.Info, $"Message {szOutMessage}");
+                //trace.Write(TraceLevel.Info, $"Message 50 {szOutMessageM50}");
+
+                //pStrOut = szOutMessage;
+                //pStrOutM50 = szOutMessageM50;
+            }
+            catch (LoadParametersException error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                nRes = -3;
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                nRes = -1;
+            }
+            finally
+            {
+                if (!database.Close())
+                    trace.Write(TraceLevel.Error, "ERROR Closing Database");
+            }
+
+            return nRes;
+        }
+
+        private XmlElement CreateElement(XmlDocument doc, string name, string value)
+        {
+            XmlElement element = doc.CreateElement(name);
+            element.AppendChild( doc.CreateTextNode(value) );
+
+            return element;
+        }
+
+        private Dictionary<string, string> ExtractM1DataToMessage(CDatM1 m1, string m1ID)
+        {
+            trace.Write(TraceLevel.Debug, ">>ExtractM1DataToMessage");
+
+            Dictionary<string, string> elements = new Dictionary<string, string>();
+
+            try
+            {
+                elements.Add($"{m1ID}r", m1.GetOutResult().ToString());
+
+                if (m1.GetOutResult() > 0)
+                {
+                    elements.Add($"{m1ID}q1", m1.GetOutMinImport().ToString());
+                    elements.Add($"{m1ID}q2", m1.GetOutMaxImport().ToString());
+
+                    if (m1.GetInComputeTimeLimits())
+                    {
+                        elements.Add($"{m1ID}t1", m1.GetOutMinTime().ToString());
+                        elements.Add($"{m1ID}t2", m1.GetOutMaxTime().ToString());
+
+                        if (m1.GetOutMinOperDate().GetStatus() != COPSDateStatus.Null)
+                        {
+                            elements.Add($"{m1ID}d1", m1.GetOutMinOperDate().CopyToChar());
+                        }
+
+                        if (m1.GetOutMaxOperDate().GetStatus() != COPSDateStatus.Null)
+                        {
+                            elements.Add($"{m1ID}d2", m1.GetOutMaxOperDate().CopyToChar());
+                        }
+                    }
+
+                    elements.Add($"{m1ID}t", m1.GetOutEfMaxTime().ToString());
+                    elements.Add($"{m1ID}o", m1.GetInOperType().ToString());
+
+                    if (m1.GetOutOperDateEnd().GetStatus() != COPSDateStatus.Null)
+                    {
+                        elements.Add($"{m1ID}d", m1.GetOutOperDateEnd().CopyToChar());
+                    }
+
+                    if (m1.GetOutOperDateIni().GetStatus() != COPSDateStatus.Null)
+                    {
+                        elements.Add($"{m1ID}di", m1.GetOutOperDateIni().CopyToChar());
+                    }
+
+                    elements.Add($"{m1ID}g", m1.GetInGroup().ToString());
+                    elements.Add($"{m1ID}ad", m1.GetInArticleDef().ToString());
+                    elements.Add($"{m1ID}aq", m1.GetOutAccumulateMoney().ToString());
+                    elements.Add($"{m1ID}at", m1.GetOutAccumulateTime().ToString());
+                    elements.Add($"{m1ID}aqag", m1.GetOutAccumulateMoneyAllGroup().ToString());
+                    elements.Add($"{m1ID}atag", m1.GetOutAccumulateTimeAllGroup().ToString());
+
+                    if (m1.GetOutOperDateIni0().GetStatus() != COPSDateStatus.Null)
+                    {
+                        elements.Add($"{m1ID}d0", m1.GetOutOperDateIni0().CopyToChar());
+                    }
+
+                    elements.Add($"{m1ID}q", m1.GetOutRetImport().ToString());
+
+                    if (m1.GetOutOperDateRealIni().GetStatus() != COPSDateStatus.Null)
+                    {
+                        elements.Add($"{m1ID}dr0", m1.GetOutOperDateRealIni().CopyToChar());
+                    }
+
+                    elements.Add($"{m1ID}raq", m1.GetOutRealAccumulateMoney().ToString());
+                    elements.Add($"{m1ID}rat", m1.GetOutRealAccumulateTime().ToString());
+
+                    if (m1.GetOutWholeOperationWithChipCard() != 0)
+                    {
+                        elements.Add($"{m1ID}chca", m1.GetOutWholeOperationWithChipCard().ToString());
+                    }
+
+                    if (m1.GetOutWholeOperationWithMobile() != 0)
+                    {
+                        elements.Add($"{m1ID}mobi", m1.GetOutWholeOperationWithMobile().ToString());
+                    }
+
+                    if (m1.GetOutPostPay() != 0)
+                    {
+                        elements.Add($"{m1ID}pp", m1.GetOutPostPay().ToString());
+                    }
+
+                    if (m1.GetOutIsResident() != 0)
+                    {
+                        elements.Add($"{m1ID}resi", m1.GetOutIsResident().ToString());
+                    }
+
+                    if (m1.GetOutIsVIP() != 0)
+                    {
+                        elements.Add($"{m1ID}vip", m1.GetOutIsVIP().ToString());
+                    }
+
+                    string strOutStepsCalculationString = m1.GetOutStepsCalculationString();
+                    if (strOutStepsCalculationString.Length > 0)
+                        elements.Add($"{m1ID}cst", m1.GetOutStepsCalculationString());
+                }
+
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+            }
+
+            trace.Write(TraceLevel.Debug, "<<ExtractM1DataToMessage");
+
+            return elements;
+        }
+        private Dictionary<string, string> ExtractM1DataToM50Message(CDatM1 m1)
+        {
+            trace.Write(TraceLevel.Info, ">>ExtractM1DataToM50Message");
+
+            Dictionary<string, string> elements = new Dictionary<string, string>();
+
+            try
+            {
+                elements.Add($"r", m1.GetOutResult().ToString());
+                elements.Add($"q1", m1.GetOutMinImport().ToString());
+                elements.Add($"q2", m1.GetOutMaxImport().ToString());
+                elements.Add($"t", m1.GetOutEfMaxTime().ToString());
+                elements.Add($"o", m1.GetInOperType().ToString());
+
+                if (m1.GetOutOperDateEnd().GetStatus() != COPSDateStatus.Null)
+                {
+                    elements.Add($"d", m1.GetOutOperDateEnd().CopyToChar());
+                }
+
+                if (m1.GetOutOperDateIni().GetStatus() != COPSDateStatus.Null)
+                {
+                    elements.Add($"di", m1.GetOutOperDateIni().CopyToChar());
+                }
+
+                elements.Add($"g", m1.GetInGroup().ToString());
+                elements.Add($"ad", m1.GetInArticleDef().ToString());
+                elements.Add($"aq", m1.GetOutAccumulateMoney().ToString());
+                elements.Add($"at", m1.GetOutAccumulateTime().ToString());
+                elements.Add($"aqag", m1.GetOutAccumulateMoneyAllGroup().ToString());
+                elements.Add($"atag", m1.GetOutAccumulateTimeAllGroup().ToString());
+
+                if (m1.GetOutOperDateIni0().GetStatus() != COPSDateStatus.Null)
+                {
+                    elements.Add($"d0", m1.GetOutOperDateIni0().CopyToChar());
+                }
+
+                elements.Add($"q", m1.GetOutRetImport().ToString());
+
+                if (m1.GetOutOperDateRealIni().GetStatus() != COPSDateStatus.Null)
+                {
+                    elements.Add($"dr0", m1.GetOutOperDateRealIni().CopyToChar());
+                }
+
+                elements.Add($"raq", m1.GetOutRealAccumulateMoney().ToString());
+                elements.Add($"rat", m1.GetOutRealAccumulateTime().ToString());
+
+                if (m1.GetOutWholeOperationWithChipCard() != 0)
+                {
+                    elements.Add($"chca", m1.GetOutWholeOperationWithChipCard().ToString());
+                }
+
+                if (m1.GetOutWholeOperationWithMobile() != 0)
+                {
+                    elements.Add($"mobi", m1.GetOutWholeOperationWithMobile().ToString());
+                }
+
+                if (m1.GetOutPostPay() != 0)
+                {
+                    elements.Add($"pp", m1.GetOutPostPay().ToString());
+                }
+
+                if (m1.GetOutIsResident() != 0)
+                {
+                    elements.Add($"resi", m1.GetOutIsResident().ToString());
+                }
+
+                if (m1.GetOutIsVIP() != 0)
+                {
+                    elements.Add($"vip", m1.GetOutIsVIP().ToString());
+                }
+
+                elements.Add($"his",  m1AppliedHistory.ToString());
+                elements.Add($"rot", m1RealCurrMinutes.ToString());
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+            }
+
+            trace.Write(TraceLevel.Info, "<<ExtractM1DataToM50Message");
+
+            return elements;
+        }
+
+        private string FormatOutMessage(CDatM1 m1, bool shouldAddHeading, string m1ID)
+        {
+            trace.Write(TraceLevel.Info, ">>FormatOutMessage");
+            string fnResult = "";
+
+            try
+            {
+                Dictionary<string, string> elements = ExtractM1DataToMessage(m1, m1ID);
+
+                XmlDocument doc = new XmlDocument();
+                XmlElement raiz;
+
+                if (shouldAddHeading)
+                {
+                    raiz = doc.CreateElement("ap");
+                    XmlAttribute attributo = doc.CreateAttribute("id");
+                    attributo.Value = m1.GetIdentifier().ToString();
+
+                    raiz.Attributes.Append(attributo);
+                    doc.AppendChild(raiz);
+                }
+                else {
+                    raiz = doc.DocumentElement;
+                }
+
+                foreach (KeyValuePair<string, string> nodo in elements)
+                {
+                    if (!nodo.Key.Equals("Acst"))
+                    {
+                        raiz.AppendChild(
+                            CreateElement(doc, nodo.Key, nodo.Value));
+                    }
+                }
+
+                fnResult = doc.InnerXml;
+
+                if (m1.GetOutStepsCalculationString().Length > 0)
+                {
+                    int nPos = fnResult.LastIndexOf("</ap>");
+                    fnResult = fnResult.Insert(nPos, (m1.GetOutStepsCalculationString()));
+                }
+
+                trace.Write(TraceLevel.Info, fnResult);
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = "";
+            }
+
+            trace.Write(TraceLevel.Info, "<<FormatOutMessage");
+            return fnResult;
+
+        }
+
+        private string FormatOutMessageM50(CDatM1 m1)
+        {
+            trace.Write(TraceLevel.Info, ">>FormatOutMessageM50");
+            string fnResult = "";
+
+            try
+            {
+                Dictionary<string, string> elements = ExtractM1DataToM50Message(m1);
+
+                XmlDocument doc = new XmlDocument();
+                XmlElement raiz;
+
+                raiz = doc.CreateElement("ap");
+                XmlAttribute attributo = doc.CreateAttribute("id");
+                attributo.Value = m1.GetIdentifier().ToString();
+
+                raiz.Attributes.Append(attributo);
+                doc.AppendChild(raiz);
+
+                foreach (KeyValuePair<string, string> nodo in elements)
+                {
+                    raiz.AppendChild(
+                        CreateElement(doc, nodo.Key, nodo.Value)
+                    );
+                }
+
+                fnResult = doc.InnerXml;
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = "";
+            }
+
+            trace.Write(TraceLevel.Info, "<<FormatOutMessageM50");
+            return fnResult;
+
+        }
+
+        private bool ComputeAmpliation(CDatM1 pM1, ref bool pExistCurrentOperationInOtherGroup)
+        {
+            trace.Write(TraceLevel.Debug, "ComputeAmpliation");
+            bool fnResult = true;
+
+            try
+            {
+                bool bM1Plus = false;
+                int nMaxQuantity = 0;
+                COPSPlate strPlate;
+                COPSDate oDate;
+                long lCurrentArticleDef;
+                long lCurrentGroup;
+                long lAmpArticleDef = GlobalDefs.DEF_UNDEFINED_VALUE;
+                long lAmpGroup = GlobalDefs.DEF_UNDEFINED_VALUE;
+                bool bIsVIP = false;
+                bool bIsResident = false;
+
+                pExistCurrentOperationInOtherGroup = false;
+
+                lCurrentArticleDef = pM1.GetInArticleDef();
+                lCurrentGroup = pM1.GetInGroup();
+                strPlate = pM1.GetInVehicleID();
+                oDate = pM1.GetInDate().Copy();
+
+
+                if (!database.GetVehicleLastOperationInfo(strPlate, oDate, ref lAmpArticleDef, ref lAmpGroup))
+                {
+                    throw new InvalidOperationException("Error getting last operation group");
+                }
+
+                if (    (lAmpGroup != lCurrentGroup &&  lAmpGroup != GlobalDefs.DEF_UNDEFINED_VALUE)  ||
+                        (lAmpArticleDef != lCurrentArticleDef &&  lAmpArticleDef != GlobalDefs.DEF_UNDEFINED_VALUE)
+                    )
+                {
+                    if (lAmpGroup != GlobalDefs.DEF_UNDEFINED_VALUE)
+                    {
+                        pM1.SetInGroup((int)lAmpGroup);
+                    }
+
+                    if (lAmpArticleDef != GlobalDefs.DEF_UNDEFINED_VALUE)
+                    {
+                        pM1.SetInArticleDef((int)lAmpArticleDef);
+                    }
+
+                    nMaxQuantity = (int)pM1.GetOutIntAcumul();
+
+                    if (!tariffCalculator.GetM1(pM1, bM1Plus, nMaxQuantity))
+                    {
+                        throw new InvalidOperationException("Error computing Ampliation M1");
+                    }
+
+                    if (pM1.GetOutRealAccumulateMoney() > 0 && pM1.GetOutResult() > 0 && pM1.GetOutPostPay() == 0)
+                    {
+                        pExistCurrentOperationInOtherGroup = true;
+
+                        if (!IsVehicleIdVIP(pM1, ref bIsVIP, pM1.GetInArticleDef()))
+                        {
+                            trace.Write(TraceLevel.Info, "ERROR : IsVehicleIdVIP");
+                        }
+
+                        if (!bIsVIP)
+                        {
+                            if (!IsVehicleIdResident(pM1, ref bIsResident, pM1.GetInArticleDef()))
+                            {
+                                trace.Write(TraceLevel.Info, "ERROR : IsVehicleIdResident");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = false;
+            }
+
+            return fnResult;
+
+        }
+
+        private bool IsVehicleIdResident(CDatM1 m1, ref bool isResident, long cpmArticleDef = GlobalDefs.DEF_UNDEFINED_VALUE)
+        {
+            trace.Write(TraceLevel.Info, ">>IsVehicleIdResident");
+            bool fnResult = true;
+
+            try
+            {
+                isResident = false;
+
+                COPSPlate strPlate = m1.GetInVehicleID();
+                long lGroup = m1.GetInGroup();
+                long lArticleDef = GlobalDefs.DEF_UNDEFINED_VALUE;
+
+                tariffCalculator.FillTree();
+
+                bool isVehicleIdResident = database.IsVehicleIdResident(tariffCalculator.GetTree(), ref strPlate, lGroup, ref lArticleDef, ref isResident);
+                if (!isVehicleIdResident)
+                {
+                    throw new InvalidOperationException("Error getting last operation group");
+                }
+
+                if (isResident && lArticleDef != GlobalDefs.DEF_UNDEFINED_VALUE)
+                {
+                    m1.SetInArticleDef((int)lArticleDef);
+                }
+                else if (isResident && lArticleDef == GlobalDefs.DEF_UNDEFINED_VALUE)
+                {
+                    isResident = isResident && lArticleDef == cpmArticleDef;
+                }
+
+                m1.SetOutIsResident(isResident);
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = false;
+            }
+
+            trace.Write(TraceLevel.Info, "<<IsVehicleIdResident");
+            return fnResult;
+
+        }
+
+        private bool IsVehicleIdVIP(CDatM1 m1, ref bool isVIP, long cpmArticleDef = GlobalDefs.DEF_UNDEFINED_VALUE)
+        {
+            trace.Write(TraceLevel.Info, ">>IsVehicleIdVIP");
+            bool fnResult = true;
+
+            try
+            {
+                isVIP = false;
+
+                COPSPlate strPlate = m1.GetInVehicleID();
+                COPSDate odDate = m1.GetInDate().Copy();
+                long lGroup = m1.GetInGroup();
+                long lArticleDef = GlobalDefs.DEF_UNDEFINED_VALUE;
+
+                tariffCalculator.FillTree();
+                bool isVehicleIdVIP = database.IsVehicleIdVIP(tariffCalculator.GetTree(), ref strPlate, odDate, lGroup, ref lArticleDef, ref isVIP);
+                if (!isVehicleIdVIP)
+                {
+                    throw new InvalidOperationException("Error getting last operation group");
+                }
+
+                if (isVIP && lArticleDef != GlobalDefs.DEF_UNDEFINED_VALUE) {
+                    m1.SetInArticleDef((int)lArticleDef);
+                }
+                else if (isVIP && lArticleDef == GlobalDefs.DEF_UNDEFINED_VALUE) {
+                    isVIP = isVIP && lArticleDef == cpmArticleDef;
+                }
+
+                m1.SetOutIsVIP(isVIP);
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+                fnResult = false;
+            }
+
+
+            trace.Write(TraceLevel.Info, "<<IsVehicleIdVIP");
+            return fnResult;
+
+        }
+
+        private bool ComputeReturn(CDatM1 m1Return, CDatM1 m1)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        private bool OpenDatabase()
+        {
+            bool fnResult = false;
+            string connectionString = ReadDatabaseConnectionStringFromConfig();
+            if (connectionString != null) {
+
+                if (database == null)
+                {
+                    database = new OPSPDMDatabase(loggerManager);
+
+                    string paramTraceDB = this.paramLoader.GetParam(PARAM_TRACE_DB) ?? "FALSE";
+                    string paramTraceIMD = this.paramLoader.GetParam(PARAM_TRACE_IMD) ?? "FALSE";
+
+                    database.SetTracerEnabled(paramTraceDB.ToUpper() == "TRUE");
+                    database.SetTracerIMDEnabled(paramTraceIMD.ToUpper() == "TRUE");
+
+                    if (database.Open(connectionString))
+                    {
+                        trace.Write(TraceLevel.Debug, $"Database connection is open: {database.IsOpened()}");
+                        database.Init();
+                        fnResult = true;
+                    }
+                }
+                else {
+                    if (database.Open(connectionString))
+                    {
+                        trace.Write(TraceLevel.Debug, $"Database connection is open: {database.IsOpened()}");
+                        fnResult = true;
+                    }
+                }
+
+                
+            }
+
+            return fnResult;
+        }
+
+        private string ReadDatabaseConnectionStringFromConfig()
+        {
+            string strConnectionString = null;
+            //bool shouldTraceDB = false;
+            try
+            {
+                string dbConnection = null;
+                string dbUser = null;
+                string dbPassword = null;
+
+                //string paramValue = string.Empty;
+                //paramValue = paramLoader.GetParam(PARAM_TRACE_DB);
+                //if (paramValue != null)
+                //{
+                //    Boolean.TryParse(paramValue, out shouldTraceDB);
+                //}
+
+                dbUser = paramLoader.GetParam(PARAM_DB_USER);
+                if (dbUser == null)
+                {
+                    throw new LoadParametersException("ERROR : Getting PARAM USER");
+                }
+
+                dbPassword = paramLoader.GetParam(PARAM_DB_PASSWORD);
+                if (dbPassword == null)
+                {
+                    throw new LoadParametersException("ERROR : Getting PARAM PASSWORD");
+                }
+
+                dbConnection = paramLoader.GetParam(PARAM_DB_CONNECTION);
+                if (dbConnection == null)
+                {
+                    throw new LoadParametersException("ERROR : Getting PARAM CONNECTION");
+                }
+
+                strConnectionString = $"Data Source={dbConnection};User Id={dbUser};Password={dbPassword};";
+                trace.Write(TraceLevel.Debug, $"OPSDatabase ConnectionString has been readed from App.config {strConnectionString}");
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+            }
+
+            return strConnectionString;
+        }
+
+        /// <exception cref="LoadParametersException"></exception>
+        private void LoadParams(string pRegEntry)
+        {
+            string configFilePath = GetParamFilePathFromWindowsRegistry(pRegEntry);
+            if (configFilePath is null) {
+                throw new LoadParametersException("ERROR : Looking for Param File" + pRegEntry);
+            }
+
+            paramLoader = new ParamLoader(loggerManager);
+            if (!paramLoader.LoadParams(configFilePath)) {
+                throw new LoadParametersException("ERROR : Load Params");
+            }
+
+            string unitId = paramLoader.GetParam(PARAM_UNIT_ID);
+            if (unitId is null) {
+                throw new LoadParametersException("ERROR : Could not get CC unit Id");
+            }
+
+            try
+            {
+                GeneralParams.UnitId = unitId;
+            }
+            catch (Exception error)
+            {
+                throw new LoadParametersException("ERRROR: Unexpected error has ocurred", error);
+            }
+            
+        }
+
+        private string GetParamFilePathFromWindowsRegistry(string pRegEntry)
+        {
+            string registryValue = string.Empty;
+            RegistryKey localKey = null;
+            if (Environment.Is64BitOperatingSystem)
+            {
+                trace.Write(TraceLevel.Error, "64 bits - " + pRegEntry);
+                localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
+            }
+            else
+            {
+                trace.Write(TraceLevel.Error, "32 bits - " + pRegEntry);
+                localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry32);
+            }
+
+            try
+            {
+                localKey = localKey.OpenSubKey(pRegEntry);
+                registryValue = localKey.GetValue("ConfigFile").ToString();
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+            }
+            return registryValue;
+        }
+
+        private bool InitComputeM1() {
+            trace.Write(TraceLevel.Info, "InitComputeM1");
+
+            bool fnResult = false;
+            try
+            {
+                string tariffParam = paramLoader.GetParam(PARAM_TARIFF);
+                if (tariffParam == null) {
+                    throw new InvalidOperationException("Could not get system tariff");
+                }
+
+                trace.Write(TraceLevel.Info, $"SELECTED TARIFF: {tariffParam}");
+
+                tariffCalculator = TariffCalculatorFactory.CreateTariffCalculator(loggerManager,tariffParam);
+                if (tariffCalculator == null) {
+                    throw new InvalidOperationException("Could not create tariff calculator");
+                }
+
+                string traceM1Param = paramLoader.GetParam(PARAM_TRACE_M1) ?? "FALSE";
+                tariffCalculator.SetTracerEnabled(traceM1Param.ToUpper() == "TRUE");
+
+                string subTariffParam = paramLoader.GetParam(PARAM_SUBTARIFF);
+                if (subTariffParam == null)
+                {
+                    throw new InvalidOperationException("Could not get system subtariff");
+                }
+
+                trace.Write(TraceLevel.Info, $"SELECTED SUBTARIFF: {subTariffParam}");
+
+                if (!tariffCalculator.SelectSubtariff(subTariffParam))
+                {
+                    trace.Write(TraceLevel.Error, $"{subTariffParam} is not a valid subtariff");
+                }
+
+                string defaultArticleDef = paramLoader.GetParam(PARAM_DEFAULT_ARTICLE_DEF);
+                if (String.IsNullOrEmpty(defaultArticleDef))
+                {
+                    throw new InvalidOperationException("Could not get system default article definition");
+                }
+                this.defaultArticleDef = int.Parse(defaultArticleDef);
+                trace.Write(TraceLevel.Info, $"DEFAULT ARTICLE DEF : {defaultArticleDef}");
+
+                string minCoin = paramLoader.GetParam(PARAM_MIN_COIN);
+                if (String.IsNullOrEmpty(minCoin))
+                {
+                    throw new InvalidOperationException("Could not get PDM min coin");
+                }
+                trace.Write(TraceLevel.Info, $"PDM Min Coin: {minCoin}");
+                tariffCalculator.SetMinCoinValue(long.Parse(minCoin));
+
+                string lookOtherGroups = paramLoader.GetParam(PARAM_LOOK_OTHER_GROUPS);
+                if (!String.IsNullOrEmpty(lookOtherGroups))
+                {
+                    this.lookOtherGroups = bool.Parse(lookOtherGroups);
+                }
+
+                string systemIdentifier = paramLoader.GetParam(PARAM_SYSTEM_IDENTIFIER);
+                if (String.IsNullOrEmpty(systemIdentifier))
+                {
+                    throw new InvalidOperationException("Could not get System Identifier");
+                }
+                trace.Write(TraceLevel.Info, $"System Identifier {systemIdentifier}");
+
+                GeneralParams.SystemId = int.Parse(systemIdentifier);
+
+                fnResult = true;
+            }
+            catch (Exception error)
+            {
+                trace.Write(TraceLevel.Error, error.ToLogString());
+            }
+
+            return fnResult;
+        }
+
+    }
+}
