@@ -98,6 +98,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OPS.Comm">
+      <HintPath>..\OPSCS\OPSMessages\bin\Release\OPS.Comm.dll</HintPath>
+    </Reference>
+    <Reference Include="OPSLogger">
+      <HintPath>..\OPSCS\OPSMessages\bin\Release\OPSLogger.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>

@@ -112,6 +112,18 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OPS.Components, Version=1.2.1.1, Culture=neutral, PublicKeyToken=1171432d5dd60cf0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Release\OPS.Components.dll</HintPath>
+    </Reference>
+    <Reference Include="OPS.ComponentsBD, Version=1.2.1.1, Culture=neutral, PublicKeyToken=6e2de7211c9a9527, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Release\OPS.ComponentsBD.dll</HintPath>
+    </Reference>
+    <Reference Include="OPSLogger, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2f4989f27bc3dc51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Release\OPSLogger.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -128,9 +140,9 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <Reference Include="zlibnet, Version=1.3.3.0, Culture=neutral, PublicKeyToken=a9911c577c68b723, processorArchitecture=AMD64">
+    <Reference Include="zlibnet, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OPSCommon\OPSComm\OPSComm\bin\x64\Debug\zlibnet.dll</HintPath>
+      <HintPath>bin\Release\zlibnet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -481,10 +493,6 @@
       <Project>{3d0af4e3-e555-4bda-9cd8-b310df6f3a7e}</Project>
       <Name>ComponentsBD</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\OPSCommon\Components\Components.csproj">
-      <Project>{20fd5817-5c47-40f1-8749-a8572cb2d83a}</Project>
-      <Name>Components</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\OPSCommon\IndeDataProvider\IndeDataProvider.csproj">
       <Project>{a546d4aa-8fde-42aa-a477-a78daad6c1b3}</Project>
       <Name>IndeDataProvider</Name>
@@ -492,10 +500,6 @@
     <ProjectReference Include="..\..\OPSCommon\OPSComm\OPSComm\OPSComm.csproj">
       <Project>{09c08710-6d6f-4fb6-9996-03115826fe74}</Project>
       <Name>OPSComm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\OPSCommon\OPSLogger\OPSLogger.csproj">
-      <Project>{8a9b4521-a395-44f7-b3ef-2b89ee90fd44}</Project>
-      <Name>OPSLogger</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\OPSCompute.NET\OPSCompute\OPSCompute.csproj">
       <Project>{aae58fbe-4911-4191-912d-bf01f4cf9d30}</Project>
