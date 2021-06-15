@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OPSMsgConfig", "OPSCommon\O
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OPSComm", "OPSCommon\OPSComm\OPSComm\OPSComm.csproj", "{09C08710-6D6F-4FB6-9996-03115826FE74}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OPSWebServicesAPI", "OPSWebServicesAPI\OPSWebServicesAPI.csproj", "{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -190,6 +192,14 @@ Global
 		{09C08710-6D6F-4FB6-9996-03115826FE74}.Release|Any CPU.Build.0 = Release|Any CPU
 		{09C08710-6D6F-4FB6-9996-03115826FE74}.Release|x64.ActiveCfg = Release|x64
 		{09C08710-6D6F-4FB6-9996-03115826FE74}.Release|x64.Build.0 = Release|x64
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Debug|x64.Build.0 = Debug|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Release|x64.ActiveCfg = Release|Any CPU
+		{25C01661-CEF1-4CB5-929B-8955B7D8BEB6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
