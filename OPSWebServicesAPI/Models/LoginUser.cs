@@ -5,23 +5,42 @@ using System.Web;
 
 namespace OPSWebServicesAPI.Models
 {
+    /// <summary>
+    /// class to request Login
+    /// </summary>
     public class LoginUser
     {
-        //Cloud token
+        /// <summary>
+        /// Cloud token
+        /// </summary>
         public string cid { get; set; }
-        //id del municipio
+        /// <summary>
+        /// id del municipio
+        /// </summary>
         public string contid { get; set; }
-        //OS --> 1- Android 2- iOS 3- web
+        /// <summary>
+        /// OS --> 1- Android 2- iOS 3- web
+        /// </summary>
         public string os { get; set; }
-        //login
+        /// <summary>
+        /// login
+        /// </summary>
         public string un { get; set; }
-        //password
+        /// <summary>
+        /// password
+        /// </summary>
         public string pw { get; set; }
-        //Version OS
+        /// <summary>
+        /// Version OS
+        /// </summary>
         public string v { get; set; }
-        //Authentication token
+        /// <summary>
+        /// Authentication token
+        /// </summary>
         public string mui { get; set; }
-        //hash
+        /// <summary>
+        /// hash
+        /// </summary>
         public string ah { get; set; }
     }
 }

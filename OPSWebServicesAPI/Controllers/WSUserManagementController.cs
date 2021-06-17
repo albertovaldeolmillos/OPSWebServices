@@ -13,12 +13,14 @@ using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Xml;
+using AutoMapper;
 using Jot;
 using Newtonsoft.Json;
 using OPS.Comm;
 using OPS.Comm.Becs.Messages;
 using OPS.Comm.Cryptography.TripleDes;
 using OPS.Components.Data;
+using OPSWebServicesAPI.Helpers;
 using OPSWebServicesAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -138,7 +140,7 @@ namespace OPSWebServicesAPI.Controllers
         /// <summary>
         /// Método que devuelve el token de autorización de inicio de sesión o error en caso contrario
         /// </summary>
-        /// <param name="loginUser">Objeto LoginUser con la información necesaia para el Login</param>
+        /// <param name="loginUser">Objeto LoginUser con la información necesaria para el Login</param>
         /// <returns>Devuelve un objeto PostResponse indicando si la respuesta ha sido correcta, el resultado (mui - authorization token) y si ha habido error, dicho error  </returns>
         [HttpPost]
         [Route("LoginUserAPI")]
@@ -147,7 +149,7 @@ namespace OPSWebServicesAPI.Controllers
             string strToken = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
             PostResponse response = new PostResponse();
 
-            SortedList parametersIn = new SortedList();
+            /*SortedList parametersIn = new SortedList();
             parametersIn.Add("un", loginUser.un);
             parametersIn.Add("pw", loginUser.pw);
             parametersIn.Add("mui", loginUser.mui);
@@ -155,7 +157,16 @@ namespace OPSWebServicesAPI.Controllers
             parametersIn.Add("os", loginUser.os);
             parametersIn.Add("v", loginUser.v);
             parametersIn.Add("ah", loginUser.ah);
-            parametersIn.Add("contid", loginUser.contid);
+            parametersIn.Add("contid", loginUser.contid);*/
+
+            SortedList parametersIn = new SortedList();
+            PropertyInfo[] properties = typeof(LoginUser).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string NombreAtributo = property.Name;
+                var Valor = property.GetValue(loginUser);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
 
             try
             {
@@ -473,6 +484,11 @@ namespace OPSWebServicesAPI.Controllers
         * 
     */
 
+        /// <summary>
+        /// Método que actualiza la información asociada al usuario y que devuelve el id del mismo en caso de actualización correcta o -1 en caso contrario
+        /// </summary>
+        /// <param name="updateUser">Objeto UpdateUser con la información necesaria para el Update</param>
+        /// <returns>Devuelve un objeto PostResponse indicando si la respuesta ha sido correcta, el resultado (id de usuario) y si ha habido error, -1  </returns>
         [HttpPost]
         [Route("UpdateUserAPI")]
         public PostResponse UpdateUserAPI([FromBody] UpdateUser updateUser)
@@ -481,53 +497,37 @@ namespace OPSWebServicesAPI.Controllers
             int nMobileUserId = -1;
             PostResponse response = new PostResponse();
 
-            SortedList parametersIn = new SortedList();
-            parametersIn.Add("un", updateUser.un);
-            parametersIn.Add("fs", updateUser.fs);
-            parametersIn.Add("ss", updateUser.ss);
-            parametersIn.Add("na", updateUser.na);
-            parametersIn.Add("em", updateUser.em);
-            parametersIn.Add("nif", updateUser.nif);
-            parametersIn.Add("mmp", updateUser.mmp);
-            parametersIn.Add("amp", updateUser.amp);
-            parametersIn.Add("asn", updateUser.asn);
-            parametersIn.Add("abn", updateUser.abn);
-            parametersIn.Add("adf", updateUser.adf);
-            parametersIn.Add("add", updateUser.add);
-            parametersIn.Add("ads", updateUser.ads);
-            parametersIn.Add("adl", updateUser.adl);
-            parametersIn.Add("apc", updateUser.apc);
-            parametersIn.Add("aci", updateUser.aci);
-            parametersIn.Add("apr", updateUser.apr);
-            parametersIn.Add("val", updateUser.val);
-            //parametersIn.Add("plates", updateUser.plates);
-            //parametersIn.Add("notifications", updateUser.notifications);
-            parametersIn.Add("ba", updateUser.notifications.ba);
-            parametersIn.Add("fn", updateUser.notifications.fn);
-            parametersIn.Add("q_ba", updateUser.notifications.q_ba);
-            parametersIn.Add("re", updateUser.notifications.re);
-            parametersIn.Add("t_unp", updateUser.notifications.t_unp);
-            parametersIn.Add("unp", updateUser.notifications.unp);
-            parametersIn.Add("mui", updateUser.mui);
-
+            SortedList notificationList = new SortedList();
             SortedList plateList = new SortedList();
             int numPlates = 0;
-            foreach (Plate plate in updateUser.plates)
+            SortedList parametersIn = new SortedList();
+            PropertyInfo[] properties = typeof(UpdateUser).GetProperties();
+            foreach (PropertyInfo property in properties)
             {
-                plateList.Add("p" + numPlates, plate.p);
-                numPlates++;
+                string NombreAtributo = property.Name;
+                if (NombreAtributo == "plates")
+                {        
+                    foreach (Plate plate in updateUser.plates)
+                    {
+                        plateList.Add("p" + numPlates, plate.p);
+                        numPlates++;
+                    }
+                    parametersIn.Add("plates", plateList);
+                }
+                else if (NombreAtributo == "notifications")
+                {
+                    PropertyInfo[] propertiesNot = typeof(Notifications).GetProperties();
+                    foreach (PropertyInfo propertyNot in propertiesNot)
+                    {
+                        parametersIn.Add(propertyNot.Name, propertyNot.GetValue(updateUser.notifications));
+                    }
+                }
+                else 
+                {
+                    var Valor = property.GetValue(updateUser);
+                    parametersIn.Add(NombreAtributo, Valor);
+                }
             }
-            parametersIn.Add("plates", plateList);
-
-            SortedList notificationList = new SortedList();
-            notificationList.Add("ba", updateUser.notifications.ba);
-            notificationList.Add("fn", updateUser.notifications.fn);
-            notificationList.Add("q_ba", updateUser.notifications.q_ba);
-            notificationList.Add("re", updateUser.notifications.re);
-            notificationList.Add("t_unp", updateUser.notifications.t_unp);
-            notificationList.Add("unp", updateUser.notifications.unp);
-            parametersIn.Add("notifications", notificationList);
-
 
             try
             {
@@ -797,6 +797,12 @@ namespace OPSWebServicesAPI.Controllers
                      g.	-20: Mobile user id not found
 
               */
+
+        /// <summary>
+        /// Método que obtiene las operaciones realizadas por un usuario
+        /// </summary>
+        /// <param name="userOperation">Objeto UserOperation con la información necesaria para obtener estas operaciones</param>
+        /// <returns>Devuelve un objeto UserOperationResponse indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
         [HttpPost]
         [Route("QueryUserOperationsAPI")]
         public UserOperationResponse QueryUserOperationsAPI([FromBody] UserOperation userOperation)
@@ -806,19 +812,28 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
-            parametersIn.Add("d", userOperation.d);
-            parametersIn.Add("contid", userOperation.contid);
-            parametersIn.Add("msgId", userOperation.msgId);
-            parametersIn.Add("mui", userOperation.mui);
-            SortedList ops = new SortedList();
-            int numOps = 0;
-            foreach (int op in userOperation.ots)
-            {
-                ops.Add("op" + numOps, op);
-                numOps++;
-            }
             
-            parametersIn.Add("ots", ops);
+            PropertyInfo[] properties = typeof(UserOperation).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string NombreAtributo = property.Name;
+                if (NombreAtributo == "ots")
+                {
+                    SortedList ops = new SortedList();
+                    int numOps = 0;
+                    foreach (int op in userOperation.ots)
+                    {
+                        ops.Add("op" + numOps, op);
+                        numOps++;
+                    }
+                    parametersIn.Add(NombreAtributo, ops);
+                }    
+                else
+                {
+                    var Valor = property.GetValue(userOperation);
+                    parametersIn.Add(NombreAtributo, Valor);
+                }
+            }
 
             try
             {
@@ -975,38 +990,16 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             //return xmlOut;
-            response.IsSuccess = false;
-            response.ErrorMessage = "Result_Error_Generic";
+            response.IsSuccess = true;
+            response.ErrorMessage = "";
             List<O> lista = new List<O>();
             SortedList listOps = (SortedList)parametersOut["lst"];
+            ConfigMapModel configMapModel = new ConfigMapModel();
+            var config = configMapModel.configO();
+            IMapper iMapper = config.CreateMapper();
             foreach (System.Collections.DictionaryEntry op in listOps) 
             {
-                O ope = new O();
-                SortedList elem = (SortedList)op.Value;
-                ope.bns = (string)elem["bns"];
-                ope.contid = (string)elem["contid"];
-                ope.contname = (string)elem["contname"];
-                ope.on = (string)elem["on"];
-                ope.ot = (string)elem["ot"];
-                ope.pa = (string)elem["pa"];
-                ope.pm = (string)elem["pm"];
-                ope.pp = (string)elem["pp"];
-                ope.rd = (string)elem["rd"];
-                ope.zo = (string)elem["zo"];
-                ope.zonecolor = (string)elem["zonecolor"];
-                ope.zonename = (string)elem["zonename"];
-                ope.farticle = (string)elem["farticle"];
-                ope.fcolor = (string)elem["fcolor"];
-                ope.fmake = (string)elem["fmake"];
-                ope.fn = (string)elem["fn"];
-                ope.fpd = (string)elem["fpd"];
-                ope.fs = (string)elem["fs"];
-                ope.fstreet = (string)elem["fstreet"];
-                ope.fstrnum = (string)elem["fstrnum"];
-                ope.pl = (string)elem["pl"];
-                ope.ed = (string)elem["ed"];
-                ope.sd = (string)elem["sd"];
-                ope.sta = (string)elem["sta"];
+                O ope = iMapper.Map<SortedList, O>((SortedList)op.Value);
                 lista.Add(ope);
             } 
             response.o = lista.ToArray();
@@ -1049,6 +1042,7 @@ namespace OPSWebServicesAPI.Controllers
              * 
          */
 
+        /*
         [HttpPost]
         [Route("LoginUserXML")]
         public string LoginUserXML(string xmlIn)
@@ -1220,6 +1214,7 @@ namespace OPSWebServicesAPI.Controllers
 
             return strToken;
         }
+        */
 
         /*
         * 
@@ -1331,7 +1326,7 @@ namespace OPSWebServicesAPI.Controllers
         * 
         * 
     */
-
+        /*
         [HttpPost]
         [Route("UpdateUserXML")]
         public string UpdateUserXML(string xmlIn)
@@ -1494,6 +1489,7 @@ namespace OPSWebServicesAPI.Controllers
 
             return xmlOut;
         }
+        */
 
         /*
          * The parameters of method QueryUserOperationsXML are:
@@ -1559,6 +1555,8 @@ namespace OPSWebServicesAPI.Controllers
                 g.	-20: Mobile user id not found
 
          */
+
+        /*
         [HttpPost]
         [Route("QueryUserOperationsXML")]
         public string QueryUserOperationsXML(string xmlIn)
@@ -1692,6 +1690,7 @@ namespace OPSWebServicesAPI.Controllers
 
             return xmlOut;
         }
+        */
 
         #region private methods
 
