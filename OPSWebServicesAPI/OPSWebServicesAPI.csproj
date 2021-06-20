@@ -282,6 +282,10 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OPSCS\FineLib\FineLib.csproj">
+      <Project>{5EA4DD99-6228-44F2-84CC-E10EEF230FC1}</Project>
+      <Name>FineLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OPSCS\OPSMessages\OPSMessages.csproj">
       <Project>{6D2C7F9D-D226-4318-A4A1-086758476818}</Project>
       <Name>OPSMessages</Name>

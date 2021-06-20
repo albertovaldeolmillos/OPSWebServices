@@ -502,6 +502,22 @@
             <param name="userOperation">Objeto UserOperation con la información necesaria para obtener estas operaciones</param>
             <returns>Devuelve un objeto UserOperationResponse indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.DtxToString(System.DateTime)">
+            <summary>
+            Pass a DateTime to a string in format (hhmmssddmmyy)
+            </summary>
+            <param name="dt">DateTime to convert</param>
+            <returns>string in OPS-dtx format</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.OPSMessage_M05Process(System.String,System.Int32)">
+            <summary>
+            Metodo para sustituir el proceso de pedir la información del Process de M05 vía servicio asmx (mirar Process de M05)
+            Devuelve una SortedList con toda la información
+            </summary>
+            <param name="fine_id"></param>
+            <param name="nContractId"></param>
+            <returns></returns>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.LoginUser">
             <summary>
             class to request Login

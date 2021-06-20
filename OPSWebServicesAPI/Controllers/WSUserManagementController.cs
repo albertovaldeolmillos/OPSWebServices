@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -20,6 +21,7 @@ using OPS.Comm;
 using OPS.Comm.Becs.Messages;
 using OPS.Comm.Cryptography.TripleDes;
 using OPS.Components.Data;
+using OPS.FineLib;
 using OPSWebServicesAPI.Helpers;
 using OPSWebServicesAPI.Models;
 using Oracle.ManagedDataAccess.Client;
@@ -3475,6 +3477,369 @@ namespace OPSWebServicesAPI.Controllers
             return rtRes;
         }
 
+
+        /// <summary>
+        /// Pass a DateTime to a string in format (hhmmssddmmyy)
+        /// </summary>
+        /// <param name="dt">DateTime to convert</param>
+        /// <returns>string in OPS-dtx format</returns>
+        public string DtxToString(DateTime dt)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.Append(dt.Hour.ToString("D2"));
+            sb.Append(dt.Minute.ToString("D2"));
+            sb.Append(dt.Second.ToString("D2"));
+            sb.Append(dt.Day.ToString("D2"));
+            sb.Append(dt.Month.ToString("D2"));
+            int year = dt.Year - 2000;                  // We use only 2 digits.
+            sb.Append(year.ToString("D2"));
+            return sb.ToString();
+
+        }
+
+        /// <summary>
+        /// Comprueba si una fecha es día festivo o no (mira en la tabla DAYS)
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="nContractId"></param>
+        /// <returns>deveulve si es festivo o no</returns>
+        private bool IsHollyday(DateTime dt, int nContractId)
+        {
+            int nResult = -1;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strDateTime = DtxToString(dt);
+                string strSQL = string.Format("select count(*) " +
+                                                "from days " +
+                                                "where day_date = to_date('{0}', 'HH24MISSDDMMYY')",
+                                                strDateTime);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nResult = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("IsHollyday::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return (nResult>0);
+        }
+
+        /// <summary>
+        /// Comprueba si la multa está fuera de plazo o no
+        /// </summary>
+        /// <param name="dtFineDatetime"></param>
+        /// <param name="dtOpePaymentDateTime"></param>
+        /// <param name="iTimeForPayment"></param>
+        /// <param name="strDayCode"></param>
+        /// <param name="nContractId"></param>
+        /// <returns>devuelve si es pagable o no</returns>
+        public bool IsFinePaymentInTime(DateTime dtFineDatetime, DateTime dtOpePaymentDateTime, int iTimeForPayment, string strDayCode, int nContractId)
+        {
+            bool bReturn = false;
+
+            try
+            {
+
+                if (iTimeForPayment > 0)
+                {
+                    int iMaxNumDays = (iTimeForPayment / (24 * 60));
+                    int iCurrNumDays = 0;
+                    int iCurrLoops = 0;
+                    DateTime dtTemp = dtFineDatetime;
+                    TimeSpan ts1Day = new TimeSpan(1, 0, 0, 0);
+                    dtTemp = dtTemp + ts1Day;
+
+
+                    DateTime dtWork = new DateTime(dtTemp.Year, dtTemp.Month, dtTemp.Day, 0, 0, 0);
+
+                    while ((iCurrNumDays < iMaxNumDays) && (iCurrLoops < 60))
+                    {
+                        if (!IsHollyday(dtWork, nContractId))
+                        {
+                            int index = Convert.ToInt32(dtWork.DayOfWeek) - 1;
+
+                            if (index < 0)
+                            {
+                                index += 7;
+                            }
+
+                            if (strDayCode[index] == '1')
+                            {
+                                iCurrNumDays++;
+                            }
+                        }
+                        dtWork += ts1Day;
+                        iCurrLoops++;
+                    }
+
+                    bReturn = ((dtFineDatetime < dtOpePaymentDateTime) && (dtOpePaymentDateTime < dtWork));
+
+                    Logger_AddLogMessage(string.Format("FinePaymentInTime={0}, Fecha Multa: {1}; Fecha Límite: {2}, Fecha Operación: {3}",
+                                                        bReturn, dtFineDatetime.ToString(), dtWork.ToString(),
+                                                        dtOpePaymentDateTime.ToString()), LoggerSeverities.Info);
+
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogException(e);
+                bReturn = false;
+            }
+
+            return bReturn;
+        }
+
+        /// <summary>
+        /// Metodo para sustituir el proceso de pedir la información del Process de M05 vía servicio asmx (mirar Process de M05)
+        /// Devuelve una SortedList con toda la información
+        /// </summary>
+        /// <param name="fine_id"></param>
+        /// <param name="nContractId"></param>
+        /// <returns>SortedList con la información</returns>
+        private SortedList OPSMessage_M05Process(string fine_id, int nContractId = 0)
+        {
+            SortedList parametersOut = new SortedList();
+
+            string FINES_DEF_CODES_FINE = ConfigurationManager.AppSettings["FinesDefCodes.Fine"].ToString();
+            // Data to include in the response
+            string responseFineNumber = fine_id;
+            int responseFineDefId = -1; // May be NULL
+            string responseVehicleId = null; // May be NULL
+            double responseQuantity = -1.0; // May be NULL
+            DateTime responseDate = DateTime.MinValue; // May be NULL
+            int responseResult = -99; // Cannot be NULL. Default result is Error generic
+            int responsePayed = 0;
+            int responseGrpId = 0;
+            bool responseIsHollyday = false;
+            string strDayCode = "";
+            // Auxiliar variables
+            int payInPdm;
+
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT FIN_DFIN_ID, "
+                            + "       FIN_VEHICLEID, "
+                            + "       FIN_DATE, "
+                            + "       fdq.DFINQ_VALUE, "
+                            + "       fd1.DFIN_PAYINPDM, "
+                            + "		  FIN_STATUSADMON, "
+                            + "		  FIN_GRP_ID_ZONE, "
+                            + "		  DDAY_CODE, "
+                            + "		  DFINQ_INI_MINUTE, "
+                            + "		  DFINQ_END_MINUTE, "
+                            //+ "       CASE WHEN (trunc(f.fin_date + 1) in (SELECT day_date FROM DAYS)) THEN 1 ELSE 0 END as IsHollyday, "
+                            + "		  trunc((CURRENT_DATE - f.fin_date) * 24 * 60) ELAPSED_MINUTES  "
+                            + " FROM DAYS_DEF dd, FINES f "
+                            + " INNER JOIN FINES_DEF fd1 ON f.FIN_DFIN_ID = fd1.DFIN_ID, FINES_DEF fd2 "
+                            + " INNER JOIN FINES_DEF_QUANTITY fdq ON fd2.DFIN_ID = fdq.DFINQ_ID "
+                            + " WHERE FIN_ID = " + fine_id + " and fd1.dfin_pay_dday_id=dday_id "
+                            + "   AND fd1.DFIN_COD_ID = 1 "
+                            + "   and fd1.dfin_id = fd2.dfin_id "
+                            + "   and f.fin_date >= fdq.dfinq_inidate "
+                            + "   and f.fin_date < fdq.dfinq_endate");
+                
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    bool bExit = false;
+                    while (dataReader.Read() && !bExit)
+                    {
+                        responseResult = 0;
+
+                        responseFineDefId = dataReader.GetInt32(0);// "FIN_DFIN_ID"
+                        responseVehicleId = dataReader.GetString(1);// "FIN_VEHICLEID"
+                        responseQuantity = dataReader.GetDouble(3);//"DFINQ_VALUE"
+                        responseDate = dataReader.GetDateTime(2);//"FIN_DATE"
+                        payInPdm = dataReader.GetInt32(4);//"DFIN_PAYINPDM"
+                        responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
+                        strDayCode = dataReader.GetString(7);//"DDAY_CODE"
+
+                        if (dataReader.GetInt32(5) != CFineManager.C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                        {
+                            responsePayed = 1;
+                        }
+
+
+                        int iFinQIniMinute = dataReader.GetInt32(8);//"DFINQ_INI_MINUTE"
+                        int iFinQEndMinute = dataReader.GetInt32(9);//"DFINQ_END_MINUTE"
+                        int iElapsedMinutes = dataReader.GetInt32(10);//"ELAPSED_MINUTES"
+
+                        //responseIsHollyday = dataReader.GetBoolean(10);//IsHollyday
+
+
+                        //CFineManager oFineManager = new CFineManager();
+                        //bool bFinePaymentInTime = oFineManager.IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode);
+
+                        bool bFinePaymentInTime = IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode, nContractId);
+
+                        if (payInPdm == 0)
+                        {
+                            responseResult = -1;
+                            bExit = true;
+                        }
+                        else if (bFinePaymentInTime)
+                        {
+                            if ((iElapsedMinutes > iFinQIniMinute) && (iElapsedMinutes <= iFinQEndMinute))
+                            {
+                                responseResult = 1;
+                                bExit = true;
+                            }
+                            else
+                            {
+                                responseResult = -2;
+                            }
+                        }
+                        else
+                        {
+                            responseResult = -2;
+                            bExit = true;
+                        }
+                    }
+                }
+                else
+                {
+                    //todavía no existe la multa
+                    // existe alguna operación de pago de la misma
+
+                    strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                    oraCmd.CommandText = strSQL;
+
+                    if (dataReader != null)
+                    {
+                        dataReader.Close();
+                        dataReader.Dispose();
+                    }
+
+                    dataReader = oraCmd.ExecuteReader();
+
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        if (dataReader.GetInt32(0) > 0)
+                            responsePayed = 1;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("CheckMobileUserName::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+            parametersOut.Add("r", responseResult);//1
+            parametersOut.Add("f", responseFineNumber);//20999998
+            parametersOut.Add("y", responseFineDefId);//1
+            parametersOut.Add("m", responseVehicleId);//1234GTK
+            parametersOut.Add("q", responseQuantity);//320
+            parametersOut.Add("d", responseDate);//114516060521
+            parametersOut.Add("g", responseGrpId);//60002
+            parametersOut.Add("p", responsePayed);//0
+
+            return parametersOut;
+        }
+
         private int SendM5(SortedList parametersIn, Hashtable parametersInMapping, Hashtable parametersOutMapping, int iVirtualUnit, out SortedList parametersOut, int nContractId = 0)
         {
             int iRes = Convert.ToInt32(ResultType.Result_OK);
@@ -3502,15 +3867,18 @@ namespace OPSWebServicesAPI.Controllers
 
                     string strM5Out = null;
 
-                    if (OPSMessage(strM5In, iVirtualUnit, out strM5Out, nContractId))
+                    //parametersM5In: d=CURRENT_DATE, f=fin_id, m=1(pago móvil)
+                    SortedList parametersM5Out = OPSMessage_M05Process(parametersM5In["f"].ToString(), nContractId);
+
+                    if (parametersM5Out["r"].ToString() != "-99")//No hay error generico
+                    //if (OPSMessage(strM5In, iVirtualUnit, out strM5Out, nContractId))
                     {
-                        Logger_AddLogMessage(string.Format("SendM5::OPSMessageOut = {0}", strM5Out), LoggerSeverities.Info);
-                        SortedList parametersM5Out = new SortedList();
-                        ResultType rtM5Out = FindOPSMessageOutputParameters(strM5Out, out parametersM5Out);
+                        //Logger_AddLogMessage(string.Format("SendM5::OPSMessageOut = {0}", strM5Out), LoggerSeverities.Info);
 
+                        //ResultType rtM5Out = FindOPSMessageOutputParameters(strM5Out, out parametersM5Out);
 
-                        if (rtM5Out == ResultType.Result_OK)
-                        {
+                        //if (rtM5Out == ResultType.Result_OK)
+                        //{
                             parametersOut = new SortedList();
                             iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
 
@@ -3551,12 +3919,12 @@ namespace OPSWebServicesAPI.Controllers
                                 }
                             }
 
-                        }
-                        else
-                        {
-                            iRes = Convert.ToInt32(rtM5Out);
-                            Logger_AddLogMessage(string.Format("SendM5::Error In MessageOut = {0}", strM5Out), LoggerSeverities.Error);
-                        }
+                        //}
+                        //else
+                        //{
+                        //    iRes = Convert.ToInt32(rtM5Out);
+                        //    Logger_AddLogMessage(string.Format("SendM5::Error In MessageOut = {0}", strM5Out), LoggerSeverities.Error);
+                        //}
 
 
 
