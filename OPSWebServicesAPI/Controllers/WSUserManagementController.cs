@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Linq;
@@ -98,6 +99,15 @@ namespace OPSWebServicesAPI.Controllers
             Result_Error_Recovery_Code_Expired = -33
         }
 
+        public enum SeverityError
+        {
+            Warning = 1, //aviso a usuario
+            Exception = 2, //error no controlado
+            Critical = 3, //error de lógica
+            Low = 4 //informativo (para logs)
+        }
+
+
         protected override void Initialize(HttpControllerContext controllerContext)
         {
             base.Initialize(controllerContext);
@@ -142,14 +152,14 @@ namespace OPSWebServicesAPI.Controllers
         /// <summary>
         /// Método que devuelve el token de autorización de inicio de sesión o error en caso contrario
         /// </summary>
-        /// <param name="loginUser">Objeto LoginUser con la información necesaria para el Login</param>
-        /// <returns>Devuelve un objeto PostResponse indicando si la respuesta ha sido correcta, el resultado (mui - authorization token) y si ha habido error, dicho error  </returns>
+        /// <param name="userLogin">Objeto UserLogin con la información necesaria para el Login</param>
+        /// <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (mui - authorization token) y si ha habido error, dicho error  </returns>
         [HttpPost]
         [Route("LoginUserAPI")]
-        public PostResponse LoginUserAPI([FromBody] LoginUser loginUser)
+        public Result LoginUserAPI([FromBody] UserLogin userLogin)
         {
             string strToken = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-            PostResponse response = new PostResponse();
+            Result response = new Result();
 
             /*SortedList parametersIn = new SortedList();
             parametersIn.Add("un", loginUser.un);
@@ -162,11 +172,13 @@ namespace OPSWebServicesAPI.Controllers
             parametersIn.Add("contid", loginUser.contid);*/
 
             SortedList parametersIn = new SortedList();
-            PropertyInfo[] properties = typeof(LoginUser).GetProperties();
+            PropertyInfo[] properties = typeof(UserLogin).GetProperties();
             foreach (PropertyInfo property in properties)
             {
-                string NombreAtributo = property.Name;
-                var Valor = property.GetValue(loginUser);
+                //string NombreAtributo = property.Name;
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                var Valor = property.GetValue(userLogin);
                 parametersIn.Add(NombreAtributo, Valor);
             }
 
@@ -182,15 +194,15 @@ namespace OPSWebServicesAPI.Controllers
                 if (rt == ResultType.Result_OK)
                 {
                     if (((parametersIn["un"] == null && parametersIn["pw"] == null) && parametersIn["mui"] == null) ||
-                        (parametersIn["cid"] == null) ||
-                        (parametersIn["os"] == null) ||
-                        (parametersIn["v"] == null) ||
-                        (parametersIn["contid"] == null))
+                        (parametersIn["cid"] == null) || (parametersIn["cid"].ToString().Length == 0) ||
+                        (parametersIn["os"] == null) || (parametersIn["os"].ToString().Length == 0) ||
+                        (parametersIn["v"] == null) || (parametersIn["v"].ToString().Length == 0) ||
+                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                         response.IsSuccess = false;
-                        response.ErrorMessage = "Result_Error_Missing_Input_Parameter";
-                        response.Result = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        response.Error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.Value = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
                     else
@@ -212,8 +224,8 @@ namespace OPSWebServicesAPI.Controllers
                         {
                             Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Bad hash: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                             response.IsSuccess = false;
-                            response.ErrorMessage = "Result_Error_InvalidAuthenticationHash";
-                            response.Result = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            response.Error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.Value = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;// Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                         }
                         else
@@ -234,16 +246,16 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 Logger_AddLogMessage(string.Format("LoginUserAPI::Incorrect app version - update needed: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_App_Update_Required";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_App_Update_Required).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_App_Update_Required, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_App_Update_Required).ToString();
                                 return response;//Convert.ToInt32(ResultType.Result_Error_App_Update_Required).ToString();
                             }
                             else if (nVersionResult < 0)
                             {
                                 Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not verify version: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Generic";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                             }
 
@@ -270,8 +282,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not validate user: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Invalid_Login";
-                                    response.Result = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                    response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
                                 else
@@ -282,8 +294,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::User not validated - needs to activate account: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_User_Not_Validated";
-                                    response.Result = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
+                                    response.Error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                                    response.Value = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
                                 }
 
@@ -294,8 +306,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not update web credentials: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Generic";
-                                    response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 }
                             }
@@ -311,8 +323,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not obtain user from token: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Invalid_Login";
-                                    response.Result = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                    response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
                                 else
@@ -325,8 +337,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Token not valid: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Invalid_Login";
-                                    response.Result = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                    response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
 
@@ -341,8 +353,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not update web credentials: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Generic";
-                                    response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 }
                             }
@@ -353,8 +365,8 @@ namespace OPSWebServicesAPI.Controllers
                 {
                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Incorrect input format: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                     response.IsSuccess = false;
-                    response.ErrorMessage = "Result_Error_Generic";
-                    response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;//Convert.ToInt32(rt).ToString();
                 }
             }
@@ -364,14 +376,14 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("LoginUserAPI::Error - {0}: parametersIn= {1}", e.Message, parametersIn), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.IsSuccess = false;
-                response.ErrorMessage = "Result_Error_Generic";
-                response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
             }
 
             response.IsSuccess = true;
-            response.ErrorMessage = "";
-            response.Result = strToken;
+            response.Error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.Value = strToken;
             return response;//strToken;
         }
 
@@ -489,44 +501,48 @@ namespace OPSWebServicesAPI.Controllers
         /// <summary>
         /// Método que actualiza la información asociada al usuario y que devuelve el id del mismo en caso de actualización correcta o -1 en caso contrario
         /// </summary>
-        /// <param name="updateUser">Objeto UpdateUser con la información necesaria para el Update</param>
-        /// <returns>Devuelve un objeto PostResponse indicando si la respuesta ha sido correcta, el resultado (id de usuario) y si ha habido error, -1  </returns>
+        /// <param name="user">Objeto User con la información necesaria para el Update</param>
+        /// <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (id de usuario) y si ha habido error</returns>
         [HttpPost]
         [Route("UpdateUserAPI")]
-        public PostResponse UpdateUserAPI([FromBody] UpdateUser updateUser)
+        public Result UpdateUserAPI([FromBody] User user)
         {
             //string xmlOut = "";
             int nMobileUserId = -1;
-            PostResponse response = new PostResponse();
+            Result response = new Result();
 
             SortedList notificationList = new SortedList();
             SortedList plateList = new SortedList();
             int numPlates = 0;
             SortedList parametersIn = new SortedList();
-            PropertyInfo[] properties = typeof(UpdateUser).GetProperties();
+            PropertyInfo[] properties = typeof(User).GetProperties();
             foreach (PropertyInfo property in properties)
             {
-                string NombreAtributo = property.Name;
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
                 if (NombreAtributo == "plates")
                 {        
-                    foreach (Plate plate in updateUser.plates)
+                    foreach (Plate plate in user.plates)
                     {
-                        plateList.Add("p" + numPlates, plate.p);
+                        plateList.Add("p" + numPlates, plate.plate);
                         numPlates++;
                     }
                     parametersIn.Add("plates", plateList);
                 }
                 else if (NombreAtributo == "notifications")
                 {
-                    PropertyInfo[] propertiesNot = typeof(Notifications).GetProperties();
+                    PropertyInfo[] propertiesNot = typeof(Notification).GetProperties();
                     foreach (PropertyInfo propertyNot in propertiesNot)
                     {
-                        parametersIn.Add(propertyNot.Name, propertyNot.GetValue(updateUser.notifications));
+                        var attributeNot = propertyNot.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                        string NombreAtributoNot = (attribute == null) ? propertyNot.Name : attributeNot.DisplayName;
+                        parametersIn.Add(NombreAtributoNot, propertyNot.GetValue(user.notifications));
                     }
                 }
                 else 
                 {
-                    var Valor = property.GetValue(updateUser);
+                    var Valor = property.GetValue(user);
                     parametersIn.Add(NombreAtributo, Valor);
                 }
             }
@@ -546,24 +562,24 @@ namespace OPSWebServicesAPI.Controllers
                 if (rt == ResultType.Result_OK)
                 {
                     if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
-                        (parametersIn["em"] == null) ||
-                        (parametersIn["fs"] == null) ||
-                        (parametersIn["na"] == null) ||
-                        (parametersIn["mmp"] == null) ||
-                        (parametersIn["val"] == null) ||
-                        (parametersIn["plates"] == null) ||
-                        (parametersIn["fn"] == null) ||
-                        (parametersIn["unp"] == null) ||
-                        (parametersIn["t_unp"] == null) ||
-                        (parametersIn["re"] == null) ||
-                        (parametersIn["ba"] == null) ||
-                        (parametersIn["q_ba"] == null))
+                        (parametersIn["em"] == null) || (parametersIn["em"].ToString().Length == 0) ||
+                        (parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0) ||
+                        (parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0) ||
+                        (parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0) ||
+                        (parametersIn["val"] == null) || (parametersIn["val"].ToString().Length == 0) ||
+                        (parametersIn["plates"] == null) || 
+                        (parametersIn["fn"] == null) || (parametersIn["fn"].ToString().Length == 0) ||
+                        (parametersIn["unp"] == null) || (parametersIn["unp"].ToString().Length == 0) ||
+                        (parametersIn["t_unp"] == null) || (parametersIn["t_unp"].ToString().Length == 0) ||
+                        (parametersIn["re"] == null) || (parametersIn["re"].ToString().Length == 0) ||
+                        (parametersIn["ba"] == null) || (parametersIn["ba"].ToString().Length == 0) ||
+                        (parametersIn["q_ba"] == null) || (parametersIn["q_ba"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                         response.IsSuccess = false;
-                        response.ErrorMessage = "Result_Error_Missing_Input_Parameter";
-                        response.Result = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        response.Error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.Value = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
                     else
@@ -586,8 +602,8 @@ namespace OPSWebServicesAPI.Controllers
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Bad hash: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                             response.IsSuccess = false;
-                            response.ErrorMessage = "Result_Error_InvalidAuthenticationHash";
-                            response.Result = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            response.Error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.Value = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
                         else
@@ -614,8 +630,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Could not obtain user from token: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Invalid_Login";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
                             else
@@ -630,8 +646,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Token not valid: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Invalid_Login";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
 
@@ -644,8 +660,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - User name already registered: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Mobile_User_Already_Registered";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Already_Registered).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Mobile_User_Already_Registered, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Already_Registered).ToString();
                                 return response;
                             }
 
@@ -655,8 +671,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Email already registered: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Mobile_User_Email_Already_Registered";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Email_Already_Registered).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Mobile_User_Email_Already_Registered, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Email_Already_Registered).ToString();
                                 return response;
                             }
 
@@ -668,8 +684,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Failed to modify user: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Generic";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
 
@@ -682,8 +698,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Could not obtain user data: parametersIn= {0}, error={1}", parametersIn, "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Generic";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
 
@@ -694,8 +710,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Could not obtain plate data: parametersIn= {0}, error={1}", parametersIn, "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Generic";
-                                response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
 
@@ -712,8 +728,8 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Incorrect input format: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                     response.IsSuccess = false;
-                    response.ErrorMessage = "Result_Error_Generic";
-                    response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
             }
@@ -723,14 +739,14 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: parametersIn= {0}, error={1}", parametersIn, "Result_Error_Generic"), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.IsSuccess = false;
-                response.ErrorMessage = "Result_Error_Generic";
-                response.Result = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
             response.IsSuccess = true;
-            response.ErrorMessage = "";
-            response.Result = nMobileUserId.ToString();
+            response.Error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.Value = nMobileUserId.ToString();
             return response;//nMobileUserId;
             //return xmlOut;
         }
@@ -804,13 +820,13 @@ namespace OPSWebServicesAPI.Controllers
         /// Método que obtiene las operaciones realizadas por un usuario
         /// </summary>
         /// <param name="userOperation">Objeto UserOperation con la información necesaria para obtener estas operaciones</param>
-        /// <returns>Devuelve un objeto UserOperationResponse indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
+        /// <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
         [HttpPost]
         [Route("QueryUserOperationsAPI")]
-        public UserOperationResponse QueryUserOperationsAPI([FromBody] UserOperation userOperation)
+        public Result QueryUserOperationsAPI([FromBody] UserOperation userOperation)
         {
             //string xmlOut = "";
-            UserOperationResponse response = new UserOperationResponse();
+            Result response = new Result();
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
@@ -818,12 +834,14 @@ namespace OPSWebServicesAPI.Controllers
             PropertyInfo[] properties = typeof(UserOperation).GetProperties();
             foreach (PropertyInfo property in properties)
             {
-                string NombreAtributo = property.Name;
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
                 if (NombreAtributo == "ots")
                 {
                     SortedList ops = new SortedList();
                     int numOps = 0;
-                    foreach (int op in userOperation.ots)
+                    foreach (int op in userOperation.operationTypeList)
                     {
                         ops.Add("op" + numOps, op);
                         numOps++;
@@ -852,14 +870,14 @@ namespace OPSWebServicesAPI.Controllers
                 if (rt == ResultType.Result_OK)
                 {
                     if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
-                        (parametersIn["d"] == null) ||
-                        (parametersIn["contid"] == null))
+                        (parametersIn["d"] == null) || (parametersIn["d"].ToString() == "0") ||
+                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                         response.IsSuccess = false;
-                        response.ErrorMessage = "Result_Error_Missing_Input_Parameter";
-                        response.o = null;
+                        response.Error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.Value = null;
                         return response;
                     }
                     else
@@ -882,8 +900,8 @@ namespace OPSWebServicesAPI.Controllers
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Bad hash: xmlIn= {0}", parametersIn), LoggerSeverities.Error);
                             response.IsSuccess = false;
-                            response.ErrorMessage = "Result_Error_InvalidAuthenticationHash";
-                            response.o = null;
+                            response.Error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.Value = null;
                             return response;
                         }
                         else
@@ -917,8 +935,8 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Could not obtain user from token: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     //return xmlOut;
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Invalid_Login";
-                                    response.o = null;
+                                    response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.Value = null;
                                     return response;
                                 }
                                 else
@@ -933,8 +951,8 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Token not valid: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                     //return xmlOut;
                                     response.IsSuccess = false;
-                                    response.ErrorMessage = "Result_Error_Invalid_Login";
-                                    response.o = null;
+                                    response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.Value = null;
                                     return response;
                                 }
                             }
@@ -957,8 +975,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Could not obtain operation data: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.IsSuccess = false;
-                                response.ErrorMessage = "Result_Error_Generic";
-                                response.o = null;
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = null;
                                 return response;
                             }
 
@@ -975,8 +993,8 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                     response.IsSuccess = false;
-                    response.ErrorMessage = "Result_Error_Generic";
-                    response.o = null;
+                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.Value = null;
                     return response;
                 }
             }
@@ -986,26 +1004,314 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("QueryUserOperationsXML::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.IsSuccess = false;
-                response.ErrorMessage = "Result_Error_Generic";
-                response.o = null;
+                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.Value = null;
                 return response;
             }
 
             //return xmlOut;
             response.IsSuccess = true;
-            response.ErrorMessage = "";
-            List<O> lista = new List<O>();
+            response.Error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            List<Operation> lista = new List<Operation>();
             SortedList listOps = (SortedList)parametersOut["lst"];
             ConfigMapModel configMapModel = new ConfigMapModel();
-            var config = configMapModel.configO();
+            var config = configMapModel.configOperation();
             IMapper iMapper = config.CreateMapper();
-            foreach (System.Collections.DictionaryEntry op in listOps) 
+            if (listOps != null) foreach (System.Collections.DictionaryEntry op in listOps) 
             {
-                O ope = iMapper.Map<SortedList, O>((SortedList)op.Value);
+                Operation ope = iMapper.Map<SortedList, Operation>((SortedList)op.Value);
                 lista.Add(ope);
             } 
-            response.o = lista.ToArray();
+            response.Value = lista.ToArray();
             return response;
+        }
+
+        /*
+ * 
+ * The parameters of method QueryUserXML are:
+    a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <mui>Mobile user id (authorization token)</mui>
+                <ah>authentication hash</ah> - *This parameter is optional
+            </arinpark_in>
+
+    b.	Result: is also a string containing an xml with the result of the method:
+            <arinpark_out>
+                <r>Result of the method</r>
+                <un>Username</un>
+                <em>E-Mail</em>
+                <fs>First Surname</fs>
+                <ss>Second Surname</ss>
+                <na>Names</na>
+                <nif>NIF, NIE or CIF</nif>
+                <mmp>Main Mobile Phone</mmp>
+                <amp>Alternative Mobile Phone</amp>
+                <asn>Address: Street Name</asn>
+                <abn>Address: Building Number</abn>
+                <adf>Address: Department Floor</adf>
+                <add>Address: Department Door</add>
+                <ads>Address: Department Stair</ads>
+                <adl>Address: Department Letter or Number</adl>
+                <apc>Address: Postal Code</apc>
+                <aci>Address: City</aci>
+                <apr>Address: Province</apr>
+                <token_user>Token user ID</token_user>
+                <token_id>Token ID</token_id>
+                <notifications>
+                    <fn>Fine notifications? (1:true, 0:false)</fn>
+                    <unp>UnParking notifications? (1:true, 0:false)</unp>
+                    <t_unp>minutes before the limit (unparking notifications)</t_unp>
+                    <re>recharge notifications? (1:true, 0:false)</re>
+                    … [Por definir]
+                </notifications>
+                <plates>
+                    <plate>
+                        <p>Plate</p>
+                        <stp>status (1:Rotative, 2:Resident, 3:VIP</stp>
+                        <sp>sector</sp> ***
+                    </plate>
+                    <plate>
+                        <p>Plate</p>
+                        <stp>status (1:Rotative, 2:Resident, 3:VIP</stp>
+                        <sp>sector</sp> ***
+                    </plate>
+                    ...
+                    <plate>
+                        <p>Plate</p>
+                        <stp>status (1:Rotative, 2:Resident, 3:VIP</stp>
+                        <sp>sector</sp> ***
+                    </plate>
+                </plates>
+            </arinpark_out>
+
+    *** Not required when plate status is rotative
+
+    The tag <r> of the method will have these possible values:
+    a.	1: User data come after this tag
+    b.	-1: Invalid authentication hash
+    c.	-9: Generic Error (for example database or execution error.)
+    d.	-10: Invalid input parameter
+    e.	-11: Missing input parameter
+    f.	-12: OPS System error
+    g.	-20: Mobile user id not found
+
+
+
+ * 
+ * 
+ */
+
+        /// <summary>
+        /// Devuelve la información del usuario
+        /// </summary>
+        /// <param name="userQuery">Objeto de tipo UserQuery con la información necesaria</param>
+        /// <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (datos del usuario) y si ha habido error</returns>
+        [HttpPost]
+        [Route("QueryUserAPI")]
+        public Result QueryUserAPI([FromBody] UserQuery userQuery)
+        {
+            //string xmlOut = "";
+            int nMobileUserId = -1;
+            Result response = new Result();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UserQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(userQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                //SortedList parametersOut = null;
+                SortedList plateDataList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUserAPI: parametersIn= {0}", parametersIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
+                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                        response.IsSuccess = false;
+                        response.Error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.Value = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Bad hash: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                            response.IsSuccess = false;
+                            response.Error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.Value = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Could not obtain user from token: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUserAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Token not valid: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get user data
+                            if (!GetUserData(Convert.ToInt32(parametersIn["mui"]), out parametersOut, nContractId))
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserXML::Error - Could not obtain user data: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            // Get parking data for assigned plates
+                            if (!GetPlateData(Convert.ToInt32(parametersIn["mui"]), out plateDataList, nContractId))
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserXML::Error - Could not obtain plate data: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            if (plateDataList.Count > 0)
+                                parametersOut["plates"] = plateDataList;
+                            else
+                            {
+                                plateDataList = new SortedList();
+                                plateDataList["plate1"] = "";
+                                parametersOut["plates"] = plateDataList;
+                            }
+
+                            parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            //xmlOut = GenerateXMLOuput(parametersOut);
+                        }
+                    }
+                }
+                else
+                {
+                    //xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("QueryUserAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                    response.IsSuccess = false;
+                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUserAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.IsSuccess = false;
+                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            //return xmlOut;
+            response.IsSuccess = true;
+            response.Error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+
+            ConfigMapModel configMapModel = new ConfigMapModel();
+            var configUser = configMapModel.configUser();
+            IMapper iMapperUser = configUser.CreateMapper();
+            User usu = iMapperUser.Map<SortedList, User>((SortedList)parametersOut);
+            var configNot = configMapModel.configNotifications();
+            IMapper iMapperNot = configNot.CreateMapper();
+            SortedList notifications = (SortedList)parametersOut["notifications"];
+            if (notifications != null)
+            {
+                Notification not = iMapperNot.Map<SortedList, Notification>(notifications);
+                usu.notifications = not;
+            }
+
+            List<Plate> lista = new List<Plate>();
+            SortedList listPlates = (SortedList)parametersOut["plates"];
+            var configPlate = configMapModel.configPlate();
+            IMapper iMapperPlate = configPlate.CreateMapper();
+            if (listPlates != null) foreach (System.Collections.DictionaryEntry plate in listPlates)
+            {
+                Plate pl = iMapperPlate.Map<SortedList, Plate>((SortedList)plate.Value);
+                lista.Add(pl);
+            }
+            usu.plates = lista.ToArray();
+            response.Value = usu;
+
+            return response;//nMobileUserId;
         }
 
         /*
@@ -1687,6 +1993,215 @@ namespace OPSWebServicesAPI.Controllers
             {
                 xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
                 Logger_AddLogMessage(string.Format("QueryUserOperationsXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return xmlOut;
+        }
+        */
+
+        /*
+ * 
+ * The parameters of method QueryUserXML are:
+    a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <mui>Mobile user id (authorization token)</mui>
+                <ah>authentication hash</ah> - *This parameter is optional
+            </arinpark_in>
+
+    b.	Result: is also a string containing an xml with the result of the method:
+            <arinpark_out>
+                <r>Result of the method</r>
+                <un>Username</un>
+                <em>E-Mail</em>
+                <fs>First Surname</fs>
+                <ss>Second Surname</ss>
+                <na>Names</na>
+                <nif>NIF, NIE or CIF</nif>
+                <mmp>Main Mobile Phone</mmp>
+                <amp>Alternative Mobile Phone</amp>
+                <asn>Address: Street Name</asn>
+                <abn>Address: Building Number</abn>
+                <adf>Address: Department Floor</adf>
+                <add>Address: Department Door</add>
+                <ads>Address: Department Stair</ads>
+                <adl>Address: Department Letter or Number</adl>
+                <apc>Address: Postal Code</apc>
+                <aci>Address: City</aci>
+                <apr>Address: Province</apr>
+                <token_user>Token user ID</token_user>
+                <token_id>Token ID</token_id>
+                <notifications>
+                    <fn>Fine notifications? (1:true, 0:false)</fn>
+                    <unp>UnParking notifications? (1:true, 0:false)</unp>
+                    <t_unp>minutes before the limit (unparking notifications)</t_unp>
+                    <re>recharge notifications? (1:true, 0:false)</re>
+                    … [Por definir]
+                </notifications>
+                <plates>
+                    <plate>
+                        <p>Plate</p>
+                        <stp>status (1:Rotative, 2:Resident, 3:VIP</stp>
+                        <sp>sector</sp> ***
+                    </plate>
+                    <plate>
+                        <p>Plate</p>
+                        <stp>status (1:Rotative, 2:Resident, 3:VIP</stp>
+                        <sp>sector</sp> ***
+                    </plate>
+                    ...
+                    <plate>
+                        <p>Plate</p>
+                        <stp>status (1:Rotative, 2:Resident, 3:VIP</stp>
+                        <sp>sector</sp> ***
+                    </plate>
+                </plates>
+            </arinpark_out>
+
+    *** Not required when plate status is rotative
+
+    The tag <r> of the method will have these possible values:
+    a.	1: User data come after this tag
+    b.	-1: Invalid authentication hash
+    c.	-9: Generic Error (for example database or execution error.)
+    d.	-10: Invalid input parameter
+    e.	-11: Missing input parameter
+    f.	-12: OPS System error
+    g.	-20: Mobile user id not found
+
+
+
+ * 
+ * 
+ */
+
+        /*
+        [HttpPost]
+        [Route("QueryUserXML")]
+        public string QueryUserXML(string xmlIn)
+        {
+            string xmlOut = "";
+            try
+            {
+                SortedList parametersIn = null;
+                SortedList parametersOut = null;
+                SortedList plateDataList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUserXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null) ||
+                        (parametersIn["mui"].ToString().Length == 0) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserXML::Error - Missing parameter: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUserXML::Error - Bad hash: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            int nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("QueryUserXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUserXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("QueryUserXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get user data
+                            if (!GetUserData(Convert.ToInt32(parametersIn["mui"]), out parametersOut, nContractId))
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserXML::Error - Could not obtain user data: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            // Get parking data for assigned plates
+                            if (!GetPlateData(Convert.ToInt32(parametersIn["mui"]), out plateDataList, nContractId))
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserXML::Error - Could not obtain plate data: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            if (plateDataList.Count > 0)
+                                parametersOut["plates"] = plateDataList;
+                            else
+                            {
+                                plateDataList = new SortedList();
+                                plateDataList["plate1"] = "";
+                                parametersOut["plates"] = plateDataList;
+                            }
+
+                            parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            xmlOut = GenerateXMLOuput(parametersOut);
+                        }
+                    }
+                }
+                else
+                {
+                    xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("QueryUserXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUserXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
 
@@ -3986,7 +4501,7 @@ namespace OPSWebServicesAPI.Controllers
             return xmlOut;
         }
 
-        private bool OPSMessage(string strMessageIn, int iVirtualUnit, out string strMessageOut, int nContractId = 0)
+        /*private bool OPSMessage(string strMessageIn, int iVirtualUnit, out string strMessageOut, int nContractId = 0)
         {
             bool bRdo = false;
             strMessageOut = null;
@@ -4045,9 +4560,9 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             return bRdo;
-        }
+        }*/
 
-        private bool LogMsgDB(string xmlIn, string xmlOut, int iVirtualUnit, int nContractId = 0)
+        /*private bool LogMsgDB(string xmlIn, string xmlOut, int iVirtualUnit, int nContractId = 0)
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
@@ -4123,7 +4638,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             return bResult;
-        }
+        }*/
 
         private string GenerateXMLOuput(SortedList parametersOut)
         {

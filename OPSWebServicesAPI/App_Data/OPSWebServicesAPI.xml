@@ -481,26 +481,33 @@
             </summary>
             <param name="documentPath">The physical path to XML document.</param>
         </member>
-        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.LoginUser)">
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.UserLogin)">
             <summary>
             Método que devuelve el token de autorización de inicio de sesión o error en caso contrario
             </summary>
-            <param name="loginUser">Objeto LoginUser con la información necesaria para el Login</param>
-            <returns>Devuelve un objeto PostResponse indicando si la respuesta ha sido correcta, el resultado (mui - authorization token) y si ha habido error, dicho error  </returns>
+            <param name="userLogin">Objeto UserLogin con la información necesaria para el Login</param>
+            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (mui - authorization token) y si ha habido error, dicho error  </returns>
         </member>
-        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.UpdateUserAPI(OPSWebServicesAPI.Models.UpdateUser)">
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.UpdateUserAPI(OPSWebServicesAPI.Models.User)">
             <summary>
             Método que actualiza la información asociada al usuario y que devuelve el id del mismo en caso de actualización correcta o -1 en caso contrario
             </summary>
-            <param name="updateUser">Objeto UpdateUser con la información necesaria para el Update</param>
-            <returns>Devuelve un objeto PostResponse indicando si la respuesta ha sido correcta, el resultado (id de usuario) y si ha habido error, -1  </returns>
+            <param name="user">Objeto User con la información necesaria para el Update</param>
+            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (id de usuario) y si ha habido error</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserOperationsAPI(OPSWebServicesAPI.Models.UserOperation)">
             <summary>
             Método que obtiene las operaciones realizadas por un usuario
             </summary>
             <param name="userOperation">Objeto UserOperation con la información necesaria para obtener estas operaciones</param>
-            <returns>Devuelve un objeto UserOperationResponse indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
+            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserAPI(OPSWebServicesAPI.Models.UserQuery)">
+            <summary>
+            Devuelve la información del usuario
+            </summary>
+            <param name="userQuery">Objeto de tipo UserQuery con la información necesaria</param>
+            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (datos del usuario) y si ha habido error</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.DtxToString(System.DateTime)">
             <summary>
@@ -509,6 +516,25 @@
             <param name="dt">DateTime to convert</param>
             <returns>string in OPS-dtx format</returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.IsHollyday(System.DateTime,System.Int32)">
+            <summary>
+            Comprueba si una fecha es día festivo o no (mira en la tabla DAYS)
+            </summary>
+            <param name="dt"></param>
+            <param name="nContractId"></param>
+            <returns>deveulve si es festivo o no</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.IsFinePaymentInTime(System.DateTime,System.DateTime,System.Int32,System.String,System.Int32)">
+            <summary>
+            Comprueba si la multa está fuera de plazo o no
+            </summary>
+            <param name="dtFineDatetime"></param>
+            <param name="dtOpePaymentDateTime"></param>
+            <param name="iTimeForPayment"></param>
+            <param name="strDayCode"></param>
+            <param name="nContractId"></param>
+            <returns>devuelve si es pagable o no</returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.OPSMessage_M05Process(System.String,System.Int32)">
             <summary>
             Metodo para sustituir el proceso de pedir la información del Process de M05 vía servicio asmx (mirar Process de M05)
@@ -516,241 +542,271 @@
             </summary>
             <param name="fine_id"></param>
             <param name="nContractId"></param>
-            <returns></returns>
+            <returns>SortedList con la información</returns>
         </member>
-        <member name="T:OPSWebServicesAPI.Models.LoginUser">
+        <member name="P:OPSWebServicesAPI.Models.Error.Code">
+            <summary>
+            codigo de error
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Error.Type">
+            <summary>
+            tipo de error
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Error.Message_EN">
+            <summary>
+            Mensaje de error en inglés
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Error.Message_ES">
+            <summary>
+            Mensaje de error en castellano
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Error.Message_EU">
+            <summary>
+            Mensaje de error en euskera
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Error.Message_FR">
+            <summary>
+            Mensaje de error en francés
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserLogin">
             <summary>
             class to request Login
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.cid">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.cloudToken">
             <summary>
-            Cloud token
+            (*) Cloud token
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.contid">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.contractId">
             <summary>
-            id del municipio
+            (*) id del municipio
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.os">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.operatingSystem">
             <summary>
-            OS --> 1- Android 2- iOS 3- web
+            (*) OS --> 1- Android 2- iOS 3- web
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.un">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.userName">
             <summary>
-            login
+            (*) login
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.pw">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.password">
             <summary>
-            password
+            (*) password
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.v">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.versionOS">
             <summary>
-            Version OS
+            (*) Version OS
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.mui">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.authorizationToken">
             <summary>
-            Authentication token
+            (*) Authentication token
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.LoginUser.ah">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.authenticationHash">
             <summary>
             hash
             </summary>
         </member>
-        <member name="T:OPSWebServicesAPI.Models.PostResponse">
+        <member name="P:OPSWebServicesAPI.Models.Notification.balance">
             <summary>
-            generic response
+            (*) low balance notification
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.PostResponse.Result">
+        <member name="P:OPSWebServicesAPI.Models.Notification.fineNotifications">
             <summary>
-            Result
+            (*) Fine notifications? (1:true, 0:false)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.PostResponse.IsSuccess">
+        <member name="P:OPSWebServicesAPI.Models.Notification.quantityBalance">
             <summary>
-            Is Success?
+            (*) low balance amount
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.PostResponse.ErrorMessage">
+        <member name="P:OPSWebServicesAPI.Models.Notification.rechargeNotifications">
             <summary>
-            Error Message
+            (*) recharge notifications? (1:true, 0:false)
             </summary>
         </member>
-        <member name="T:OPSWebServicesAPI.Models.UpdateUser">
+        <member name="P:OPSWebServicesAPI.Models.Notification.minutesBeforeUnparking">
             <summary>
-            Class to request update user
+            (*) minutes before the limit (unparking notifications)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.abn">
+        <member name="P:OPSWebServicesAPI.Models.Notification.unparkingNotifications">
             <summary>
-            Address: Building Number
+            (*) UnParking notifications? (1:true, 0:false)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.aci">
-            <summary>
-            Address: City
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.add">
-            <summary>
-            Address: Department Door
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.adf">
-            <summary>
-            Address: Department Floor
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.adl">
-            <summary>
-            Address: Department Letter or Number
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.ads">
-            <summary>
-            Address: Department Stair
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.amp">
-            <summary>
-            Alternative Mobile Phone
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.apc">
-            <summary>
-            Address: Postal Code
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.apr">
-            <summary>
-            Address: Province
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.asn">
-            <summary>
-            Address: Street Name
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.cid">
-            <summary>
-            ??? - Cloud token
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.contid">
-            <summary>
-            Contract ID
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.em">
-            <summary>
-            E-Mail
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.fs">
-            <summary>
-            First Surname
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.mmp">
-            <summary>
-            Main Mobile Phone
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.mui">
-            <summary>
-            Mobile user Id (authorization token)
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.na">
-            <summary>
-            Names
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.nif">
-            <summary>
-            NIF, NIE or CIF
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.notifications">
-            <summary>
-            Notifications
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.os">
-            <summary>
-            Operative System (1: Android, 2: iOS)
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.plates">
-            <summary>
-            Plates
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.ss">
-            <summary>
-            Second Surname
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.un">
-            <summary>
-            Username
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.v">
-            <summary>
-            App version
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UpdateUser.val">
-            <summary>
-            Validate new conditions is necessary
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Notifications.ba">
-            <summary>
-            low balance notification
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Notifications.fn">
-            <summary>
-            Fine notifications? (1:true, 0:false)
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Notifications.q_ba">
-            <summary>
-            low balance amount
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Notifications.re">
-            <summary>
-            recharge notifications? (1:true, 0:false)
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Notifications.t_unp">
-            <summary>
-            minutes before the limit (unparking notifications)
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Notifications.unp">
-            <summary>
-            UnParking notifications? (1:true, 0:false)
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Plate.p">
+        <member name="P:OPSWebServicesAPI.Models.Plate.plate">
             <summary>
             Plate
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Plate.stp">
+        <member name="P:OPSWebServicesAPI.Models.Plate.status">
             <summary>
             status (1:Rotative, 2:Resident, 3:VIP
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.Result">
+            <summary>
+            generic response
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Result.Value">
+            <summary>
+            Result
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Result.IsSuccess">
+            <summary>
+            Is Success?
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Result.Error">
+            <summary>
+            Error Message
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.User">
+            <summary>
+            Class to request update user
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressBuildingNumber">
+            <summary>
+            Address: Building Number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressCity">
+            <summary>
+            Address: City
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressDepartmentDoor">
+            <summary>
+            Address: Department Door
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressDepartmentFloor">
+            <summary>
+            Address: Department Floor
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressLetterNumber">
+            <summary>
+            Address: Department Letter or Number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressDepartmentStair">
+            <summary>
+            Address: Department Stair
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressMobilePhone">
+            <summary>
+            Alternative Mobile Phone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressPostalCode">
+            <summary>
+            Address: Postal Code
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressProvince">
+            <summary>
+            Address: Province
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.addressStreetName">
+            <summary>
+            Address: Street Name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.cloudToken">
+            <summary>
+            Cloud token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.contractId">
+            <summary>
+            Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.email">
+            <summary>
+            (*) E-Mail
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.firstSurname">
+            <summary>
+            (*) First Surname
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.mainMobilePhone">
+            <summary>
+            (*) Main Mobile Phone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.authorizationToken">
+            <summary>
+            (*) Mobile user Id (authorization token)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.names">
+            <summary>
+            (*) Names
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.nif">
+            <summary>
+            NIF, NIE or CIF
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.notifications">
+            <summary>
+            (*) Notifications
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.operatingSystem">
+            <summary>
+            Operative System (1: Android, 2: iOS)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.plates">
+            <summary>
+            (*) Plates
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.secondSurname">
+            <summary>
+            Second Surname
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.userName">
+            <summary>
+            Username
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.version">
+            <summary>
+            App version
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.User.validateConditions">
+            <summary>
+            (*) Validate new conditions is necessary
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserOperation">
@@ -758,169 +814,159 @@
             class to request user operations
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperation.d">
+        <member name="P:OPSWebServicesAPI.Models.UserOperation.daysFromNow">
             <summary>
-            Last x days from now
+            (*) Last x days from now
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperation.ots">
+        <member name="P:OPSWebServicesAPI.Models.UserOperation.operationTypeList">
             <summary>
-            Filter. List of Operation types (1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing, 104: Unpaid fines)
+            (*) Filter. List of Operation types (1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing, 104: Unpaid fines)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperation.contid">
+        <member name="P:OPSWebServicesAPI.Models.UserOperation.contractId">
             <summary>
-            Contract ID
+            (*) Contract ID
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperation.msgId">
+        <member name="P:OPSWebServicesAPI.Models.UserOperation.authorizationToken">
             <summary>
-            
+            (*) Mobile user id (authorization token)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperation.mui">
+        <member name="P:OPSWebServicesAPI.Models.Operation.bonus">
             <summary>
-            Mobile user id (authorization token)
+            Score needed to apply the new bonus
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperationResponse.o">
-            <summary>
-            operation list
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperationResponse.IsSuccess">
-            <summary>
-            IsSuccess
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperationResponse.ErrorMessage">
-            <summary>
-            ErrorMessage
-            </summary>
-        </member>
-        <member name="T:OPSWebServicesAPI.Models.O">
-            <summary>
-            Operation
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.O.bns">
-            <summary>
-            ???
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.O.contid">
+        <member name="P:OPSWebServicesAPI.Models.Operation.contractId">
             <summary>
             Contract id
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.contname">
+        <member name="P:OPSWebServicesAPI.Models.Operation.contractName">
             <summary>
             Contract name
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.on">
+        <member name="P:OPSWebServicesAPI.Models.Operation.operationNumber">
             <summary>
             Operation number
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.ot">
+        <member name="P:OPSWebServicesAPI.Models.Operation.operationType">
             <summary>
             Operation type (1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing, 104: Unpaid fines)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.pa">
+        <member name="P:OPSWebServicesAPI.Models.Operation.paymentAmount">
             <summary>
             Payment amount (Expressed in Euro cents)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.pm">
+        <member name="P:OPSWebServicesAPI.Models.Operation.paymentMethod">
             <summary>
             Payment method (1: Chip-Card, 2: Credit Card, 3: Cash, 4: Web, 5: Phone)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.pp">
+        <member name="P:OPSWebServicesAPI.Models.Operation.postPaid">
             <summary>
             Post-Paid (0: False, 1: True)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.rd">
+        <member name="P:OPSWebServicesAPI.Models.Operation.rechargeDate">
             <summary>
             Recharge date (Format: hh24missddMMYY)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.zo">
+        <member name="P:OPSWebServicesAPI.Models.Operation.zone">
             <summary>
             Zone
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.zonecolor">
+        <member name="P:OPSWebServicesAPI.Models.Operation.zonecolor">
             <summary>
             Zone color
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.zonename">
+        <member name="P:OPSWebServicesAPI.Models.Operation.zonename">
             <summary>
             Zone name
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.farticle">
+        <member name="P:OPSWebServicesAPI.Models.Operation.farticle">
             <summary>
             Fine article
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fcolor">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fcolor">
             <summary>
             Car color
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fmake">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fmake">
             <summary>
             Car make
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fn">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fineNumber">
             <summary>
             Fine number
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fpd">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fineProcessingDate">
             <summary>
             Fine processing date (Format: hh24missddMMYY)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fs">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fineStatus">
             <summary>
             Fine status (1: Payable, 2:Expired, 3:Not payable)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fstreet">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fstreet">
             <summary>
             Fine street
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.fstrnum">
+        <member name="P:OPSWebServicesAPI.Models.Operation.fstrnum">
             <summary>
             Fine street number
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.pl">
+        <member name="P:OPSWebServicesAPI.Models.Operation.plate">
             <summary>
             Plate
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.ed">
+        <member name="P:OPSWebServicesAPI.Models.Operation.parkingEndDate">
             <summary>
             Parking end date (Format: hh24missddMMYY)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.sd">
+        <member name="P:OPSWebServicesAPI.Models.Operation.parkingStartDate">
             <summary>
             Parking start date (Format: hh24missddMMYY)
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.O.sta">
+        <member name="P:OPSWebServicesAPI.Models.Operation.status">
             <summary>
             status: 1 (UNPARKED), 2 (PARKED)
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserQuery">
+            <summary>
+            class to request user query
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserQuery.authorizationToken">
+            <summary>
+            (*) Mobile user id (authorization token)
             </summary>
         </member>
     </members>

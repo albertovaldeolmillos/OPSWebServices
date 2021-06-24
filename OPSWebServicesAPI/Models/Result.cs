@@ -8,12 +8,12 @@ namespace OPSWebServicesAPI.Models
     /// <summary>
     /// generic response
     /// </summary>
-    public class PostResponse
+    public class Result
     {
         /// <summary>
         /// Result
         /// </summary>
-        public string Result { get; set; }
+        public object Value { get; set; }
         /// <summary>
         /// Is Success?
         /// </summary>
@@ -21,6 +21,6 @@ namespace OPSWebServicesAPI.Models
         /// <summary>
         /// Error Message
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public Error Error { get; set; }
     }
 }

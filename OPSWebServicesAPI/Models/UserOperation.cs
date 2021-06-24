@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web;
 
@@ -11,25 +12,25 @@ namespace OPSWebServicesAPI.Models
     public class UserOperation
     {
         /// <summary>
-        /// Last x days from now
+        /// (*) Last x days from now
         /// </summary>
-        public int d { get; set; }
+        [DisplayName("d")]
+        public int daysFromNow { get; set; }
         /// <summary>
-        /// Filter. List of Operation types (1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing, 104: Unpaid fines)
+        /// (*) Filter. List of Operation types (1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing, 104: Unpaid fines)
         /// </summary>
-        public int[] ots { get; set; }
+        [DisplayName("ots")]
+        public int[] operationTypeList { get; set; }
         /// <summary>
-        /// Contract ID
+        /// (*) Contract ID
         /// </summary>
-        public int contid { get; set; }
+        [DisplayName("contid")]
+        public string contractId { get; set; }
         /// <summary>
-        /// 
+        /// (*) Mobile user id (authorization token)
         /// </summary>
-        public string msgId { get; set; }
-        /// <summary>
-        /// Mobile user id (authorization token)
-        /// </summary>
-        public string mui { get; set; }
+        [DisplayName("mui")]
+        public string authorizationToken { get; set; }
 
     }
 }

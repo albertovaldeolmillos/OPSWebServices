@@ -191,11 +191,15 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ConfigMapModel.cs" />
-    <Compile Include="Models\LoginUser.cs" />
-    <Compile Include="Models\PostResponse.cs" />
-    <Compile Include="Models\UpdateUser.cs" />
+    <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\UserLogin.cs" />
+    <Compile Include="Models\Notification.cs" />
+    <Compile Include="Models\Plate.cs" />
+    <Compile Include="Models\Result.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserOperation.cs" />
-    <Compile Include="Models\UserOperationResponse.cs" />
+    <Compile Include="Models\Operation.cs" />
+    <Compile Include="Models\UserQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
