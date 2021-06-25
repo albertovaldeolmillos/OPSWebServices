@@ -6,9 +6,14 @@ using System.Web;
 namespace OPSWebServicesAPI.Models
 {
 
-
+    /// <summary>
+    /// Clase auxiliar para la definición de los errores en 4 idiomas
+    /// </summary>
     public class ErrorText
     {
+        /// <summary>
+        /// Tipos de errores
+        /// </summary>
         public enum ResultType
         {
             Result_OK = 1,
@@ -43,6 +48,9 @@ namespace OPSWebServicesAPI.Models
             Result_Error_Recovery_Code_Expired = -33
         }
 
+        /// <summary>
+        /// Severidad del error
+        /// </summary>
         public enum SeverityError
         {
             Warning = 1, //aviso a usuario
@@ -51,6 +59,9 @@ namespace OPSWebServicesAPI.Models
             Low = 4 //informativo (para logs)
         }
 
+        /// <summary>
+        /// Asociación del identificador del error con su mensaje en inglés
+        /// </summary>
         public Dictionary<int, string> ErrorTextEN = new Dictionary<int, string>()
             {
                 { (int)ResultType.Result_OK, "OK" },
@@ -85,6 +96,9 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
             };
 
+        /// <summary>
+        /// Asociación del identificador del error con su mensaje en castellano
+        /// </summary>
         public Dictionary<int, string> ErrorTextES = new Dictionary<int, string>()
             {
                 { (int)ResultType.Result_OK, "OK" },
@@ -119,6 +133,9 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
             };
 
+        /// <summary>
+        /// Asociación del identificador del error con su mensaje en euskera
+        /// </summary>
         public Dictionary<int, string> ErrorTextEU = new Dictionary<int, string>()
             {
                 { (int)ResultType.Result_OK, "OK" },
@@ -153,6 +170,9 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
             };
 
+        /// <summary>
+        /// Asociación del identificador del error con su mensaje en francés
+        /// </summary>
         public Dictionary<int, string> ErrorTextFR = new Dictionary<int, string>()
             {
                 { (int)ResultType.Result_OK, "OK" },
@@ -188,10 +208,17 @@ namespace OPSWebServicesAPI.Models
             };
     }
 
+    /// <summary>
+    /// Clase de error
+    /// </summary>
     public class Error
     {
 
-
+        /// <summary>
+        /// constructor del error
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="type"></param>
         public Error(int code, int type)
         {
             Code = code;

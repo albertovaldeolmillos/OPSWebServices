@@ -40,7 +40,7 @@ namespace OPSWebServicesAPI.Models
         /// (*) Version OS
         /// </summary>
         [DisplayName("v")]
-        public string versionOS { get; set; }
+        public string appVersion { get; set; }
         /// <summary>
         /// (*) Authentication token
         /// </summary>

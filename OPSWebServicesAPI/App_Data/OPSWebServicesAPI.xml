@@ -544,6 +544,53 @@
             <param name="nContractId"></param>
             <returns>SortedList con la información</returns>
         </member>
+        <member name="T:OPSWebServicesAPI.Models.ErrorText">
+            <summary>
+            Clase auxiliar para la definición de los errores en 4 idiomas
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ErrorText.ResultType">
+            <summary>
+            Tipos de errores
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ErrorText.SeverityError">
+            <summary>
+            Severidad del error
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Models.ErrorText.ErrorTextEN">
+            <summary>
+            Asociación del identificador del error con su mensaje en inglés
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Models.ErrorText.ErrorTextES">
+            <summary>
+            Asociación del identificador del error con su mensaje en castellano
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Models.ErrorText.ErrorTextEU">
+            <summary>
+            Asociación del identificador del error con su mensaje en euskera
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Models.ErrorText.ErrorTextFR">
+            <summary>
+            Asociación del identificador del error con su mensaje en francés
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.Error">
+            <summary>
+            Clase de error
+            </summary>
+        </member>
+        <member name="M:OPSWebServicesAPI.Models.Error.#ctor(System.Int32,System.Int32)">
+            <summary>
+            constructor del error
+            </summary>
+            <param name="code"></param>
+            <param name="type"></param>
+        </member>
         <member name="P:OPSWebServicesAPI.Models.Error.Code">
             <summary>
             codigo de error
@@ -604,7 +651,7 @@
             (*) password
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserLogin.versionOS">
+        <member name="P:OPSWebServicesAPI.Models.UserLogin.appVersion">
             <summary>
             (*) Version OS
             </summary>
@@ -967,6 +1014,26 @@
         <member name="P:OPSWebServicesAPI.Models.UserQuery.authorizationToken">
             <summary>
             (*) Mobile user id (authorization token)
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserRecover">
+            <summary>
+            class to request user recover
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecover.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecover.userName">
+            <summary>
+            (*) User name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecover.email">
+            <summary>
+            (*) email
             </summary>
         </member>
     </members>

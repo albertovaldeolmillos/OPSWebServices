@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -193,7 +194,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if (((parametersIn["un"] == null && parametersIn["pw"] == null) && parametersIn["mui"] == null) ||
+                    if (((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) && 
+                        (parametersIn["pw"] == null || (parametersIn["pw"] != null && parametersIn["pw"].ToString().Length == 0)) && 
+                        (parametersIn["mui"] == null) || (parametersIn["mui"] != null && parametersIn["mui"].ToString().Length == 0)) ||
                         (parametersIn["cid"] == null) || (parametersIn["cid"].ToString().Length == 0) ||
                         (parametersIn["os"] == null) || (parametersIn["os"].ToString().Length == 0) ||
                         (parametersIn["v"] == null) || (parametersIn["v"].ToString().Length == 0) ||
@@ -1315,6 +1318,198 @@ namespace OPSWebServicesAPI.Controllers
         }
 
         /*
+         * 
+         * The parameters of method RecoverPasswordXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+                    <arinpark_in>
+                        <un>User name or email</>
+                        <contid>Contract ID</contid> - *This parameter is optional
+                        <ah>authentication hash</ah> - *This parameter is optional
+	                </arinpark_in>
+
+            b.	Result: is an integer with the next possible values:
+                a.	1: Email sent to user correctly
+                b.	-1: Invalid authentication hash
+                c.	-9: Generic Error (for example database or execution error.)
+                d.	-10: Invalid input parameter
+                e.	-11: Missing input parameter
+                f.	-12: OPS System error
+                g.  -20: Mobile user not found
+         
+         * 
+         * 
+         */
+
+        [HttpPost]
+        [Route("RecoverPasswordAPI")]
+        public Result RecoverPasswordAPI([FromBody] UserRecover userRecover)
+        {
+            //string xmlOut = "";
+            int nMobileUserId = -1;
+            Result response = new Result();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UserRecover).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(userRecover);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("RecoverPasswordAPI: parametersIn= {0}", parametersIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if (((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
+                        (parametersIn["email"] == null) || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        //iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                        response.IsSuccess = false;
+                        response.Error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.Value = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            //iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Bad hash: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                            response.IsSuccess = false;
+                            response.Error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.Value = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Try to obtain user ID from login, then from email
+                            if (parametersIn["un"] != null)
+                                nMobileUserId = GetUserFromLogin(parametersIn["un"].ToString(), nContractId);
+                            if (nMobileUserId < 0)
+                                nMobileUserId = GetUserFromEmail(parametersIn["email"].ToString(), nContractId);
+                            if (nMobileUserId < 0)
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Mobile user not found: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                                //return (int)ResultType.Result_Error_Mobile_User_Not_Found;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_Mobile_User_Not_Found, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found).ToString();
+                                return response;
+                            }
+
+                            Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Mobile user ID: {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Generate recovery code
+                            string strRecoveryCode = RandomString(8);
+
+                            // Assign code to user
+                            if (!AssignRecoveryCode(nMobileUserId, strRecoveryCode, nContractId))
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Could not assign recovery code {0} to user {1}", strRecoveryCode, nMobileUserId), LoggerSeverities.Error);
+                                //return (int)ResultType.Result_Error_OPS_Error;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
+                                return response;
+                            }
+
+                            Logger_AddLogMessage(string.Format("RecoverPasswordXML::Assigned recovery code {0} to user {1}", strRecoveryCode, nMobileUserId), LoggerSeverities.Info);
+
+                            // Send email to user with recovery code
+                            string strEmail = GetUserEmail(nMobileUserId, nContractId);
+                            if (strEmail.Length <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Could not obtain email for user {0}", nMobileUserId), LoggerSeverities.Error);
+                                //return (int)ResultType.Result_Error_OPS_Error;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
+                                return response;
+                            }
+
+                            if (!SendRecoveryEmail(strRecoveryCode, strEmail))
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Could not send email to user {0} at {1}", nMobileUserId, strEmail), LoggerSeverities.Error);
+                                //return (int)ResultType.Result_Error_OPS_Error;
+                                response.IsSuccess = false;
+                                response.Error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                response.Value = Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
+                                return response;
+                            }
+
+                            Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Email sent to user {0} at {1}", nMobileUserId, strEmail), LoggerSeverities.Info);
+
+                            //iRes = (int)ResultType.Result_OK;
+                        }
+                    }
+                }
+                else
+                {
+                    //iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                    response.IsSuccess = false;
+                    response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                    response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                //iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.IsSuccess = false;
+                response.Error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.Value = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            //return iRes;
+            response.IsSuccess = true;
+            response.Error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.Value = Convert.ToInt32(ResultType.Result_OK).ToString();
+            return response;
+        }
+
+        /*
              * 
              * The parameters of method LoginUserXML are:
              a.	xmlIn: xml containing input parameters of the method:
@@ -2208,6 +2403,293 @@ namespace OPSWebServicesAPI.Controllers
             return xmlOut;
         }
         */
+
+        /*
+         * 
+         * The parameters of method RecoverPasswordXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+                    <arinpark_in>
+                        <un>User name or email</>
+                        <contid>Contract ID</contid> - *This parameter is optional
+                        <ah>authentication hash</ah> - *This parameter is optional
+	                </arinpark_in>
+
+            b.	Result: is an integer with the next possible values:
+                a.	1: Email sent to user correctly
+                b.	-1: Invalid authentication hash
+                c.	-9: Generic Error (for example database or execution error.)
+                d.	-10: Invalid input parameter
+                e.	-11: Missing input parameter
+                f.	-12: OPS System error
+                g.  -20: Mobile user not found
+         
+         * 
+         * 
+         */
+
+        /*
+        [HttpPost]
+        [Route("RecoverPasswordXML")]
+        public int RecoverPasswordXML(string xmlIn)
+        {
+            int iRes = 0;
+            try
+            {
+                SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("RecoverPasswordXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["un"] == null) ||
+                        (parametersIn["un"].ToString().Length == 0) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error - Missing parameter: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error - Bad hash: xmlIn= {0}, xmlOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Try to obtain user ID from login, then from email
+                            int nMobileUserId = GetUserFromLogin(parametersIn["un"].ToString(), nContractId);
+                            if (nMobileUserId < 0)
+                                nMobileUserId = GetUserFromEmail(parametersIn["un"].ToString(), nContractId);
+                            if (nMobileUserId < 0)
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error - Mobile user not found: xmlIn= {0}, xmlOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                return (int)ResultType.Result_Error_Mobile_User_Not_Found;
+                            }
+
+                            Logger_AddLogMessage(string.Format("RecoverPasswordXML::Mobile user ID: {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Generate recovery code
+                            string strRecoveryCode = RandomString(8);
+
+                            // Assign code to user
+                            if (!AssignRecoveryCode(nMobileUserId, strRecoveryCode, nContractId))
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error - Could not assign recovery code {0} to user {1}", strRecoveryCode, nMobileUserId), LoggerSeverities.Error);
+                                return (int)ResultType.Result_Error_OPS_Error;
+                            }
+
+                            Logger_AddLogMessage(string.Format("RecoverPasswordXML::Assigned recovery code {0} to user {1}", strRecoveryCode, nMobileUserId), LoggerSeverities.Info);
+
+                            // Send email to user with recovery code
+                            string strEmail = GetUserEmail(nMobileUserId, nContractId);
+                            if (strEmail.Length <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error - Could not obtain email for user {0}", nMobileUserId), LoggerSeverities.Error);
+                                return (int)ResultType.Result_Error_OPS_Error;
+                            }
+
+                            if (!SendRecoveryEmail(strRecoveryCode, strEmail))
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error - Could not send email to user {0} at {1}", nMobileUserId, strEmail), LoggerSeverities.Error);
+                                return (int)ResultType.Result_Error_OPS_Error;
+                            }
+
+                            Logger_AddLogMessage(string.Format("RecoverPasswordXML::Email sent to user {0} at {1}", nMobileUserId, strEmail), LoggerSeverities.Info);
+
+                            iRes = (int)ResultType.Result_OK;
+                        }
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("RecoverPasswordXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return iRes;
+        }
+        */
+
+        /*
+            * 
+            * The parameters of method ChangePasswordXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <un>User name or email</un>
+                    <pw>Password</pw>
+                    <recode>Recovery code</recode>
+                    <contid>Contract ID</contid> - *This parameter is optional
+                    <ah>authentication hash</ah> - *This parameter is optional
+                </arinpark_in>
+                
+            b.	Result: is a string with the possible values:
+                a.	>0: New authorization token
+                b.	-1: Invalid authentication hash
+                c.	-9: Generic Error (for example database or execution error.)
+                d.	-10: Invalid input parameter
+                e.	-11: Missing input parameter
+                f.	-12: OPS System error
+                g.  -20: Mobile user not found
+                h.  -31: Recovery code not found
+                i.  -32: Invalid recovery code
+                j.  -33: Recovery code expired
+            * 
+            * 
+        */
+
+        [HttpPost]
+        [Route("ChangePasswordXML")]
+        public string ChangePasswordXML(string xmlIn)
+        {
+            string strToken = ResultType.Result_Error_Generic.ToString();
+
+            try
+            {
+                SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("ChangePasswordXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if (parametersIn["un"] == null ||
+                        parametersIn["pw"] == null ||
+                        parametersIn["recode"] == null ||
+                        parametersIn["contid"] == null)
+                    {
+                        Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Missing parameter: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                        return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Bad hash: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                            return Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Try to obtain user ID from login, then from email
+                            int nMobileUserId = GetUserFromLogin(parametersIn["un"].ToString(), nContractId);
+                            if (nMobileUserId < 0)
+                                nMobileUserId = GetUserFromEmail(parametersIn["un"].ToString(), nContractId);
+                            if (nMobileUserId < 0)
+                            {
+                                string xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Mobile_User_Not_Found);
+                                Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Mobile user not found: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+                            Logger_AddLogMessage(string.Format("ChangePasswordXML::Mobile user ID: {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Get current recovery code
+                            string strCurRecoveryCode = GetUserRecoveryCode(nMobileUserId, nContractId);
+                            if (strCurRecoveryCode.Length <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - No recovery password was found for user {0}", nMobileUserId), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Not_Found).ToString();
+                            }
+
+                            // Verify recovery code
+                            if (!strCurRecoveryCode.Equals(parametersIn["recode"].ToString()))
+                            {
+                                Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Received recovery code {0} does not match current recovery code {1} for user {2}", parametersIn["recode"].ToString(), strCurRecoveryCode, nMobileUserId), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Invalid).ToString();
+                            }
+
+                            // Check recovery code expiration date
+                            if (!VerifyRecoveryCode(nMobileUserId, strCurRecoveryCode, nContractId))
+                            {
+                                Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Received recovery code {0} has expired for user {1}", strCurRecoveryCode, nMobileUserId), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Expired).ToString();
+                            }
+
+                            // Generate authorization token
+                            strToken = GetNewToken();
+
+                            if (!UpdateWebCredentials(nMobileUserId, strToken, parametersIn["pw"].ToString(), nContractId))
+                            {
+                                Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Could not update web credentials: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - Incorrect input format: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                    return Convert.ToInt32(rt).ToString();
+                }
+            }
+            catch (Exception e)
+            {
+                strToken = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                Logger_AddLogMessage(string.Format("ChangePasswordXML::Error - {0}: xmlIn= {1}", e.Message, xmlIn), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return strToken;
+        }
 
         #region private methods
 
@@ -3619,6 +4101,295 @@ namespace OPSWebServicesAPI.Controllers
             return bResult;
         }
 
+        private bool AssignRecoveryCode(int nMobileUser, string strRecoveryCode, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            int nCount = 0;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT COUNT(MUPC_MU_ID) FROM MOBILE_USERS_PASSWORD_CODES WHERE MUPC_MU_ID = {0}", nMobileUser);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        nCount = dataReader.GetInt32(0);
+                }
+
+                if (nCount > 0)
+                    strSQL = string.Format("UPDATE MOBILE_USERS_PASSWORD_CODES SET MUPC_CODE = '{0}', MUPC_DATE = SYSDATE WHERE MUPC_MU_ID = {1}", strRecoveryCode, nMobileUser);
+                else
+                    strSQL = string.Format("INSERT INTO MOBILE_USERS_PASSWORD_CODES (MUPC_MU_ID, MUPC_CODE) VALUES ({0}, '{1}')", nMobileUser, strRecoveryCode);
+
+                oraCmd.CommandText = strSQL;
+
+                if (oraCmd.ExecuteNonQuery() > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("AssignRecoveryCode::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private string GetUserRecoveryCode(int nMobileUserId, int nContractId = 0)
+        {
+            string strRecoveryCode = "";
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT NVL(MUPC_CODE, '') AS MUPC_CODE FROM MOBILE_USERS_PASSWORD_CODES WHERE MUPC_MU_ID = {0}", nMobileUserId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    strRecoveryCode = dataReader.GetString(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetUserRecoveryCode::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return strRecoveryCode;
+        }
+
+        private bool VerifyRecoveryCode(int nMobileUserId, string strRecoveryCode, int nContractId = 0)
+        {
+            bool bResult = false;
+            string strExpDate = "";
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT TO_CHAR(MUPC_DATE, 'DDMMYYYYHH24MI') AS MUPC_DATE FROM MOBILE_USERS_PASSWORD_CODES WHERE MUPC_MU_ID = {0} AND MUPC_CODE = '{1}'", nMobileUserId, strRecoveryCode);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    strExpDate = dataReader.GetString(0);
+                    DateTime dtStartDate = DateTime.ParseExact(strExpDate, "ddMMyyyyHHmm", System.Globalization.CultureInfo.InvariantCulture);
+                    DateTime dtCurDate = DateTime.Now;
+                    TimeSpan tsRange = new TimeSpan();
+                    tsRange = dtCurDate - dtStartDate;
+                    int nExpPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["RecoveryCodeExpTime"].ToString());
+                    if (tsRange.TotalHours <= nExpPeriod)
+                        bResult = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("VerifyRecoveryCode::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        bool SendRecoveryEmail(string strRecoveryCode, string email)
+        {
+            bool bResult = false;
+
+            try
+            {
+                MailMessage MyMailMessage = new MailMessage();
+                MyMailMessage.From = new MailAddress(ConfigurationManager.AppSettings["SendAddress"].ToString());
+                MyMailMessage.To.Add(email);
+
+                //Create Body
+                string emailSubject = "Recuperación de contraseña";
+                string emailHead = "<p>Estimad@ Sr./Sra.:</p>";
+                string strExpPeriod = ConfigurationManager.AppSettings["RecoveryCodeExpTime"].ToString();
+                string emailBody = "<p>Su solicitud ha sido procesada con éxito. Para reestablecerla debe introducir la nueva contraseña que se le ha generado aleatoriamente en el cuadro de recuperación de la aplicación. "
+                    + "Una vez introducida, accederá automáticamente a la aplicación, desde la cual le recomendamos cambiar la contraseña proporcionada en este email.</p>";
+                string emailCode = "<p> Contraseña de recuperación: <b>" + strRecoveryCode + "</b></p>";
+                string emailFeet = "<p>Si tiene alguna duda o consulta, puede contactar el soporte técnico de ArinPark en: <a href=\"soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
+                string bodyMessage = emailHead +
+                                     emailBody +
+                                     emailCode;
+
+                bodyMessage += emailFeet;
+
+                MyMailMessage.Subject = emailSubject;
+                MyMailMessage.IsBodyHtml = true;
+                MyMailMessage.Body = bodyMessage;
+                MyMailMessage.Priority = System.Net.Mail.MailPriority.High;
+
+                SmtpClient SMTPServer = new SmtpClient(ConfigurationManager.AppSettings["SMTPServer"].ToString());
+                SMTPServer.Port = Convert.ToInt32(ConfigurationManager.AppSettings["SMTPPort"]);
+                SMTPServer.UseDefaultCredentials = false;
+                SMTPServer.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["EmailUser"].ToString(), ConfigurationManager.AppSettings["EmailPassword"].ToString());
+                SMTPServer.EnableSsl = true;
+                SMTPServer.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                // Eliminate invalid remote certificate error 
+                ServicePointManager.ServerCertificateValidationCallback = delegate (object s, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors) { return true; };
+
+                SMTPServer.Send(MyMailMessage);
+
+                bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("SendRecoveryEmail::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return bResult;
+        }
+
         private bool GetFirstVirtualUnit(ref int nVirtualUnit, int nContractId = 0)
         {
             nVirtualUnit = -1;
@@ -4465,6 +5236,14 @@ namespace OPSWebServicesAPI.Controllers
 
 
             return iRes;
+        }
+
+        public string RandomString(int length)
+        {
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
         private string GenerateOPSMessage(string strMessageType, SortedList parametersM1)
@@ -5603,6 +6382,150 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             return nCredit;
+        }
+
+        private string GetUserName(int nMobileUserId, int nContractId = 0)
+        {
+            string strUserName = "";
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT MU_LOGIN FROM MOBILE_USERS WHERE MU_ID = {0}", nMobileUserId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    strUserName = dataReader.GetString(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetUserName::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return strUserName;
+        }
+
+        private string GetUserEmail(int nMobileUserId, int nContractId = 0)
+        {
+            string strEmail = "";
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT NVL(MU_EMAIL, '-') AS MU_EMAIL FROM MOBILE_USERS WHERE MU_ID = {0}", nMobileUserId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    strEmail = dataReader.GetString(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetUserEmail::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return strEmail;
         }
 
         #endregion

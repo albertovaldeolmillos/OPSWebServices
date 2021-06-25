@@ -200,6 +200,7 @@
     <Compile Include="Models\UserOperation.cs" />
     <Compile Include="Models\Operation.cs" />
     <Compile Include="Models\UserQuery.cs" />
+    <Compile Include="Models\UserRecover.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
