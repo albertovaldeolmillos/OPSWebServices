@@ -53,6 +53,10 @@
     <Reference Include="Jot">
       <HintPath>..\packages\Jot.Jwt.Token.Authorization.1.2\lib\net40\Jot.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="OPS.Comm, Version=1.2.1.1, Culture=neutral, PublicKeyToken=01255d674c058da0, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -192,6 +196,7 @@
     </Compile>
     <Compile Include="Helpers\ConfigMapModel.cs" />
     <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\UserChangePassword.cs" />
     <Compile Include="Models\UserLogin.cs" />
     <Compile Include="Models\Notification.cs" />
     <Compile Include="Models\Plate.cs" />
@@ -201,6 +206,8 @@
     <Compile Include="Models\Operation.cs" />
     <Compile Include="Models\UserQuery.cs" />
     <Compile Include="Models\UserRecover.cs" />
+    <Compile Include="Models\UserRecoverVerify.cs" />
+    <Compile Include="Models\UserRegister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

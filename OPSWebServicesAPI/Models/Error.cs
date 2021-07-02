@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Web;
 
 namespace OPSWebServicesAPI.Models
@@ -211,6 +212,7 @@ namespace OPSWebServicesAPI.Models
     /// <summary>
     /// Clase de error
     /// </summary>
+    [DataContractAttribute]
     public class Error
     {
 
@@ -232,26 +234,32 @@ namespace OPSWebServicesAPI.Models
         /// <summary>
         /// codigo de error
         /// </summary>
+        [DataMemberAttribute]
         public int Code { get; set; }
         /// <summary>
         /// tipo de error
         /// </summary>
+        [DataMemberAttribute]
         public int Type { get; set; }
         /// <summary>
         /// Mensaje de error en inglés
         /// </summary>
+        [DataMemberAttribute]
         public string Message_EN { get; set; }
         /// <summary>
         /// Mensaje de error en castellano
         /// </summary>
+        [DataMemberAttribute]
         public string Message_ES { get; set; }
         /// <summary>
         /// Mensaje de error en euskera
         /// </summary>
+        [DataMemberAttribute]
         public string Message_EU { get; set; }
         /// <summary>
         /// Mensaje de error en francés
         /// </summary>
+        [DataMemberAttribute]
         public string Message_FR { get; set; }
     }
 

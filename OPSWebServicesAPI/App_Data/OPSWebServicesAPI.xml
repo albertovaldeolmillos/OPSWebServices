@@ -483,31 +483,59 @@
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.UserLogin)">
             <summary>
-            Método que devuelve el token de autorización de inicio de sesión o error en caso contrario
+            Returns authorization token to login user or error
             </summary>
-            <param name="userLogin">Objeto UserLogin con la información necesaria para el Login</param>
-            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (mui - authorization token) y si ha habido error, dicho error  </returns>
+            <param name="userLogin">Objet UserLogin</param>
+            <returns>Return authorization code or error code</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.UpdateUserAPI(OPSWebServicesAPI.Models.User)">
             <summary>
-            Método que actualiza la información asociada al usuario y que devuelve el id del mismo en caso de actualización correcta o -1 en caso contrario
+            Update user data and returns user id or error
             </summary>
-            <param name="user">Objeto User con la información necesaria para el Update</param>
-            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (id de usuario) y si ha habido error</returns>
+            <param name="user">Objet User</param>
+            <returns>Return user id or error</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserOperationsAPI(OPSWebServicesAPI.Models.UserOperation)">
             <summary>
-            Método que obtiene las operaciones realizadas por un usuario
+            Returns user operation list
             </summary>
-            <param name="userOperation">Objeto UserOperation con la información necesaria para obtener estas operaciones</param>
-            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (el listado de operaciones) y si ha habido error, con un listado vacio </returns>        
+            <param name="userOperation">Object UserOperation</param>
+            <returns>Returns user ooeration list or error</returns>        
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserAPI(OPSWebServicesAPI.Models.UserQuery)">
             <summary>
-            Devuelve la información del usuario
+            Returns user information
             </summary>
-            <param name="userQuery">Objeto de tipo UserQuery con la información necesaria</param>
-            <returns>Devuelve un objeto Result indicando si la respuesta ha sido correcta, el resultado (datos del usuario) y si ha habido error</returns>
+            <param name="userQuery">Objet UserQuery</param>
+            <returns>Returns user data or error</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.RecoverPasswordAPI(OPSWebServicesAPI.Models.UserRecover)">
+            <summary>
+            Send a mail with code to revover
+            </summary>
+            <param name="userRecover">User recover object</param>
+            <returns>mail sended status</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.VerifyRecoveryPasswordAPI(OPSWebServicesAPI.Models.UserRecoverVerify)">
+            <summary>
+            Verify code received from email
+            </summary>
+            <param name="userRecoverVerify">object UserRecoverVerify</param>
+            <returns>code recover verification</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.ChangePasswordAPI(OPSWebServicesAPI.Models.UserChangePassword)">
+            <summary>
+            Change password to user
+            </summary>
+            <param name="userRecoverVerify">Object UserRecoverVerify</param>
+            <returns>new token generated</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.RegisterUserAPI(OPSWebServicesAPI.Models.UserRegister)">
+            <summary>
+            Register user
+            </summary>
+            <param name="userRegister">Object UserRegister</param>
+            <returns>User id</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.DtxToString(System.DateTime)">
             <summary>
@@ -619,6 +647,36 @@
         <member name="P:OPSWebServicesAPI.Models.Error.Message_FR">
             <summary>
             Mensaje de error en francés
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserChangePassword">
+            <summary>
+            class to request user change password
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserChangePassword.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserChangePassword.userName">
+            <summary>
+            (*) User name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserChangePassword.email">
+            <summary>
+            (*) email
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserChangePassword.password">
+            <summary>
+            (*) Password to change
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserChangePassword.recode">
+            <summary>
+            (*) recode. Code verification
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserLogin">
@@ -1034,6 +1092,141 @@
         <member name="P:OPSWebServicesAPI.Models.UserRecover.email">
             <summary>
             (*) email
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserRecoverVerify">
+            <summary>
+            class to request user recover verify
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecoverVerify.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecoverVerify.userName">
+            <summary>
+            (*) User name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecoverVerify.email">
+            <summary>
+            (*) email
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRecoverVerify.recode">
+            <summary>
+            (*) recode. Code verification
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressBuildingNumber">
+            <summary>
+            Address: Building Number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressCity">
+            <summary>
+            Address: City
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressDepartmentDoor">
+            <summary>
+            Address: Department Door
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressDepartmentFloor">
+            <summary>
+            Address: Department Floor
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressLetterNumber">
+            <summary>
+            Address: Department Letter or Number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressDepartmentStair">
+            <summary>
+            Address: Department Stair
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressMobilePhone">
+            <summary>
+            Alternative Mobile Phone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressPostalCode">
+            <summary>
+            Address: Postal Code
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressProvince">
+            <summary>
+            Address: Province
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.addressStreetName">
+            <summary>
+            Address: Street Name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.userName">
+            <summary>
+            (*) Username
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.password">
+            <summary>
+            (*) password
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.firstSurname">
+            <summary>
+            (*) First Surname
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.secondSurname">
+            <summary>
+            Second Surname
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.contractId">
+            <summary>
+            Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.email">
+            <summary>
+            (*) E-Mail
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.mainMobilePhone">
+            <summary>
+            (*) Main Mobile Phone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.names">
+            <summary>
+            (*) Names
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.nif">
+            <summary>
+            NIF, NIE or CIF
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.notifications">
+            <summary>
+            (*) Notifications
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.plates">
+            <summary>
+            (*) Plates
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRegister.userCredit">
+            <summary>
+            Mobile user founds
             </summary>
         </member>
     </members>

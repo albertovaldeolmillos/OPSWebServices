@@ -2,6 +2,7 @@
 // package to your project.
 ////#define Handle_PageResultOfT
 
+using OPSWebServicesAPI.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -58,6 +59,20 @@ namespace OPSWebServicesAPI.Areas.HelpPage
             config.SetSampleForMediaType(
                 new TextSample("Binary JSON content. See http://bsonspec.org for details."),
                 new MediaTypeHeaderValue("application/bson"));
+
+            Type[] types = { typeof(UserLogin), typeof(User), typeof(UserOperation), typeof(UserQuery), typeof(UserRecover), 
+                typeof(UserRecoverVerify), typeof(UserChangePassword), typeof(UserRegister) };
+
+            foreach (Type t in types)
+            {
+                List<string> propExample = new List<string>();
+                foreach (var p in t.GetProperties())
+                {
+                    propExample.Add(p.Name + "=value");
+                }
+
+                config.SetSampleForType(string.Join("&", propExample), new MediaTypeHeaderValue("application/x-www-form-urlencoded"), t);
+            }
 
             //// Uncomment the following to use "[0]=foo&[1]=bar" directly as the sample for all actions that support form URL encoded format
             //// and have IEnumerable<string> as the body parameter or return type.
