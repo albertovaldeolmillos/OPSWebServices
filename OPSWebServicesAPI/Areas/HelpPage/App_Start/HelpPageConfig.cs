@@ -61,7 +61,9 @@ namespace OPSWebServicesAPI.Areas.HelpPage
                 new MediaTypeHeaderValue("application/bson"));
 
             Type[] types = { typeof(UserLogin), typeof(User), typeof(UserOperation), typeof(UserQuery), typeof(UserRecover), 
-                typeof(UserRecoverVerify), typeof(UserChangePassword), typeof(UserRegister) };
+                typeof(UserRecoverVerify), typeof(UserChangePassword), typeof(UserRegister),
+                typeof(ZoneQuery), typeof(StreetsQuery)
+            };
 
             foreach (Type t in types)
             {

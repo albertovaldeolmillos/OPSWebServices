@@ -107,5 +107,64 @@ namespace OPSWebServicesAPI.Helpers
             });
             return config;
         }
+
+        public MapperConfiguration configContract()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, Contract>()
+                    .ForMember(d => d.address, o => o.MapFrom(s => s["addr"]))
+                    .ForMember(d => d.contractId, o => o.MapFrom(s => s["cont_id"]))
+                    .ForMember(d => d.description1, o => o.MapFrom(s => s["desc1"]))
+                    .ForMember(d => d.description2, o => o.MapFrom(s => s["desc2"]))
+                    .ForMember(d => d.email, o => o.MapFrom(s => s["email"]))
+                    .ForMember(d => d.imagePath, o => o.MapFrom(s => s["image"]))
+                    .ForMember(d => d.latitude, o => o.MapFrom(s => s["lt"]))
+                    .ForMember(d => d.longitude, o => o.MapFrom(s => s["lg"]))
+                    .ForMember(d => d.phone, o => o.MapFrom(s => s["phone"]))
+                    .ForMember(d => d.radius, o => o.MapFrom(s => s["rad"]))
+                    .ForMember(d => d.wsoper, o => o.MapFrom(s => s["wsoper"]))
+                    .ForMember(d => d.wsuser, o => o.MapFrom(s => s["wsuser"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configZone()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ZoneInfo>()
+                    .ForMember(d => d.latitude, o => o.MapFrom(s => s["lt"]))
+                    .ForMember(d => d.longitude, o => o.MapFrom(s => s["lg"]))
+                    .ForMember(d => d.streetname, o => o.MapFrom(s => s["streetname"]))
+                    .ForMember(d => d.streetno, o => o.MapFrom(s => s["streetno"]))
+                    .ForMember(d => d.zone, o => o.MapFrom(s => s["zone"]))
+                    .ForMember(d => d.zonecolor, o => o.MapFrom(s => s["zonecolor"]))
+                    .ForMember(d => d.zonename, o => o.MapFrom(s => s["zonename"]))
+                    .ForMember(d => d.sector, o => o.MapFrom(s => s["sector"]))
+                    .ForMember(d => d.sectorcolor, o => o.MapFrom(s => s["sectorcolor"]))
+                    .ForMember(d => d.sectorname, o => o.MapFrom(s => s["sectorname"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configStreets()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, StreetsInfo>()
+                    .ForMember(d => d.datetime, o => o.MapFrom(s => s["t"]))
+                    .ForMember(d => d.streetsNumber, o => o.MapFrom(s => s["st_no"]))
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.streetlist, o => o.MapFrom(s => s["streetlist"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
     }
 }

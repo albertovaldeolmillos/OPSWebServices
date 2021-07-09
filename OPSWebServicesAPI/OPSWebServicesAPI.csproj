@@ -190,12 +190,17 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\WSMobilePaymentController.cs" />
     <Compile Include="Controllers\WSUserManagementController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ConfigMapModel.cs" />
+    <Compile Include="Models\Contract.cs" />
+    <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\StreetsInfo.cs" />
+    <Compile Include="Models\StreetsQuery.cs" />
     <Compile Include="Models\UserChangePassword.cs" />
     <Compile Include="Models\UserLogin.cs" />
     <Compile Include="Models\Notification.cs" />
@@ -208,6 +213,8 @@
     <Compile Include="Models\UserRecover.cs" />
     <Compile Include="Models\UserRecoverVerify.cs" />
     <Compile Include="Models\UserRegister.cs" />
+    <Compile Include="Models\ZoneInfo.cs" />
+    <Compile Include="Models\ZoneQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

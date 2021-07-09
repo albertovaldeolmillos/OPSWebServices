@@ -481,6 +481,26 @@
             </summary>
             <param name="documentPath">The physical path to XML document.</param>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryContractsAPI">
+            <summary>
+            Return contracts information
+            </summary>
+            <returns>Object ContractsInfo or error</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryZoneAPI(OPSWebServicesAPI.Models.ZoneQuery)">
+            <summary>
+            Returns zone information
+            </summary>
+            <param name="zoneQuery">Object ZoneQuery with long-lat information or streetName-number information to request</param>
+            <returns>zone information for query request</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryStreetsAPI(OPSWebServicesAPI.Models.StreetsQuery)">
+            <summary>
+            return village streets
+            </summary>
+            <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
+            <returns>village streets</returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.UserLogin)">
             <summary>
             Returns authorization token to login user or error
@@ -572,6 +592,96 @@
             <param name="nContractId"></param>
             <returns>SortedList con la información</returns>
         </member>
+        <member name="T:OPSWebServicesAPI.Models.Contract">
+            <summary>
+            Contract object
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.address">
+            <summary>
+            Address
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.contractId">
+            <summary>
+            Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.description1">
+            <summary>
+            Description 1 (name in Spanish)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.description2">
+            <summary>
+            Description 2 (name in Basque)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.email">
+            <summary>
+            E-Mail
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.imagePath">
+            <summary>
+            Image path
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.longitude">
+            <summary>
+            Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.latitude">
+            <summary>
+            Latitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.phone">
+            <summary>
+            Telephone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.radius">
+            <summary>
+            Radius (in meters)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.wsoper">
+            <summary>
+            WSMobilePayment.asmx url
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Contract.wsuser">
+            <summary>
+            WSUserManagement url
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ContractsInfo">
+            <summary>
+            Contracts information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ContractsInfo.contractsNumber">
+            <summary>
+            Number of contracts
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ContractsInfo.contractlist">
+            <summary>
+            Contract list
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ContractsInfo.result">
+            <summary>
+            Result of the method
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ContractsInfo.time">
+            <summary>
+            Current Date in format hh24missddMMYY
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.ErrorText">
             <summary>
             Clase auxiliar para la definición de los errores en 4 idiomas
@@ -647,6 +757,41 @@
         <member name="P:OPSWebServicesAPI.Models.Error.Message_FR">
             <summary>
             Mensaje de error en francés
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.StreetsInfo">
+            <summary>
+            Streets information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsInfo.streetsNumber">
+            <summary>
+            Number of streets
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsInfo.datetime">
+            <summary>
+            Current Date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsInfo.result">
+            <summary>
+            Result of the method
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsInfo.streetlist">
+            <summary>
+            Streets name list
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.StreetsQuery">
+            <summary>
+            class to request streets
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsQuery.contractId">
+            <summary>
+            (*) Contract ID
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserChangePassword">
@@ -1227,6 +1372,91 @@
         <member name="P:OPSWebServicesAPI.Models.UserRegister.userCredit">
             <summary>
             Mobile user founds
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ZoneInfo">
+            <summary>
+            Zone information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.longitude">
+            <summary>
+            Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.latitude">
+            <summary>
+            Latitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.streetname">
+            <summary>
+            Street name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.streetno">
+            <summary>
+            Street number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.zone">
+            <summary>
+            Zone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.zonecolor">
+            <summary>
+            Zone color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.zonename">
+            <summary>
+            Zone name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.sector">
+            <summary>
+            Zone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.sectorcolor">
+            <summary>
+            Zone color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneInfo.sectorname">
+            <summary>
+            Zone name
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ZoneQuery">
+            <summary>
+            class to request zone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneQuery.longitude">
+            <summary>
+            (*) Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneQuery.latitude">
+            <summary>
+            (*) Latitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneQuery.streetname">
+            <summary>
+            (*) Street name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ZoneQuery.streetno">
+            <summary>
+            (*) Street number
             </summary>
         </member>
     </members>
