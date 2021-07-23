@@ -62,7 +62,7 @@ namespace OPSWebServicesAPI.Areas.HelpPage
 
             Type[] types = { typeof(UserLogin), typeof(User), typeof(UserOperation), typeof(UserQuery), typeof(UserRecover), 
                 typeof(UserRecoverVerify), typeof(UserChangePassword), typeof(UserRegister),
-                typeof(ZoneQuery), typeof(StreetsQuery)
+                typeof(ZoneQuery), typeof(StreetsQuery), typeof(PlaceQuery), typeof(ParkingStepsQuery)
             };
 
             foreach (Type t in types)

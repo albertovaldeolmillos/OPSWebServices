@@ -23,4 +23,9 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         public Error Error { get; set; }
     }
+
+    public class ResultParkingStepsInfo : Result
+    {
+        public ParkingStepsInfo Value { get; set; }
+    }
 }

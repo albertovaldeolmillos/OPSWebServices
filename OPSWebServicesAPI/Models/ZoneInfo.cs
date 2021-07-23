@@ -43,17 +43,17 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("zonename")]
         public string zonename { get; set; }
         /// <summary>
-        /// Zone
+        /// Sector
         /// </summary>
         [DisplayName("sector")]
         public string sector { get; set; }
         /// <summary>
-        /// Zone color
+        /// Sector color
         /// </summary>
         [DisplayName("sectorcolor")]
         public string sectorcolor { get; set; }
         /// <summary>
-        /// Zone name
+        /// Sector name
         /// </summary>
         [DisplayName("sectorname")]
         public string sectorname { get; set; }

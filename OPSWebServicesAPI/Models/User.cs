@@ -40,12 +40,12 @@ namespace OPSWebServicesAPI.Models
         /// Address: Department Stair
         /// </summary>
         [DisplayName("ads")]
-        public object[] addressDepartmentStair { get; set; }
+        public string addressDepartmentStair { get; set; }
         /// <summary>
         /// Alternative Mobile Phone
         /// </summary>
         [DisplayName("amp")]
-        public object[] addressMobilePhone { get; set; }
+        public string alternativeMobilePhone { get; set; }
         /// <summary>
         /// Address: Postal Code
         /// </summary>

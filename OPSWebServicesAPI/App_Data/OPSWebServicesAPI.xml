@@ -501,6 +501,79 @@
             <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
             <returns>village streets</returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryPlaceAPI(OPSWebServicesAPI.Models.PlaceQuery)">
+            <summary>
+            return information from google api link https://maps.googleapis.com/maps/api/place/autocomplete/json
+            </summary>
+            <param name="placeQuery">Object PlaceQuery with street name to request</param>
+            <returns>place information or error</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingOperationWithTimeStepsAPI(OPSWebServicesAPI.Models.ParkingStepsQuery)">
+            <summary>
+            return information for parking operation
+            </summary>
+            <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
+            <returns>parking information with time steps or error</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingOperationWithMoneyStepsAPI(OPSWebServicesAPI.Models.ParkingStepsQuery)">
+            <summary>
+            return information for parking operation
+            </summary>
+            <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
+            <returns>parking information with money steps or error</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M01Process(System.Collections.SortedList,System.String,System.Int32)">
+            <summary>
+            Metodo para sustituir el proceso de pedir la información del Process de M01 vía servicio asmx (mirar Process de M01)
+            Internamente se realizan varios procesos pero en ARINPARK sólo se usa el primero:
+            1- Inclusión en el xml final de los datos de la ejecución del CS_M1.Exectue (se ha dejado como estaba). Llama a su vez a OPSComputeM1
+            2- Inclusión en el xml final de los datos de la factura (para los _date, _vehicleId, nContractId dados) llamando a CalculateInfoAboutPlateFines_M05Process (sustituyendo el Process de M05 vía servicio asmx)
+            3- ApplyCoupons
+            4- ProcessParticularSystemIdentifiers
+            5- CheckVAOCards
+            6- CameraCheckArticleDef
+            </summary>
+            <param name="parametersM1In"></param>
+            <param name="strM1In"></param>
+            <param name="nContractId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.CalculateInfoAboutPlateFines_M05Process(System.DateTime,System.String,System.Int32)">
+            <summary>
+            Metodo para sustituir el proceso de pedir la información del Process de M05 vía servicio asmx (mirar Process de M05)
+            Devuelve una SortedList con toda la información
+            NOTA: muy similar al OPSMEssage_M05Process del controller de User
+            </summary>
+            <param name="fine_id"></param>
+            <param name="nContractId"></param>
+            <returns>SortedList con la información</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.IsFinePaymentInTime(System.DateTime,System.DateTime,System.Int32,System.String,System.Int32)">
+            <summary>
+            Comprueba si la multa está fuera de plazo o no
+            </summary>
+            <param name="dtFineDatetime"></param>
+            <param name="dtOpePaymentDateTime"></param>
+            <param name="iTimeForPayment"></param>
+            <param name="strDayCode"></param>
+            <param name="nContractId"></param>
+            <returns>devuelve si es pagable o no</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.IsHollyday(System.DateTime,System.Int32)">
+            <summary>
+            Comprueba si una fecha es día festivo o no (mira en la tabla DAYS)
+            </summary>
+            <param name="dt"></param>
+            <param name="nContractId"></param>
+            <returns>deveulve si es festivo o no</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.DtxToString(System.DateTime)">
+            <summary>
+            Pass a DateTime to a string in format (hhmmssddmmyy)
+            </summary>
+            <param name="dt">DateTime to convert</param>
+            <returns>string in OPS-dtx format</returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.UserLogin)">
             <summary>
             Returns authorization token to login user or error
@@ -759,6 +832,156 @@
             Mensaje de error en francés
             </summary>
         </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStepsInfo">
+            <summary>
+            Parking operation with time steps information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.result">
+            <summary>
+            Result of the method
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.tariffType">
+            <summary>
+            tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.operationType">
+            <summary>
+            Operation Type: 1: First parking: 2: extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.payAmountMin">
+            <summary>
+            minimum amount to pay in Euro cents
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.payAmountMax">
+            <summary>
+            maximum amount to pay in Euro cents
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.timeAmountMin">
+            <summary>
+            minimum amount of time to park in minutes
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.timeAmountMax">
+            <summary>
+            maximum amount of time to park in minutes
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.dateMin">
+            <summary>
+            minimum date
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.dateMax">
+            <summary>
+            maximum date
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.dateInitial">
+            <summary>
+            Initial date (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.accumulatedQuantity">
+            <summary>
+            Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.accumulatedTime">
+            <summary>
+            Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.steps">
+            <summary>
+            Steps
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStepsQuery">
+            <summary>
+            class to request parking operation with time steps
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsQuery.sector">
+            <summary>
+            (*) Sector
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStepsQuery.datetime">
+            <summary>
+            Date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.PlaceInfo">
+            <summary>
+            Place information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.PlaceInfo.result">
+            <summary>
+            Result of the method
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.PlaceInfo.response">
+            <summary>
+            json response from google link: https://maps.googleapis.com/maps/api/place/autocomplete/json
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.PlaceQuery">
+            <summary>
+            class to request place
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.PlaceQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.PlaceQuery.streetname">
+            <summary>
+            (*) Street name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.PlaceQuery.streetno">
+            <summary>
+            Street number
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.Step">
+            <summary>
+            Step information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Step.time">
+            <summary>
+            Time in minutes
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Step.quantity">
+            <summary>
+            Cost in Euro Cents for t minutes
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.Step.datetime">
+            <summary>
+            datetime given by q cents
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.StreetsInfo">
             <summary>
             Streets information
@@ -964,7 +1187,7 @@
             Address: Department Stair
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.User.addressMobilePhone">
+        <member name="P:OPSWebServicesAPI.Models.User.alternativeMobilePhone">
             <summary>
             Alternative Mobile Phone
             </summary>
@@ -1416,17 +1639,17 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.ZoneInfo.sector">
             <summary>
-            Zone
+            Sector
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ZoneInfo.sectorcolor">
             <summary>
-            Zone color
+            Sector color
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ZoneInfo.sectorname">
             <summary>
-            Zone name
+            Sector name
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.ZoneQuery">

@@ -52,7 +52,7 @@ namespace OPSWebServicesAPI.Helpers
                     .ForMember(d => d.addressDepartmentFloor, o => o.MapFrom(s => s["adf"]))
                     .ForMember(d => d.addressLetterNumber, o => o.MapFrom(s => s["adl"]))
                     .ForMember(d => d.addressDepartmentStair, o => o.MapFrom(s => s["ads"]))
-                    .ForMember(d => d.addressMobilePhone, o => o.MapFrom(s => s["amp"]))
+                    .ForMember(d => d.alternativeMobilePhone, o => o.MapFrom(s => s["amp"]))
                     .ForMember(d => d.addressPostalCode, o => o.MapFrom(s => s["apc"]))
                     .ForMember(d => d.addressProvince, o => o.MapFrom(s => s["apr"]))
                     .ForMember(d => d.addressStreetName, o => o.MapFrom(s => s["asn"]))
@@ -160,6 +160,56 @@ namespace OPSWebServicesAPI.Helpers
                     .ForMember(d => d.streetsNumber, o => o.MapFrom(s => s["st_no"]))
                     .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
                     .ForMember(d => d.streetlist, o => o.MapFrom(s => s["streetlist"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configPlace()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, PlaceInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.response, o => o.MapFrom(s => s["response"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configStep()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, Step>()
+                    .ForMember(d => d.time, o => o.MapFrom(s => s["t"]))
+                    .ForMember(d => d.quantity, o => o.MapFrom(s => s["q"]))
+                    .ForMember(d => d.datetime, o => o.MapFrom(s => s["d"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configParkingSteps()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ParkingStepsInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["ad"]))
+                    .ForMember(d => d.operationType, o => o.MapFrom(s => s["o"]))
+                    .ForMember(d => d.payAmountMin, o => o.MapFrom(s => s["q1"]))
+                    .ForMember(d => d.payAmountMax, o => o.MapFrom(s => s["q2"]))
+                    .ForMember(d => d.timeAmountMin, o => o.MapFrom(s => s["t1"]))
+                    .ForMember(d => d.timeAmountMax, o => o.MapFrom(s => s["t2"]))
+                    .ForMember(d => d.dateMin, o => o.MapFrom(s => s["d1"]))
+                    .ForMember(d => d.dateMax, o => o.MapFrom(s => s["d2"]))
+                    .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["di"]))
+                    .ForMember(d => d.accumulatedQuantity, o => o.MapFrom(s => s["aq"]))
+                    .ForMember(d => d.accumulatedTime, o => o.MapFrom(s => s["at"]))
                     ;
                 cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;

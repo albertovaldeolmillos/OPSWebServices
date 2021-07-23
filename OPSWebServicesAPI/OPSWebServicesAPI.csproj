@@ -199,6 +199,11 @@
     <Compile Include="Models\Contract.cs" />
     <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\ParkingStepsInfo.cs" />
+    <Compile Include="Models\ParkingStepsQuery.cs" />
+    <Compile Include="Models\PlaceInfo.cs" />
+    <Compile Include="Models\PlaceQuery.cs" />
+    <Compile Include="Models\Step.cs" />
     <Compile Include="Models\StreetsInfo.cs" />
     <Compile Include="Models\StreetsQuery.cs" />
     <Compile Include="Models\UserChangePassword.cs" />

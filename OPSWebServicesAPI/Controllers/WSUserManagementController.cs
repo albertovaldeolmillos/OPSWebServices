@@ -1153,7 +1153,7 @@ namespace OPSWebServicesAPI.Controllers
                         (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.IsSuccess = false;
                         response.Error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
                         response.Value = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
