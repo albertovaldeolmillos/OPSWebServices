@@ -802,34 +802,95 @@
             <param name="code"></param>
             <param name="type"></param>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Error.Code">
+        <member name="P:OPSWebServicesAPI.Models.Error.code">
             <summary>
             codigo de error
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Error.Type">
+        <member name="P:OPSWebServicesAPI.Models.Error.type">
             <summary>
             tipo de error
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Error.Message_EN">
+        <member name="P:OPSWebServicesAPI.Models.Error.message_EN">
             <summary>
             Mensaje de error en inglés
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Error.Message_ES">
+        <member name="P:OPSWebServicesAPI.Models.Error.message_ES">
             <summary>
             Mensaje de error en castellano
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Error.Message_EU">
+        <member name="P:OPSWebServicesAPI.Models.Error.message_EU">
             <summary>
             Mensaje de error en euskera
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Error.Message_FR">
+        <member name="P:OPSWebServicesAPI.Models.Error.message_FR">
             <summary>
             Mensaje de error en francés
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.result">
+            <summary>
+            Result of the method
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.tariffType">
+            <summary>
+            tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.operationType">
+            <summary>
+            Operation Type: 1: First parking: 2: extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.time">
+            <summary>
+            time in minutes given by the amount for money q 
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.date">
+            <summary>
+            Final date of the parking
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:OPSWebServicesAPI.Models.ParkingMoneyInfo.dateInitial" -->
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.accumulatedQuantity">
+            <summary>
+            Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.accumulatedTime">
+            <summary>
+            Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingMoneyQuery">
+            <summary>
+            class to request parking operation money quantity
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyQuery.sector">
+            <summary>
+            (*) Sector
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyQuery.quantity">
+            <summary>
+            (*) Quantity in cents
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.ParkingStepsInfo">
@@ -925,6 +986,72 @@
         <member name="P:OPSWebServicesAPI.Models.ParkingStepsQuery.datetime">
             <summary>
             Date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingTimeInfo">
+            <summary>
+            Parking operation time information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.result">
+            <summary>
+            Result of the method
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.tariffType">
+            <summary>
+            tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.operationType">
+            <summary>
+            Operation Type: 1: First parking: 2: extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.payAmount">
+            <summary>
+            amount needed to arrive to the input parameter t 
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.date">
+            <summary>
+            Final date of the parking
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:OPSWebServicesAPI.Models.ParkingTimeInfo.dateInitial" -->
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.accumulatedQuantity">
+            <summary>
+            Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.accumulatedTime">
+            <summary>
+            Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingTimeQuery">
+            <summary>
+            class to request parking operation time
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeQuery.sector">
+            <summary>
+            (*) Sector
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingTimeQuery.time">
+            <summary>
+            (*) Time in minutes
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.PlaceInfo">
@@ -1137,17 +1264,12 @@
             generic response
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Result.Value">
-            <summary>
-            Result
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.Result.IsSuccess">
+        <member name="P:OPSWebServicesAPI.Models.Result.isSuccess">
             <summary>
             Is Success?
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.Result.Error">
+        <member name="P:OPSWebServicesAPI.Models.Result.error">
             <summary>
             Error Message
             </summary>
@@ -1559,7 +1681,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.contractId">
             <summary>
-            Contract ID
+            (*) Contract ID
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.email">

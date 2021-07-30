@@ -199,8 +199,12 @@
     <Compile Include="Models\Contract.cs" />
     <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\ParkingMoneyInfo.cs" />
+    <Compile Include="Models\ParkingMoneyQuery.cs" />
     <Compile Include="Models\ParkingStepsInfo.cs" />
     <Compile Include="Models\ParkingStepsQuery.cs" />
+    <Compile Include="Models\ParkingTimeInfo.cs" />
+    <Compile Include="Models\ParkingTimeQuery.cs" />
     <Compile Include="Models\PlaceInfo.cs" />
     <Compile Include="Models\PlaceQuery.cs" />
     <Compile Include="Models\Step.cs" />

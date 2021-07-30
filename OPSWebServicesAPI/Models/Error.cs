@@ -223,44 +223,44 @@ namespace OPSWebServicesAPI.Models
         /// <param name="type"></param>
         public Error(int code, int type)
         {
-            Code = code;
-            Type = type;
+            this.code = code;
+            this.type = type;
             ErrorText errortext = new ErrorText();
-            Message_EN = errortext.ErrorTextEN[code];
-            Message_ES = errortext.ErrorTextES[code];
-            Message_EU = errortext.ErrorTextEU[code];
-            Message_FR = errortext.ErrorTextFR[code];
+            message_EN = errortext.ErrorTextEN[code];
+            message_ES = errortext.ErrorTextES[code];
+            message_EU = errortext.ErrorTextEU[code];
+            message_FR = errortext.ErrorTextFR[code];
         }
         /// <summary>
         /// codigo de error
         /// </summary>
         [DataMemberAttribute]
-        public int Code { get; set; }
+        public int code { get; set; }
         /// <summary>
         /// tipo de error
         /// </summary>
         [DataMemberAttribute]
-        public int Type { get; set; }
+        public int type { get; set; }
         /// <summary>
         /// Mensaje de error en inglés
         /// </summary>
         [DataMemberAttribute]
-        public string Message_EN { get; set; }
+        public string message_EN { get; set; }
         /// <summary>
         /// Mensaje de error en castellano
         /// </summary>
         [DataMemberAttribute]
-        public string Message_ES { get; set; }
+        public string message_ES { get; set; }
         /// <summary>
         /// Mensaje de error en euskera
         /// </summary>
         [DataMemberAttribute]
-        public string Message_EU { get; set; }
+        public string message_EU { get; set; }
         /// <summary>
         /// Mensaje de error en francés
         /// </summary>
         [DataMemberAttribute]
-        public string Message_FR { get; set; }
+        public string message_FR { get; set; }
     }
 
 }

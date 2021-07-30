@@ -79,7 +79,7 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("ss")]
         public string secondSurname { get; set; }
         /// <summary>
-        /// Contract ID
+        /// (*) Contract ID
         /// </summary>
         [DisplayName("contid")]
         public string contractId { get; set; }

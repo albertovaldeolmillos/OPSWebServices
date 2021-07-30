@@ -216,5 +216,43 @@ namespace OPSWebServicesAPI.Helpers
             });
             return config;
         }
+
+        public MapperConfiguration configParkingTime()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ParkingTimeInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["ad"]))
+                    .ForMember(d => d.operationType, o => o.MapFrom(s => s["o"]))
+                    .ForMember(d => d.payAmount, o => o.MapFrom(s => s["q"]))
+                    .ForMember(d => d.date, o => o.MapFrom(s => s["d"]))
+                    .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["di"]))
+                    .ForMember(d => d.accumulatedQuantity, o => o.MapFrom(s => s["aq"]))
+                    .ForMember(d => d.accumulatedTime, o => o.MapFrom(s => s["at"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configParkingMoney()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ParkingMoneyInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["ad"]))
+                    .ForMember(d => d.operationType, o => o.MapFrom(s => s["o"]))
+                    .ForMember(d => d.time, o => o.MapFrom(s => s["t"]))
+                    .ForMember(d => d.date, o => o.MapFrom(s => s["d"]))
+                    .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["di"]))
+                    .ForMember(d => d.accumulatedQuantity, o => o.MapFrom(s => s["aq"]))
+                    .ForMember(d => d.accumulatedTime, o => o.MapFrom(s => s["at"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
     }
 }
