@@ -4690,7 +4690,7 @@ namespace OPSWebServicesAPI.Controllers
             return bResult;
         }
 
-        public string GetNewToken()
+        private string GetNewToken()
         {
             var jot = new JotProvider();
 
@@ -4699,7 +4699,7 @@ namespace OPSWebServicesAPI.Controllers
             return jot.Encode(token);
         }
 
-        public TokenValidationResult DefaultVerification(string encodedTokenFromWebPage)
+        private TokenValidationResult DefaultVerification(string encodedTokenFromWebPage)
         {
             var jot = new JotProvider();
 
@@ -5811,7 +5811,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="dt">DateTime to convert</param>
         /// <returns>string in OPS-dtx format</returns>
-        public string DtxToString(DateTime dt)
+        private string DtxToString(DateTime dt)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(dt.Hour.ToString("D2"));
@@ -5914,7 +5914,7 @@ namespace OPSWebServicesAPI.Controllers
         /// <param name="strDayCode"></param>
         /// <param name="nContractId"></param>
         /// <returns>devuelve si es pagable o no</returns>
-        public bool IsFinePaymentInTime(DateTime dtFineDatetime, DateTime dtOpePaymentDateTime, int iTimeForPayment, string strDayCode, int nContractId)
+        private bool IsFinePaymentInTime(DateTime dtFineDatetime, DateTime dtOpePaymentDateTime, int iTimeForPayment, string strDayCode, int nContractId)
         {
             bool bReturn = false;
 
@@ -6280,7 +6280,7 @@ namespace OPSWebServicesAPI.Controllers
             return iRes;
         }
 
-        public string RandomString(int length)
+        private string RandomString(int length)
         {
             Random random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

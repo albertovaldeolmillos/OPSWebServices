@@ -509,11 +509,19 @@
             <returns>place information or error</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingOperationWithTimeStepsAPI(OPSWebServicesAPI.Models.ParkingStepsQuery)">
-            <summary>
-            return information for parking operation
-            </summary>
-            <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
-            <returns>parking information with time steps or error</returns>
+             <summary>
+             return information for parking operation
+             </summary>
+             <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
+             <returns>parking information with time steps or error
+            1: Parking of extension is possible and tariff steps, tariff type, operation type, money accumulated, time accumulated, minimum and maximum money and mininimum and maximum time is returned
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -11: Missing input parameter
+            -12: OPS System error
+             </returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingOperationWithMoneyStepsAPI(OPSWebServicesAPI.Models.ParkingStepsQuery)">
             <summary>
@@ -521,6 +529,130 @@
             </summary>
             <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
             <returns>parking information with money steps or error</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingOperationForTimeAPI(OPSWebServicesAPI.Models.ParkingTimeQuery)">
+             <summary>
+             return information for parking operation for time
+             </summary>
+             <param name="parkingTimeQuery">Object ParkingTimeQuery with time to request</param>
+             <returns>parking information for time or error 
+            1: Parking of extension is possible and operation type, money accumulated, time accumulated, amount needed to arrive to the input parameter t, initial and final parking date is returned
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -11: Missing input parameter
+            -12: OPS System error
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingOperationForMoneyAPI(OPSWebServicesAPI.Models.ParkingMoneyQuery)">
+             <summary>
+             return information for parking operation for money
+             </summary>
+             <param name="parkingMoneyQuery">Object ParkingMoneyQuery with time to request</param>
+             <returns>parking information for money or error 
+            1: Parking of extension is possible and operation type, money accumulated, time accumulated, time in minutes given by the amount of money q, initial and final parking date is returned
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -11: Missing input parameter
+            -12: OPS System error
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.ConfirmParkingOperationAPI(OPSWebServicesAPI.Models.ParkingConfirmQuery)">
+             <summary>
+             return information for parking confirmation
+             </summary>
+             <param name="parkingConfirmQuery">Object ParkingConfirmQuery with sector and plate to request</param>
+             <returns>parking confirm or error 
+            1: Parking of extension is possible 
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -13: Operation already inserted
+            -20: Mobile user not found
+            -23: Invalid Login
+            -24: User has no rights. Operation begun by another user
+            -25: User does not have enough credit
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryUnParkingOperationAPI(OPSWebServicesAPI.Models.UnParkingQuery)">
+             <summary>
+             return information for unparking operation
+             </summary>
+             <param name="unParkingQuery">Object UnParkingQuery with plate to request</param>
+             <returns>unparking information or error 
+            1: UnParking is possible and quantity refunded, tariff applied, tariff in minutes, inital date and end date is returned
+            -1: Invalid authentication hash
+            -4: Plate has no rights for doing an unparking operation
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.ConfirmUnParkingOperationAPI(OPSWebServicesAPI.Models.UnParkingConfirmQuery)">
+             <summary>
+             return information for unparking confirmation
+             </summary>
+             <param name="unParkingConfirmQuery">Object UnParkingConfirmQuery with quantity and plate to request</param>
+             <returns>parking confirm or error 
+            1: Operation saved without errors 
+            -1: Invalid authentication hash
+            -4: Plate has no rights for doing an unparking operation
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -13: Operation already inserted
+            -14: Quantity received different as the quantity calculated previously
+            -20: Mobile user not found
+            -23: Invalid Login
+            -24: User has no rights. Operation begun by another user
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryParkingStatusAPI(OPSWebServicesAPI.Models.ParkingStatusQuery)">
+             <summary>
+             return information for parking status
+             </summary>
+             <param name="parkingStatusQuery">Object ParkingStatusQuery with plate to request</param>
+             <returns>parking status or error 
+            1: Operation saved without errors 
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -23: Invalid Login
+            -24: User has no rights. Operation begun by another user
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.ConfirmFinePaymentAPI(OPSWebServicesAPI.Models.FinePaymentConfirmQuery)">
+             <summary>
+             return information for fine payment confirmation
+             </summary>
+             <param name="finePaymentConfirmQuery">Object FinePaymentConfirmQuery with quantity and plate to request</param>
+             <returns>parking confirm or error 
+            1: Fine payment saved without errors 
+            -1: Invalid authentication hash
+            -5: Fine number not found
+            -6: Fine number found but fine type is not payable.
+            -7: Fine number not found but payment period has expired.
+            -8: Fine number already paid.
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -14: Quantity received different as the quantity calculated previously
+            -20: Mobile user not found
+            -23: Invalid Login
+            -25: User does not have enough credit
+             </returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M01Process(System.Collections.SortedList,System.String,System.Int32)">
             <summary>
@@ -537,6 +669,85 @@
             <param name="strM1In"></param>
             <param name="nContractId"></param>
             <returns></returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M02Process(System.Collections.SortedList,System.String,System.Int32)">
+            <summary>
+            Metodo para sustituir el proceso de pedir la información del Process de M02 vía servicio asmx (mirar Process de M02)
+            Devuelve un entero con el resultado codificado
+            </summary>
+            <param name="parametersM2In"></param>
+            <param name="strM2In"></param>
+            <param name="nContractId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M04Process(System.Collections.SortedList,System.String,System.Int32)">
+            <summary>
+            Metodo para sustituir el proceso de pedir la información del Process de M04 vía servicio asmx (mirar Process de M04)
+            Devuelve un entero con el resultado codificado
+            </summary>
+            <param name="fine_id"></param>
+            <param name="nContractId"></param>
+            <returns>SortedList con la información</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M05Process(System.String,System.Int32)">
+            <summary>
+            Metodo para sustituir el proceso de pedir la información del Process de M05 vía servicio asmx (mirar Process de M05)
+            Devuelve una SortedList con toda la información
+            </summary>
+            <param name="fine_id"></param>
+            <param name="nContractId"></param>
+            <returns>SortedList con la información</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.CmpInsertOperation(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.DateTime,System.DateTime,System.DateTime,System.Int32,System.Double,System.String,System.Int32,System.Int32,System.Int32,System.Double,System.UInt64,System.Double,System.Int64,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32@,System.Data.IDbTransaction@,System.Int32)">
+            <summary>
+            Inserts a new register in the OPERATIONS table.
+            Returns 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
+            </summary>
+            <param name="dopeid">OPE_DOPE_ID value. Cannot be NULL</param>
+            <param name="opeopeid">OPE_OPE_ID value. -1 for NULL</param>
+            <param name="artid">OPE_ART_ID value. -1 for NULL</param>
+            <param name="grpid">OPE_GRP_ID value. Cannot be NULL</param>
+            <param name="uniid">OPE_UNI_ID value. Cannot be NULL</param>
+            <param name="dpayid">OPE_DPAY_ID value. -1 for NULL</param>
+            <param name="mov">OPE_MOVDATE value. DateTime.MinValue for NULL</param>
+            <param name="ini">OPE_INIDATE value. DateTime.MinValue for NULL</param>
+            <param name="end">OPE_ENDDATE value. DateTime.MinValue for NULL</param>
+            <param name="duration">OPE_DURATION value. -1 for NULL</param>
+            <param name="quantity">OPE_VALUE value. -1 for NULL</param>
+            <param name="vehicleid">OPE_VEHICLEID value. May be NULL</param>
+            <param name="dartid">OPE_DART_ID</param>
+            <param name="mobileUserId">OPE_MOBI_USER_ID</param>
+            <param name="postpay">OPE_POST_PAY</param>
+            <param name="dChipCardCredit">OPE_CHIPCARD_CREDIT</param>
+            <param name="ulChipCardId">OPE_CHIPCARD_ID</param>
+            <param name="lFineNumber">OPE_FIN_ID</param>
+            <param name="lFineType">OPE_FIN_DFIN_ID</param>
+            <param name="iRealDuration">OPE_REALDURATION</param>
+            <param name="quantityReturned">OPE_VALUE_IN_RETURN</param>
+            <param name="iOpOnLine">OPE_OP_ONLINE</param>
+            <param name="iTicketNumber">OPE_TICKETNUM</param>
+            <param name="nNewOperationsDB">new operatioin ID if any</param>
+            <param name="tran">trnasaction</param>
+            <param name="nContractId">village</param>
+            <returns></returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.CmpExistsOperation(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.DateTime,System.DateTime,System.DateTime,System.Int32,System.Double,System.String,System.Int32)">
+            <summary>
+            Verifies if an operation exists in the OPERATIONS table.
+            </summary>
+            <param name="dopeid">OPE_DOPE_ID value. -1 for NULL</param>
+            <param name="opeopeid">OPE_OPE_ID value. -1 for NULL</param>
+            <param name="artid">OPE_ART_ID value. -1 for NULL</param>
+            <param name="grpid">OPE_GRP_ID value. -1 for NULL</param>
+            <param name="uniid">OPE_UNI_ID value. -1 for NULL</param>
+            <param name="dpayid">OPE_DPAY_ID value. -1 for NULL</param>
+            <param name="mov">OPE_MOVDATE value. DateTime.MinValue for NULL</param>
+            <param name="ini">OPE_INIDATE value. DateTime.MinValue for NULL</param>
+            <param name="end">OPE_ENDDATE value. DateTime.MinValue for NULL</param>
+            <param name="duration">OPE_DURATION value. -1 for NULL</param>
+            <param name="quantity">OPE_VALUE value. -1 for NULL</param>
+            <param name="vehicleid">OPE_VEHICLEID value. May be NULL</param>
+            <param name="nContractId">municipio</param>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.CalculateInfoAboutPlateFines_M05Process(System.DateTime,System.String,System.Int32)">
             <summary>
@@ -832,10 +1043,146 @@
             Mensaje de error en francés
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.result">
+        <member name="T:OPSWebServicesAPI.Models.FinePaymentConfirmQuery">
             <summary>
-            Result of the method
+            class to request fine payment confirm
             </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.fine">
+            <summary>
+            (*) fine number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.quantity">
+            <summary>
+            (*) quantity paid in Euro Cents for the fine
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.date">
+            <summary>
+            date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.cloudToken">
+            <summary>
+            (*) Cloud token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.authorizationToken">
+            <summary>
+            (*) Mobile user id (authorization token)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.operatingSystem">
+            <summary>
+            (*) Operating system: 1 (Android), 2 (iOS)
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingConfirmQuery">
+            <summary>
+            class to request parking confirm
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.sector">
+            <summary>
+            (*) Sector
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.quantity">
+            <summary>
+            (*) Amount of money paid in Euro cents
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.tariffType">
+            <summary>
+            (*) tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.authorizationToken">
+            <summary>
+            (*) Mobile user id (authorization token)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.cloudToken">
+            <summary>
+            (*) Cloud token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.operatingSystem">
+            <summary>
+            (*) Operating system: 1 (Android), 2 (iOS)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.date">
+            <summary>
+            date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.time">
+            <summary>
+            Time in minutes obtained paying q cents
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.longitude">
+            <summary>
+            Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.latitude">
+            <summary>
+            Latitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.reference">
+            <summary>
+            Reference of current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.spaceId">
+            <summary>
+            Space id
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.streetname">
+            <summary>
+            (*) Street name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.streetno">
+            <summary>
+            Street address number
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingMoneyInfo">
+            <summary>
+            Parking operation money information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.result">
+             <summary>
+            1: Parking of extension is possible and the restrictions come after this tag.
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -11: Missing input parameter
+            -12: OPS System error
+             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingMoneyInfo.tariffType">
             <summary>
@@ -893,15 +1240,332 @@
             (*) Quantity in cents
             </summary>
         </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStatusInfo">
+            <summary>
+            Parking status information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusInfo.parkingStatusRotationInfo">
+            <summary>
+            Parking status rotation information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusInfo.parkingStatusResidentInfo">
+            <summary>
+            Parking status resident information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusInfo.parkingStatusTariffsInfo">
+            <summary>
+            Parking status tariffs information
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStatusQuery">
+            <summary>
+            class to request parking status
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.authorizationToken">
+            <summary>
+            (*) Mobile user id (authorization token)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.date">
+            <summary>
+            date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStatusResidentInfo">
+            <summary>
+            Parking status residents information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.result">
+            <summary>
+            Result of the method:
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.status">
+            <summary>
+            status: 1 (UNPARKED), 2 (PARKED)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.extension">
+            <summary>
+            Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.tariffId">
+            <summary>
+            tariff ID: 102 (ESRO resident), 104 (1 DAY TICKET), 105(5 DAY TICKET), 106 (20 DAY TICKET)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.tariffType">
+            <summary>
+            Tariff type of current operation: 5 (RESIDENTS), 104 (1 DAY TICKET), 105(5 DAY TICKET), 106 (20 DAY TICKET)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.operationType">
+            <summary>
+            Operation Type: 1: First parking: 2: extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.dateInitial">
+            <summary>
+            Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.dateEnd">
+            <summary>
+            End date of current operation (in format hh24missddMMYY) of the parking. In order to show the user the end of the current parking operation.
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.accumulatedQuantity">
+            <summary>
+            Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.accumulatedTime">
+            <summary>
+            Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.sector">
+            <summary>
+            Sector
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.sectorcolor">
+            <summary>
+            Sector color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.sectorname">
+            <summary>
+            Sector name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.zone">
+            <summary>
+            Zone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.zonecolor">
+            <summary>
+            Zone color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.zonename">
+            <summary>
+            Zone name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.longitude">
+            <summary>
+            Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.latitude">
+            <summary>
+            Latitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.reference">
+            <summary>
+            Reference of current operation. 128 characters maximum
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.refundable">
+            <summary>
+            Refundable tariff: 0 (NO), 1 (YES)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.operationDate">
+            <summary>
+            Operation date
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.streetname">
+            <summary>
+            Street name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusResidentInfo.streetno">
+            <summary>
+            Street number
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStatusRotationInfo">
+            <summary>
+            Parking status rotation information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.result">
+            <summary>
+            Result of the method:
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.status">
+            <summary>
+            status: 1 (UNPARKED), 2 (PARKED)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.extension">
+            <summary>
+            Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.tariffId">
+            <summary>
+            tariff ID: 101 (ESRO non resident), 103 (ESRE non resident)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.tariffType">
+            <summary>
+            Tariff type of current operation: 4 (ROTATION), 6 (VIPS)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.operationType">
+            <summary>
+            Operation Type: 1: First parking: 2: extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.dateInitial">
+            <summary>
+            Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.dateEnd">
+            <summary>
+            End date of current operation (in format hh24missddMMYY) of the parking. In order to show the user the end of the current parking operation.
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.accumulatedQuantity">
+            <summary>
+            Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.accumulatedTime">
+            <summary>
+            Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.sector">
+            <summary>
+            Sector
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.sectorcolor">
+            <summary>
+            Sector color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.sectorname">
+            <summary>
+            Sector name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.zone">
+            <summary>
+            Zone
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.zonecolor">
+            <summary>
+            Zone color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.zonename">
+            <summary>
+            Zone name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.longitude">
+            <summary>
+            Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.latitude">
+            <summary>
+            Latitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.reference">
+            <summary>
+            Reference of current operation. 128 characters maximum
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.refundable">
+            <summary>
+            Refundable tariff: 0 (NO), 1 (YES)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.operationDate">
+            <summary>
+            Operation date
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.streetname">
+            <summary>
+            Street name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.streetno">
+            <summary>
+            Street number
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.ParkingStatusTariffInfo">
+            <summary>
+            Parking status tariffs information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusTariffInfo.tariffId">
+            <summary>
+            tariff id
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusTariffInfo.tariffDescription">
+            <summary>
+            tariff description
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusTariffInfo.tariffType">
+            <summary>
+            Tariff type
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.ParkingStatusTariffInfo.tariffRefundable">
+            <summary>
+            If Tariff 1 is refundable: 0 (NO), 1 (YES)
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.ParkingStepsInfo">
             <summary>
             Parking operation with time steps information
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.result">
-            <summary>
-            Result of the method
-            </summary>
+             <summary>
+             Result of the method:
+            1: Parking of extension is possible and the restrictions come after this tag.
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -11: Missing input parameter
+            -12: OPS System error
+             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingStepsInfo.tariffType">
             <summary>
@@ -994,9 +1658,16 @@
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.result">
-            <summary>
-            Result of the method
-            </summary>
+             <summary>
+             Result of the method:
+            1: Parking of extension is possible and the restrictions come after this tag.
+            -1: Invalid authentication hash
+            -2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            -3: The plate has not waited enough to return to the current sector.
+            -9: Generic Error (for example database or execution error.)
+            -11: Missing input parameter
+            -12: OPS System error
+             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingTimeInfo.tariffType">
             <summary>
@@ -1060,9 +1731,16 @@
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.PlaceInfo.result">
-            <summary>
-            Result of the method
-            </summary>
+             <summary>
+             Result of the method:
+            1: Parking of extension is possible and the restrictions come after this tag.
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -30: Location not found
+             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.PlaceInfo.response">
             <summary>
@@ -1125,9 +1803,15 @@
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.StreetsInfo.result">
-            <summary>
-            Result of the method
-            </summary>
+             <summary>
+             Result of the method:
+            1: Parking of extension is possible and the restrictions come after this tag.
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.StreetsInfo.streetlist">
             <summary>
@@ -1142,6 +1826,108 @@
         <member name="P:OPSWebServicesAPI.Models.StreetsQuery.contractId">
             <summary>
             (*) Contract ID
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UnParkingConfirmQuery">
+            <summary>
+            class to request unparking confirm
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.quantity">
+            <summary>
+            (*) Amount refunded in Euro Cents
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.authorizationToken">
+            <summary>
+            (*) Mobile user id (authorization token)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.cloudToken">
+            <summary>
+            (*) Cloud token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.operatingSystem">
+            <summary>
+            (*) Operating system: 1 (Android), 2 (iOS)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.date">
+            <summary>
+            date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UnParkingQuery">
+            <summary>
+            class to request unparking operation
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQuery.contractId">
+            <summary>
+            (*) Contract ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQuery.plate">
+            <summary>
+            (*) Plate
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQuery.datetime">
+            <summary>
+            Date in format hh24missddMMYY
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UnParkingQueryInfo">
+            <summary>
+            UnParking operation information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.result">
+             <summary>
+             Result of the method:
+            1: UnParking is possible and the restrictions come after this tag.
+            -1: Invalid authentication hash
+            -4: Plate has no rights for doing an unparking operation
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+             </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.tariffType">
+            <summary>
+            tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.tariffTime">
+            <summary>
+            Tariff time in minutes for the parking operation chain after unparking (d2-d1)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.payAmount">
+            <summary>
+            quantity in Euro Cents to be refunded
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.dateInitial">
+            <summary>
+            Initial date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.dateEnd">
+            <summary>
+            End date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserChangePassword">

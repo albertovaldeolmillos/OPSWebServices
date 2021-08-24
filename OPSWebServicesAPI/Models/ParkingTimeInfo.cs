@@ -8,7 +8,14 @@ namespace OPSWebServicesAPI.Models
     public class ParkingTimeInfo
     {
         /// <summary>
-        /// Result of the method
+        /// Result of the method:
+        ///1: Parking of extension is possible and the restrictions come after this tag.
+        ///-1: Invalid authentication hash
+        ///-2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+        ///-3: The plate has not waited enough to return to the current sector.
+        ///-9: Generic Error (for example database or execution error.)
+        ///-11: Missing input parameter
+        ///-12: OPS System error
         /// </summary>
         [DisplayName("r")]
         public string result { get; set; }

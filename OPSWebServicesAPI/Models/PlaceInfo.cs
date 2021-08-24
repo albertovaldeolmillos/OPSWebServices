@@ -8,7 +8,14 @@ namespace OPSWebServicesAPI.Models
     public class PlaceInfo
     {
         /// <summary>
-        /// Result of the method
+        /// Result of the method:
+        ///1: Parking of extension is possible and the restrictions come after this tag.
+        ///-1: Invalid authentication hash
+        ///-9: Generic Error (for example database or execution error)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-30: Location not found
         /// </summary>
         [DisplayName("r")]
         public string result { get; set; }

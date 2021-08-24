@@ -254,5 +254,106 @@ namespace OPSWebServicesAPI.Helpers
             });
             return config;
         }
+        public MapperConfiguration configUnParkingQuery()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, UnParkingQueryInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["ad"]))
+                    .ForMember(d => d.tariffTime, o => o.MapFrom(s => s["t"]))
+                    .ForMember(d => d.payAmount, o => o.MapFrom(s => s["q"]))
+                    .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["d1"]))
+                    .ForMember(d => d.dateEnd, o => o.MapFrom(s => s["d2"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configParkingStatusRotation()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ParkingStatusRotationInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.status, o => o.MapFrom(s => s["sta"]))
+                    .ForMember(d => d.extension, o => o.MapFrom(s => s["ex"]))
+                    .ForMember(d => d.tariffId, o => o.MapFrom(s => s["id"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["ad"]))
+                    .ForMember(d => d.operationType, o => o.MapFrom(s => s["o"]))
+                    .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["di"]))
+                    .ForMember(d => d.dateEnd, o => o.MapFrom(s => s["df"]))
+                    .ForMember(d => d.accumulatedQuantity, o => o.MapFrom(s => s["aq"]))
+                    .ForMember(d => d.accumulatedTime, o => o.MapFrom(s => s["at"]))
+                    .ForMember(d => d.sector, o => o.MapFrom(s => s["g"]))
+                    .ForMember(d => d.sectorcolor, o => o.MapFrom(s => s["sectorcolor"]))
+                    .ForMember(d => d.sectorname, o => o.MapFrom(s => s["sectorname"]))
+                    .ForMember(d => d.zone, o => o.MapFrom(s => s["zone"]))
+                    .ForMember(d => d.zonecolor, o => o.MapFrom(s => s["zonecolor"]))
+                    .ForMember(d => d.zonename, o => o.MapFrom(s => s["zonename"]))
+                    .ForMember(d => d.longitude, o => o.MapFrom(s => s["lg"]))
+                    .ForMember(d => d.latitude, o => o.MapFrom(s => s["lt"]))
+                    .ForMember(d => d.reference, o => o.MapFrom(s => s["re"]))
+                    .ForMember(d => d.refundable, o => o.MapFrom(s => s["rfd"]))
+                    .ForMember(d => d.operationDate, o => o.MapFrom(s => s["od"]))
+                    .ForMember(d => d.streetname, o => o.MapFrom(s => s["streetname"]))
+                    .ForMember(d => d.streetno, o => o.MapFrom(s => s["streetno"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configParkingStatusResident()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ParkingStatusResidentInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.status, o => o.MapFrom(s => s["sta"]))
+                    .ForMember(d => d.extension, o => o.MapFrom(s => s["ex"]))
+                    .ForMember(d => d.tariffId, o => o.MapFrom(s => s["id"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["ad"]))
+                    .ForMember(d => d.operationType, o => o.MapFrom(s => s["o"]))
+                    .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["di"]))
+                    .ForMember(d => d.dateEnd, o => o.MapFrom(s => s["df"]))
+                    .ForMember(d => d.accumulatedQuantity, o => o.MapFrom(s => s["aq"]))
+                    .ForMember(d => d.accumulatedTime, o => o.MapFrom(s => s["at"]))
+                    .ForMember(d => d.sector, o => o.MapFrom(s => s["g"]))
+                    .ForMember(d => d.sectorcolor, o => o.MapFrom(s => s["sectorcolor"]))
+                    .ForMember(d => d.sectorname, o => o.MapFrom(s => s["sectorname"]))
+                    .ForMember(d => d.zone, o => o.MapFrom(s => s["zone"]))
+                    .ForMember(d => d.zonecolor, o => o.MapFrom(s => s["zonecolor"]))
+                    .ForMember(d => d.zonename, o => o.MapFrom(s => s["zonename"]))
+                    .ForMember(d => d.longitude, o => o.MapFrom(s => s["lg"]))
+                    .ForMember(d => d.latitude, o => o.MapFrom(s => s["lt"]))
+                    .ForMember(d => d.reference, o => o.MapFrom(s => s["re"]))
+                    .ForMember(d => d.refundable, o => o.MapFrom(s => s["rfd"]))
+                    .ForMember(d => d.operationDate, o => o.MapFrom(s => s["od"]))
+                    .ForMember(d => d.streetname, o => o.MapFrom(s => s["streetname"]))
+                    .ForMember(d => d.streetno, o => o.MapFrom(s => s["streetno"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+        public MapperConfiguration configParkingStatusTariffs()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, ParkingStatusTariffInfo>()
+                    .ForMember(d => d.tariffId, o => o.MapFrom(s => s["tarid"]))
+                    .ForMember(d => d.tariffDescription, o => o.MapFrom(s => s["tardesc"]))
+                    .ForMember(d => d.tariffType, o => o.MapFrom(s => s["tarad"]))
+                    .ForMember(d => d.tariffRefundable, o => o.MapFrom(s => s["tarrfd"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
+
     }
 }

@@ -1113,7 +1113,15 @@ namespace OPSWebServicesAPI.Controllers
         /// return information for parking operation
         /// </summary>
         /// <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
-        /// <returns>parking information with time steps or error</returns>
+        /// <returns>parking information with time steps or error
+        ///1: Parking of extension is possible and tariff steps, tariff type, operation type, money accumulated, time accumulated, minimum and maximum money and mininimum and maximum time is returned
+        ///-1: Invalid authentication hash
+        ///-2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+        ///-3: The plate has not waited enough to return to the current sector.
+        ///-9: Generic Error (for example database or execution error.)
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        /// </returns>
         [HttpGet]
         [Route("QueryParkingOperationWithTimeStepsAPI")]
         public ResultParkingStepsInfo QueryParkingOperationWithTimeStepsAPI([FromBody] ParkingStepsQuery parkingStepsQuery)
@@ -1692,6 +1700,19 @@ namespace OPSWebServicesAPI.Controllers
          * 
          */
 
+        /// <summary>
+        /// return information for parking operation for time
+        /// </summary>
+        /// <param name="parkingTimeQuery">Object ParkingTimeQuery with time to request</param>
+        /// <returns>parking information for time or error 
+        ///1: Parking of extension is possible and operation type, money accumulated, time accumulated, amount needed to arrive to the input parameter t, initial and final parking date is returned
+        ///-1: Invalid authentication hash
+        ///-2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+        ///-3: The plate has not waited enough to return to the current sector.
+        ///-9: Generic Error (for example database or execution error.)
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        /// </returns>
         [HttpPost]
         [Route("QueryParkingOperationForTimeAPI")]
         public ResultParkingTimeInfo QueryParkingOperationForTimeAPI([FromBody] ParkingTimeQuery parkingTimeQuery)
@@ -1941,6 +1962,19 @@ namespace OPSWebServicesAPI.Controllers
          * 
          */
 
+        /// <summary>
+        /// return information for parking operation for money
+        /// </summary>
+        /// <param name="parkingMoneyQuery">Object ParkingMoneyQuery with time to request</param>
+        /// <returns>parking information for money or error 
+        ///1: Parking of extension is possible and operation type, money accumulated, time accumulated, time in minutes given by the amount of money q, initial and final parking date is returned
+        ///-1: Invalid authentication hash
+        ///-2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+        ///-3: The plate has not waited enough to return to the current sector.
+        ///-9: Generic Error (for example database or execution error.)
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        /// </returns>
         [HttpPost]
         [Route("QueryParkingOperationForMoneyAPI")]
         public ResultParkingMoneyInfo QueryParkingOperationForMoneyAPI([FromBody] ParkingMoneyQuery parkingMoneyQuery)
@@ -2149,6 +2183,2390 @@ namespace OPSWebServicesAPI.Controllers
             return response;
 
             //return xmlOut;
+        }
+
+        /*
+         *
+         * The parameters of method ConfirmParkingOperationXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <p>plate</p>
+                <g>parking sector</g>
+	            <d>date in format hh24missddMMYY</d> - *This parameter is optional
+                <q>Amount of money paid in Euro cents</q>
+                <t>Time in minutes obtained paying <q> cents</t>
+                <ad>tariff type applied: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS</ad>
+                <mui>mobile user identifier (authorization token)</mui>
+                <cid>Cloud ID. Used for cloud notifications</cid>
+                <os>Operating system: 1 (Android), 2 (iOS)</os>
+                <lt>Latitude of current operation</lt> - *This parameter is optional
+                <lg>Longitude of current operation</lg> - *This parameter is optional
+                <re>Reference of current operation</re> - *This parameter is optional
+                <spcid>Space id.</spcid> *This parameter is optional
+                <streetname>name of street</streetname> *This parameter is optional
+                <streetno>street address number</streetno> *This parameter is optional
+                <ah>authentication hash</ah> - *This parameter is optional
+            </arinpark_in>
+
+        b.	Result: is an integer with the next possible values:
+            a.	1: Operation saved without errors
+            b.	-1: Invalid authentication hash
+            c.	-2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+            d.	-3: The plate has not waited enough to return to the current sector.
+            e.	-9: Generic Error (for example database or execution error.)
+            f.	-10: Invalid input parameter
+            g.	-11: Missing input parameter
+            h.	-12: OPS System error
+            i.	-13: Operation already inserted
+            j.  -20: Mobile user not found
+            k.  -23: Invalid Login
+            l.	-24: User has no rights. Operation begun by another user
+            m.  -25: User does not have enough credit
+
+
+         * 
+         */
+
+        /// <summary>
+        /// return information for parking confirmation
+        /// </summary>
+        /// <param name="parkingConfirmQuery">Object ParkingConfirmQuery with sector and plate to request</param>
+        /// <returns>parking confirm or error 
+        ///1: Parking of extension is possible 
+        ///-1: Invalid authentication hash
+        ///-2: The plate has used the maximum amount of time/money in the sector, so the extension is not possible. In Bilbao this depends on the colour of the zone and the tariff type.
+        ///-3: The plate has not waited enough to return to the current sector.
+        ///-9: Generic Error (for example database or execution error.)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-13: Operation already inserted
+        ///-20: Mobile user not found
+        ///-23: Invalid Login
+        ///-24: User has no rights. Operation begun by another user
+        ///-25: User does not have enough credit
+        /// </returns>
+        [HttpPost]
+        [Route("ConfirmParkingOperationAPI")]
+        public ResultParkingConfirmInfo ConfirmParkingOperationAPI([FromBody] ParkingConfirmQuery parkingConfirmQuery)
+        {
+            int iRes = 0;
+            ResultParkingConfirmInfo response = new ResultParkingConfirmInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(ParkingConfirmQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(parkingConfirmQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                SortedList parametersM1Out = null;
+                SortedList parametersM2In = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["p"] == null) || (parametersIn["p"].ToString().Length == 0) ||
+                        (parametersIn["g"] == null) || (parametersIn["g"].ToString() == "0") ||
+                        (parametersIn["ad"] == null) || (parametersIn["ad"].ToString() == "0") ||
+                        (parametersIn["q"] == null) || (parametersIn["q"].ToString() == "0") ||
+                        (parametersIn["mui"] == null) || (parametersIn["mui"].ToString() == "0") ||
+                        (parametersIn["cid"] == null) || (parametersIn["cid"].ToString() == "0") ||
+                        (parametersIn["os"] == null) || (parametersIn["os"].ToString() == "0") ||
+                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Check to see if user exists, and if so, if they have enough credit
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nCredit = 0;
+                            if (GetMobileUserCredit(Convert.ToInt32(parametersIn["mui"].ToString()), ref nCredit, 0) != 1)
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found);
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                //return iRes;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Not_Found, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found).ToString();
+                                return response;
+                            }
+                            else
+                            {
+                                if (Convert.ToInt32(parametersIn["q"]) > nCredit)
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Not_Enough_Credit);
+                                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Not_Enough_Credit, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Not_Enough_Credit).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // If the date is not provided, then whether the operation exists or not cannot be determined since the query is based in part on the date
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            else
+                            {
+                                bool bOpExists = false;
+                                if (!OperationAlreadyExists(parametersIn["p"].ToString(), parametersIn["d"].ToString(), ref bOpExists, nContractId))
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                                else if (bOpExists)
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Operation_Already_Inserted);
+                                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Operation_Already_Inserted, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Operation_Already_Inserted).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // Check to make sure that it is the same user that started the operation
+                            int nPrevMobileUserId = -1;
+                            if (GetLastOperMobileUser(parametersIn["p"].ToString(), Convert.ToInt32(parametersIn["ad"]), parametersIn["d"].ToString(), out nPrevMobileUserId, nContractId))
+                            {
+                                if (nPrevMobileUserId > 0 && nPrevMobileUserId != Convert.ToInt32(parametersIn["mui"]))
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_ParkingStartedByDifferentUser);
+                                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_ParkingStartedByDifferentUser, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_ParkingStartedByDifferentUser).ToString();
+                                    return response;
+                                }
+                            }
+
+                            int iVirtualUnit = -1;
+                            if (GetVirtualUnit(Convert.ToInt32(parametersIn["g"]), ref iVirtualUnit, nContractId))
+                            {
+                                if (iVirtualUnit < 0)
+                                {
+                                    iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter);
+                                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                    return response;
+                                }
+
+                            }
+                            else
+                            {
+                                iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter);
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                //return iRes;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                return response;
+                            }
+
+                            parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                            parametersIn["u"] = iVirtualUnit.ToString();
+                            parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                            parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+
+                            Hashtable parametersM1InMapping = new Hashtable();
+
+                            parametersM1InMapping["p"] = "m";
+                            parametersM1InMapping["d"] = "d";
+                            parametersM1InMapping["g"] = "g";
+                            parametersM1InMapping["ad"] = "ad";
+                            parametersM1InMapping["o"] = "o";
+                            parametersM1InMapping["q"] = "q";
+                            parametersM1InMapping["u"] = "u";
+                            parametersM1InMapping["pt"] = "pt";
+                            parametersM1InMapping["dll"] = "dll";
+
+
+                            Hashtable parametersM1OutMapping = new Hashtable();
+
+                            parametersM1OutMapping["Ad"] = "d";
+                            parametersM1OutMapping["Ao"] = "o";
+                            parametersM1OutMapping["Adi"] = "di";
+                            parametersM1OutMapping["Ar"] = "r";
+                            parametersM1OutMapping["Aad"] = "ad";
+                            parametersM1OutMapping["At"] = "t";
+                            parametersM1OutMapping["App"] = "pp";
+
+                            ResultType rtM1 = SendM1(parametersIn, parametersM1InMapping, parametersM1OutMapping, iVirtualUnit, out parametersM1Out, nContractId);
+
+                            iRes = Convert.ToInt32(rtM1);
+                            if (rtM1 == ResultType.Result_OK)
+                            {
+
+                                Hashtable parametersM2InMapping = new Hashtable();
+                                parametersM2InMapping["m"] = "m";
+                                parametersM2InMapping["y"] = "y";
+                                parametersM2InMapping["ad"] = "ad";
+                                parametersM2InMapping["g"] = "g";
+                                parametersM2InMapping["u"] = "u";
+                                parametersM2InMapping["p"] = "p";
+                                parametersM2InMapping["d"] = "d";
+                                parametersM2InMapping["d1"] = "d1";
+                                parametersM2InMapping["d2"] = "d2";
+                                parametersM2InMapping["t"] = "t";
+                                parametersM2InMapping["q"] = "q";
+                                parametersM2InMapping["pp"] = "pp";
+                                parametersM2InMapping["om"] = "om";
+                                parametersM2InMapping["mui"] = "mui";
+                                parametersM2InMapping["cid"] = "cid";
+                                parametersM2InMapping["os"] = "os";
+                                if (parametersIn["lt"] != null && !parametersIn["lt"].ToString().Equals("") && !parametersIn["lt"].ToString().Equals("undefined"))
+                                    parametersM2InMapping["lt"] = "lt";
+                                if (parametersIn["lg"] != null && !parametersIn["lg"].ToString().Equals("") && !parametersIn["lg"].ToString().Equals("undefined"))
+                                    parametersM2InMapping["lg"] = "lg";
+                                if (parametersIn["re"] != null)
+                                    parametersM2InMapping["re"] = "ref";
+                                if (parametersIn["spcid"] != null)
+                                    parametersM2InMapping["spcid"] = "spcid";
+
+                                parametersM2In = new SortedList();
+                                parametersM2In["m"] = parametersIn["p"];
+                                parametersM2In["y"] = parametersM1Out["o"];
+                                parametersM2In["ad"] = parametersM1Out["ad"];
+                                parametersM2In["g"] = parametersIn["g"];
+                                parametersM2In["u"] = iVirtualUnit.ToString();
+                                parametersM2In["p"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                parametersM2In["d"] = parametersIn["d"];
+                                parametersM2In["d1"] = parametersM1Out["di"];
+                                parametersM2In["d2"] = parametersM1Out["d"];
+                                parametersM2In["t"] = parametersM1Out["t"];
+                                parametersM2In["q"] = parametersIn["q"];
+                                parametersM2In["pp"] = (parametersM1Out["pp"] == null) ? "0" : parametersM1Out["pp"];
+                                parametersM2In["om"] = "1"; //operation is always online
+                                parametersM2In["mui"] = parametersIn["mui"];
+                                parametersM2In["cid"] = parametersIn["cid"];
+                                parametersM2In["os"] = parametersIn["os"];
+                                if (parametersIn["lt"] != null && !parametersIn["lt"].ToString().Equals("") && !parametersIn["lt"].ToString().Equals("undefined"))
+                                {
+                                    if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                                        parametersM2In["lt"] = parametersIn["lt"].ToString().Replace(",", ".");
+                                    else
+                                        parametersM2In["lt"] = parametersIn["lt"];
+                                }
+                                if (parametersIn["lg"] != null && !parametersIn["lg"].ToString().Equals("") && !parametersIn["lg"].ToString().Equals("undefined"))
+                                {
+                                    if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                                        parametersM2In["lg"] = parametersIn["lg"].ToString().Replace(",", ".");
+                                    else
+                                        parametersM2In["lg"] = parametersIn["lg"];
+                                }
+                                if (parametersIn["re"] != null && !parametersIn["re"].ToString().Equals(""))
+                                    parametersM2In["re"] = parametersIn["re"];
+                                if (parametersIn["spcid"] != null && !parametersIn["spcid"].ToString().Equals(""))
+                                    parametersM2In["spcid"] = parametersIn["spcid"];
+
+                                ResultType rtM2 = SendM2(parametersM2In, parametersM2InMapping, iVirtualUnit, nContractId);
+                                iRes = Convert.ToInt32(rtM2);
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: M2 result for {0} - {1} = {2}", parametersIn["mui"].ToString(), parametersIn["p"].ToString(), iRes), LoggerSeverities.Info);
+
+                                if (rtM2 == ResultType.Result_OK)
+                                {
+                                    bool bSpaceUpdate = false;
+                                    if (ConfigurationManager.AppSettings["EnableSpaceBonuses"].ToString().Equals("true"))
+                                        bSpaceUpdate = true;
+
+                                    // Update space information
+                                    if (bSpaceUpdate)
+                                    {
+                                        int iSpaceId = -1;
+                                        if (parametersIn["spcid"] != null && !parametersIn["spcid"].ToString().Equals(""))
+                                        {
+                                            // Space already exists
+                                            int iSpaceStatus = 0;
+                                            iSpaceId = Convert.ToInt32(parametersIn["spcid"]);
+                                            GetSpaceStatus(iSpaceId, ref iSpaceStatus, nContractId);
+                                            if (iSpaceStatus == Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Occupied"]))
+                                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Space {0} was already occupied for {1} - {2}", iSpaceId, parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Info);
+                                            if (!UpdateSpaceStatus(Convert.ToInt32(parametersIn["spcid"]), Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Occupied"]), nContractId))
+                                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: Could not update parking space {0} status for {1} - {2}", iSpaceId, parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Error);
+                                        }
+                                        else
+                                        {
+                                            // Space not specified, but have GPS coordinates
+                                            if (parametersIn["lt"] != null && parametersIn["lg"] != null && !parametersIn["lt"].ToString().Equals("")
+                                                 && !parametersIn["lg"].ToString().Equals("") && !parametersIn["lt"].ToString().Equals("undefined")
+                                                 && !parametersIn["lg"].ToString().Equals("undefined"))
+                                            {
+                                                // Make sure space doesn't already exist
+                                                iSpaceId = DoesParkingSpaceExist(parametersIn["lt"].ToString(), parametersIn["lg"].ToString(), nContractId);
+
+                                                if (iSpaceId > 0)
+                                                {
+                                                    // Space already exists, update it
+                                                    int iSpaceStatus = 0;
+                                                    GetSpaceStatus(iSpaceId, ref iSpaceStatus, nContractId);
+                                                    if (iSpaceStatus == Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Occupied"]))
+                                                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Space {0} was already occupied for {1} - {2}", iSpaceId, parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Info);
+                                                    if (!UpdateSpaceStatus(iSpaceId, Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Occupied"]), nContractId))
+                                                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: Could not update parking space {0} status for {1} - {2}", iSpaceId, parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Error);
+                                                    parametersIn["spcid"] = iSpaceId.ToString();
+                                                }
+                                                else
+                                                {
+                                                    // Have to create new space
+                                                    iSpaceId = AddParkingSpace(parametersIn["g"].ToString(), parametersIn["lt"].ToString(), parametersIn["lg"].ToString(), Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Occupied"]), nContractId);
+                                                    if (iSpaceId > 0)
+                                                    {
+                                                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Added the parking space {0} for {1} - {2}", iSpaceId, parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Info);
+                                                        parametersIn["spcid"] = iSpaceId.ToString();
+                                                    }
+                                                    else
+                                                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Error adding a new parking space for {0} - {1}", parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Info);
+                                                }
+                                            }
+                                        }
+
+                                        // Update space notification bonus (only for first parking operation, not extensions)
+                                        if (bSpaceUpdate && iSpaceId > 0 && parametersM1Out["o"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString()))
+                                        {
+                                            UpdateUserSpaceNotifications(Convert.ToInt32(parametersIn["mui"]), 1, nContractId);
+
+                                            // Recharge bonuses are no longer given, users buy services using the points    
+                                            //if (UpdateUserSpaceNotifications(Convert.ToInt32(parametersIn["mui"]), 1))
+                                            //{
+                                            //    // Determine if user is elegible for bonus
+                                            //    int nNumSpacesForBonus = GetNumSpacesBonus();
+                                            //    int nCurUserSpaces = GetUserNumSpaces(Convert.ToInt32(parametersIn["mui"]));
+                                            //    if (nCurUserSpaces >= nNumSpacesForBonus)
+                                            //    {
+                                            //        int iBonusAmount = GetSpacesBonus();
+                                            //        int iOperId = -1;
+                                            //        if (AddBonusOperation(parametersIn["g"].ToString(), iVirtualUnit, iBonusAmount, parametersIn["mui"].ToString(), out iOperId))
+                                            //        {
+                                            //            Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Added the bonus operation {0} for user {1}", iOperId, parametersIn["mui"].ToString()), LoggerSeverities.Info);
+                                            //        }
+                                            //        else
+                                            //            Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Error adding new bonus operation for user {0}", parametersIn["mui"].ToString()), LoggerSeverities.Info);
+
+                                            //        if (iOperId > 0)
+                                            //        {
+                                            //            // Send email to user
+                                            //            string strEmail = "";
+                                            //            if (GetMobileUserEmail( Convert.ToInt32(parametersIn["mui"]), ref strEmail))
+                                            //            {
+                                            //                decimal dBonusAmount = Convert.ToDecimal(iBonusAmount) * (decimal)0.01;
+                                            //                string strSubject = ConfigurationManager.AppSettings["EmailSubject"].ToString() + dBonusAmount.ToString();
+                                            //                if (!SendEmail(strEmail, strSubject, ""))
+                                            //                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Error sending bonus email to user {0}", parametersIn["mui"].ToString()), LoggerSeverities.Info);
+                                            //            }
+                                            //        }
+
+                                            //        // Reset the spaces notified by the user
+                                            //        if (!UpdateUserSpaceNotifications(Convert.ToInt32(parametersIn["mui"]), 0))
+                                            //            Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Error resetting space notifications for user {0}", parametersIn["mui"].ToString()), LoggerSeverities.Info);
+                                            //    }
+                                            //}
+                                        }
+                                    }
+
+                                    // Temp
+                                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI: Updating the operation data for {0} - {1}", parametersIn["mui"].ToString(), parametersIn["p"].ToString()), LoggerSeverities.Info);
+                                    long lOperId = -1;
+                                    UpdateOperationData(parametersIn, out lOperId, nContractId);
+                                    // Set Contract Id to 0 to force the global users connection
+                                    UpdateOperationPlateData(parametersIn, lOperId, 0);
+                                }
+                            }
+                            else
+                            {
+                                iRes = Convert.ToInt32(rtM1);
+                                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: M1_Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                response.isSuccess = false;
+                                response.error = new Error(iRes, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                return response;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            //return iRes;
+
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.value = iRes + "";
+            return response;
+        }
+
+        /*
+         * 
+         * The parameters of method QueryUnParkingOperationXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+	            <p>plate</p>
+	            <d>date in format hh24missddMMYY</d> - *This parameter is optional
+                <ah>authentication hash</ah> - *This parameter is optional
+	        </arinpark_in>
+	            See the parking sector is not a parameter in this case because the unparking operation will be done with the last parking operation existing in the system.
+
+
+            b.	Result: is also a string containing an xml with the result of the method:
+            <arinpark_out>
+	            <r>Result of the method</r>	
+                <q>quantity in Euro Cents to be refunded</q>
+                <d1>Initial date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking</d1>
+                <d2>End date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking</d2>
+                <t>Tariff time in minutes for the parking operation chain after unparking (d2-d1) </t>
+                <ad>tariff type applied: in Bilbao for example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS</ad>
+            </arinpark_out>
+
+            The tag <r> of the method will have these possible values:
+                a.	1: UnParking is possible and the restrictions come after this tag.
+                b.	-1: Invalid authentication hash
+                c.	-4: Plate has no rights for doing an unparking operation
+                d.	-9: Generic Error (for example database or execution error.)
+                e.	-10: Invalid input parameter
+                f.	-11: Missing input parameter
+                g.	-12: OPS System error
+
+
+         * 
+         * 
+         */
+
+        /// <summary>
+        /// return information for unparking operation
+        /// </summary>
+        /// <param name="unParkingQuery">Object UnParkingQuery with plate to request</param>
+        /// <returns>unparking information or error 
+        ///1: UnParking is possible and quantity refunded, tariff applied, tariff in minutes, inital date and end date is returned
+        ///-1: Invalid authentication hash
+        ///-4: Plate has no rights for doing an unparking operation
+        ///-9: Generic Error (for example database or execution error.)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        /// </returns>
+        [HttpPost]
+        [Route("QueryUnParkingOperationAPI")]
+        public ResultUnParkingQueryInfo QueryUnParkingOperationAPI([FromBody] UnParkingQuery unParkingQuery)
+        {
+            //string xmlOut = "";
+            ResultUnParkingQueryInfo response = new ResultUnParkingQueryInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UnParkingQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(unParkingQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                //SortedList parametersOut = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Find group of last valid rotation or VIP parking to determine the corresponding virtual unit
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            long lOperId = -1;
+                            int iGroupId = -1;
+                            int iArticle = -1;
+                            int iVirtualUnit = -1;
+                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
+                                + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            if (GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId, nContractId))
+                            {
+                                if (lOperId > 0)
+                                {
+                                    if (GetOperationGroup(lOperId, ref iGroupId, nContractId))
+                                    {
+                                        if (iGroupId > 0)
+                                            GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
+                                        else
+                                            Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error - Could not find group for last operation: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                    }
+                                    else
+                                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error obtaining group for last operation: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+
+                                    GetOperationArticle(lOperId, ref iArticle, nContractId);
+                                    if (iArticle < 0)
+                                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error - Could not find article for last operation: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                }
+                                else
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error - Could not find last operation: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error obtaining last operation: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+
+                            if (iVirtualUnit < 0)
+                            {
+                                if (GetFirstVirtualUnit(ref iVirtualUnit, nContractId))
+                                {
+                                    if (iVirtualUnit < 0)
+                                    {
+                                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                        //return xmlOut;
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        return response;
+                                    }
+
+                                }
+                                else
+                                {
+                                    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                    //return xmlOut;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                            }
+
+                            if (iArticle < 0)
+                                iArticle = Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotacion"]);
+
+                            parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString();
+                            parametersIn["ad"] = iArticle.ToString();
+                            parametersIn["u"] = iVirtualUnit.ToString();
+                            parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                            parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+                            Hashtable parametersInMapping = new Hashtable();
+
+                            parametersInMapping["p"] = "m";
+                            parametersInMapping["d"] = "d";
+                            parametersInMapping["u"] = "u";
+                            parametersInMapping["o"] = "o";
+                            parametersInMapping["ad"] = "ad";
+                            parametersInMapping["pt"] = "pt";
+                            parametersInMapping["dll"] = "dll";
+
+                            Hashtable parametersOutMapping = new Hashtable();
+
+                            parametersOutMapping["Aad"] = "ad";
+                            parametersOutMapping["Adi"] = "d1";
+                            parametersOutMapping["Ad"] = "d2";
+                            parametersOutMapping["Aq"] = "q";
+                            parametersOutMapping["At"] = "t";
+                            parametersOutMapping["Ar"] = "r";
+
+                            rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOut, nContractId);
+
+                            if (rt == ResultType.Result_OK)
+                            {
+                                //xmlOut = GenerateXMLOuput(parametersOut);
+
+                                if (parametersOut.Count == 0)
+                                {
+                                    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                                else
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
+                                }
+                            }
+                            //else if (rt == ResultType.Result_Error_Plate_Has_No_Return)
+                            //{
+                            //    // If plate does not have return rights, send a different error if it is because the user did a return, but still has the minimum parking time left
+                            //    lOperId = -1;
+                            //    GetLastOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId);
+                            //    if (lOperId > 0)
+                            //    {
+                            //        int iType = -1;
+                            //        if (GetOperationType(lOperId, ref iType))
+                            //        {
+                            //            if (iType != Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Refund"]))
+                            //            {
+                            //                parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                            //                parametersOutMapping["Ao"] = "o";
+
+                            //                rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOut);
+
+                            //                // If user is still parked
+                            //                if ((rt == ResultType.Result_OK && parametersOut["o"].ToString() == ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString())
+                            //                    || rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark)
+                            //                    rt = ResultType.Result_Error_No_Return_For_Minimum;
+                            //                else
+                            //                    rt = ResultType.Result_Error_Plate_Has_No_Return;
+
+                            //                parametersOut.Remove("o");
+                            //            }
+                            //        }
+                            //    }
+
+                            //    xmlOut = GenerateXMLErrorResult(rt);
+                            //    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                            //}
+                            else
+                            {
+                                //xmlOut = GenerateXMLErrorResult(rt);
+                                Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+
+            UnParkingQueryInfo unparkingQueryInfo = new UnParkingQueryInfo();
+            ConfigMapModel configMapModel = new ConfigMapModel();
+
+            var config = configMapModel.configUnParkingQuery();
+            IMapper iMapper = config.CreateMapper();
+            unparkingQueryInfo = iMapper.Map<SortedList, UnParkingQueryInfo>((SortedList)parametersOut);
+
+            response.value = unparkingQueryInfo;
+            return response;
+
+            //return xmlOut;
+        }
+
+        /*
+         * 
+         * The parameters of method ConfirmUnParkingOperationXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <p>plate</p>
+	            <d>date in format hh24missddMMYY </d> - *This parameter is optional
+                <q>Amount refunded in Euro Cents</q>
+                <mui>mobile user identifier (authorization token)</mui>
+                <cid>Cloud ID. Used for cloud notifications</cid>
+                <os>Operating system: 1 (Android), 2 (iOS)</os>
+                <ah>authentication hash</ah> - *This parameter is optional
+            </arinpark_in>
+
+           b.	Result: is an integer with the next possible values:
+                a.	1: Operation saved without errors
+                b.	-1: Invalid authentication hash
+                c.	-4: Plate has no rights for doing an unparking operation
+                d.	-9: Generic Error (for example database or execution error.)
+                e.	-10: Invalid input parameter
+                f.	-11: Missing input parameter
+                g.	-12: OPS System error
+                h.	-13: Operation already inserted
+                i.	-14: Quantity received different as the quantity calculated previously
+                j.  -20: Mobile user not found
+                k.  -23: Invalid Login
+                l.	-24: User has no rights. Operation begun by another user
+
+
+         * 
+         * 
+         */
+
+        /// <summary>
+        /// return information for unparking confirmation
+        /// </summary>
+        /// <param name="unParkingConfirmQuery">Object UnParkingConfirmQuery with quantity and plate to request</param>
+        /// <returns>parking confirm or error 
+        ///1: Operation saved without errors 
+        ///-1: Invalid authentication hash
+        ///-4: Plate has no rights for doing an unparking operation
+        ///-9: Generic Error (for example database or execution error.)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-13: Operation already inserted
+        ///-14: Quantity received different as the quantity calculated previously
+        ///-20: Mobile user not found
+        ///-23: Invalid Login
+        ///-24: User has no rights. Operation begun by another user
+        /// </returns>
+        [HttpPost]
+        [Route("ConfirmUnParkingOperationAPI")]
+        public ResultUnParkingConfirmInfo ConfirmUnParkingOperationAPI([FromBody] UnParkingConfirmQuery unParkingConfirmQuery)
+        {
+            int iRes = 0;
+            ResultUnParkingConfirmInfo response = new ResultUnParkingConfirmInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UnParkingConfirmQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(unParkingConfirmQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                SortedList parametersM1Out = null;
+                SortedList parametersM2In = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
+                        (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0)) ||
+                        (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
+                        (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0)) ||
+                        (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // If the date is not provided, then whether the operation exists or not cannot be determined since the query is based in part on the date
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            else
+                            {
+                                bool bOpExists = false;
+                                if (!OperationAlreadyExists(parametersIn["p"].ToString(), parametersIn["d"].ToString(), ref bOpExists, nContractId))
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                                else if (bOpExists)
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Operation_Already_Inserted);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Operation_Already_Inserted, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Operation_Already_Inserted).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // Find group of last valid rotation or VIP parking to determine the corresponding virtual unit
+                            long lOperId = -1;
+                            int iGroupId = -1;
+                            int iArticle = -1;
+                            int iVirtualUnit = -1;
+                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
+                                + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            if (GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId, nContractId))
+                            {
+                                if (lOperId > 0)
+                                {
+                                    if (GetOperationGroup(lOperId, ref iGroupId, nContractId))
+                                    {
+                                        if (iGroupId > 0)
+                                            GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
+                                        else
+                                            Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error - Could not find group for last operation: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                    }
+                                    else
+                                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error obtaining group for last operation: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+
+                                    GetOperationArticle(lOperId, ref iArticle, nContractId);
+                                    if (iArticle < 0)
+                                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error - Could not find article for last operation: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                }
+                                else
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error - Could not find last operation: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error obtaining last operation: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+
+                            if (iVirtualUnit < 0)
+                            {
+                                if (GetFirstVirtualUnit(ref iVirtualUnit, nContractId))
+                                {
+                                    if (iVirtualUnit < 0)
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iRes={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                        //return iRes;
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        return response;
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iRes={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                            }
+
+                            if (iArticle < 0)
+                                iArticle = Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotacion"]);
+
+                            // Check to make sure that it is the same user that started the operation
+                            int nPrevMobileUserId = -1;
+                            if (GetLastOperMobileUser(parametersIn["p"].ToString(), iArticle, parametersIn["d"].ToString(), out nPrevMobileUserId, nContractId))
+                            {
+                                if (nPrevMobileUserId > 0 && nPrevMobileUserId != Convert.ToInt32(parametersIn["mui"]))
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_ParkingStartedByDifferentUser);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_ParkingStartedByDifferentUser, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_ParkingStartedByDifferentUser).ToString();
+                                    return response;
+                                }
+                            }
+
+                            parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString();
+                            parametersIn["ad"] = iArticle.ToString();
+                            parametersIn["u"] = iVirtualUnit.ToString();
+                            parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+
+                            Hashtable parametersM1InMapping = new Hashtable();
+
+                            parametersM1InMapping["p"] = "m";
+                            parametersM1InMapping["d"] = "d";
+                            parametersM1InMapping["u"] = "u";
+                            parametersM1InMapping["o"] = "o";
+                            parametersM1InMapping["ad"] = "ad";
+                            parametersM1InMapping["pt"] = "pt";
+
+                            Hashtable parametersM1OutMapping = new Hashtable();
+
+                            parametersM1OutMapping["Aad"] = "ad";
+                            parametersM1OutMapping["Adi"] = "d1";
+                            parametersM1OutMapping["Ad"] = "d2";
+                            parametersM1OutMapping["Ao"] = "o";
+                            parametersM1OutMapping["Aq"] = "q";
+                            parametersM1OutMapping["At"] = "t";
+                            parametersM1OutMapping["Ar"] = "r";
+                            parametersM1OutMapping["Aaq"] = "qr";
+
+
+                            ResultType rtM1 = SendM1(parametersIn, parametersM1InMapping, parametersM1OutMapping, iVirtualUnit, out parametersM1Out, nContractId);
+
+                            iRes = Convert.ToInt32(rtM1);
+                            if (rtM1 == ResultType.Result_OK)
+                            {
+
+                                if (parametersIn["q"].ToString() == parametersM1Out["q"].ToString())
+                                {
+                                    Hashtable parametersM2InMapping = new Hashtable();
+                                    parametersM2InMapping["m"] = "m";
+                                    parametersM2InMapping["y"] = "y";
+                                    parametersM2InMapping["ad"] = "ad";
+                                    parametersM2InMapping["u"] = "u";
+                                    parametersM2InMapping["p"] = "p";
+                                    parametersM2InMapping["d"] = "d";
+                                    parametersM2InMapping["d1"] = "d1";
+                                    parametersM2InMapping["d2"] = "d2";
+                                    parametersM2InMapping["t"] = "t";
+                                    parametersM2InMapping["q"] = "q";
+                                    parametersM2InMapping["qr"] = "qr";
+                                    parametersM2InMapping["om"] = "om";
+                                    parametersM2InMapping["mui"] = "mui";
+                                    parametersM2InMapping["cid"] = "cid";
+                                    parametersM2InMapping["os"] = "os";
+
+                                    parametersM2In = new SortedList();
+                                    parametersM2In["m"] = parametersIn["p"];
+                                    parametersM2In["y"] = parametersM1Out["o"];
+                                    parametersM2In["ad"] = parametersM1Out["ad"];
+                                    parametersM2In["u"] = iVirtualUnit.ToString();
+                                    parametersM2In["p"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersM2In["d"] = parametersIn["d"];
+                                    parametersM2In["d1"] = parametersM1Out["d1"];
+                                    parametersM2In["d2"] = parametersM1Out["d2"];
+                                    parametersM2In["t"] = parametersM1Out["t"];
+                                    parametersM2In["q"] = parametersIn["q"];
+                                    parametersM2In["qr"] = parametersM1Out["qr"];
+                                    parametersM2In["om"] = "1"; //operation is always online
+                                    parametersM2In["mui"] = parametersIn["mui"];
+                                    parametersM2In["cid"] = parametersIn["cid"];
+                                    parametersM2In["os"] = parametersIn["os"];
+
+                                    ResultType rtM2 = SendM2(parametersM2In, parametersM2InMapping, iVirtualUnit, nContractId);
+                                    iRes = Convert.ToInt32(rtM2);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI: iOut= {0}", iRes), LoggerSeverities.Info);
+
+                                    bool bSpaceUpdate = false;
+                                    if (ConfigurationManager.AppSettings["EnableSpaceBonuses"].ToString().Equals("true"))
+                                        bSpaceUpdate = true;
+                                    if (rtM2 == ResultType.Result_OK)
+                                    {
+                                        if (bSpaceUpdate)
+                                        {
+                                            long lSpaceId = -1;
+                                            if (GetSpaceIdOperation(lOperId, ref lSpaceId, nContractId))
+                                            {
+                                                //UpdateSpaceStatus(lSpaceId, Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Free"]), parametersM1Out["d2"].ToString());
+                                                UpdateSpaceStatus(lSpaceId, Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Free"]), nContractId);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated).ToString();
+                                    return response;
+                                }
+
+                            }
+                            //else if (rtM1 == ResultType.Result_Error_Plate_Has_No_Return)
+                            //{
+                            //    lOperId = -1;
+                            //    GetLastOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId);
+
+                            //    if (lOperId > 0)
+                            //    {
+                            //        // If plate does not have return rights, send a different error if it is because the user did a return, but still has the minimum parking time left
+                            //        int iType = -1;
+                            //        if (GetOperationType(lOperId, ref iType))
+                            //        {
+                            //            if (iType != Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Refund"]))
+                            //            {
+                            //                parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                            //                parametersM1OutMapping["Ao"] = "o";
+
+                            //                rtM1 = SendM1(parametersIn, parametersM1InMapping, parametersM1OutMapping, iVirtualUnit, out parametersM1Out);
+
+                            //                // If user is still parked
+                            //                if ((rtM1 == ResultType.Result_OK && parametersM1Out["o"].ToString() == ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString())
+                            //                    || rtM1 == ResultType.Result_Error_MaxTimeAlreadyUsedInPark)
+                            //                    rtM1 = ResultType.Result_Error_No_Return_For_Minimum;
+                            //                else
+                            //                    rtM1 = ResultType.Result_Error_Plate_Has_No_Return;
+
+                            //                parametersM1Out.Remove("o");
+                            //            }
+                            //        }
+                            //    }
+
+                            //    iRes = Convert.ToInt32(rtM1);
+                            //    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                            //}
+                            else
+                            {
+                                iRes = Convert.ToInt32(rtM1);
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error M1: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                        }
+                    }
+
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.value = iRes + "";
+            return response;
+
+            //return iRes;
+        }
+
+        /*
+         * 
+         * The parameters of method QueryParkingStatusXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <p>plate</p>
+	                <d>date in format hh24missddMMYY</d> - *This parameter is optional
+                    <mui>mobile user identifier (authorization token)</mui>
+                    <ah>authentication hash</ah> - *This parameter is optional
+	            </arinpark_in>
+
+	            The authentication hash will be a string generated using the input parameters. Using this value we will detect the method call has been made by a well known client.
+
+            b.	Result: is also a string containing an xml with the result of the method:
+                <arinpark_out>
+                     <rot>
+	                    <r>Result of the method</r>
+	                    <sta>status: 1 (UNPARKED), 2 (PARKED)</sta>
+                        <ex>Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)</ex> *
+                        <id>tariff ID: 101 (ESRO non resident), 103 (ESRE non resident)</id>* 
+                        <ad>Tariff type of current operation: 4 (ROTATION), 6 (VIPS) </ad> *
+                        <o>Current Operation Type: 1: First parking: 2: extension</o> *
+                        <di>Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension</di> *
+                        <df>End date of current operation (in format hh24missddMMYY) of the parking. In order to show the user the end of the current parking operation.</df>
+                        <aq>Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation</aq> *
+                        <at> Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation </at> *
+                        <g>parking sector of current operation</g> *
+                        <sectorname>Sector name</sectorname>
+                        <sectorcolor>Sector color</sectorcolor>
+                        <zone>Zone</zone>
+                        <zonename>Zone name</zonename>
+                        <zonecolor>Zone color</zonecolor>
+                        <lt>Latitude of current operation</lt> *
+                        <lg>Longitude of current operation</lg> *
+                        <re>Reference of current operation. 128 characters maximum</re> *
+                        <rfd>Refundable tariff: 0 (NO), 1 (YES) </rfd> *
+                        <od>Operation date</od>
+                        <streetname>name of street</streetname>
+                        <streetno>street address number</streetno>
+                    </rot>
+                    <res>
+	                    <r>Result of the method</r>
+	                    <sta>status: 1 (UNPARKED), 2 (PARKED)</sta>
+                        <ex>Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)</ex> *
+                        <id>tariff ID: 102 (ESRO resident), 104 (1 DAY TICKET), 105(5 DAY TICKET), 106 (20 DAY TICKET)</id>* 
+                        <ad>Tariff type of current operation: 5 (RESIDENTS), 104 (1 DAY TICKET), 105(5 DAY TICKET), 106 (20 DAY TICKET) </ad> *
+                        <o>Current Operation Type: 1: First parking: 2: extension</o> *
+                        <di>Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension</di> *
+                        <df>End date of current operation (in format hh24missddMMYY) of the parking. In order to show the user the end of the current parking operation.</df>
+                        <aq>Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation</aq> *
+                        <at> Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation </at> *
+                        <g>parking sector of current operation</g> *
+                        <sectorname>Sector name</sectorname>
+                        <sectorcolor>Sector color</sectorcolor>
+                        <zone>Zone</zone>
+                        <zonename>Zone name</zonename>
+                        <zonecolor>Zone color</zonecolor>
+                        <lt>Latitude of current operation</lt> *
+                        <lg>Longitude of current operation</lg> *
+                        <re>Reference of current operation. 128 characters maximum </re> *
+                        <rfd>Refundable tariff: 0 (NO), 1 (YES) </rfd> *
+                        <od>Operation date</od>
+                        <streetname>name of street</streetname>
+                        <streetno>street address number</streetno>
+                    </res>
+	                <avtar>
+		                <tarid1>Tariff 1 ID</tarid1>
+		                <tardesc1>Tariff 1 description</tardesc1>
+		                <tarad1>Tariff type for Tariff 1</tarad1>
+		                <tarrfd1>If Tariff 1 is refundable: 0 (NO), 1 (YES)</tarrfd1>
+		                .
+		                .
+		                .
+		                <taridn>Tariff n ID</taridn>
+		                <tardescn>Tariff n description</tardescn>
+		                <taradn>Tariff type for Tariff n</taradn>
+		                <tarrfdn>If Tariff n is refundable: 0 (NO), 1 (YES)</tarrfdn>
+	                </avtar>
+            </arinpark_out>
+
+         
+          * Only in case of parked plates
+
+            The tag <r> of the method will have these possible values:
+            a.	1: Success and the restrictions come after this tag.
+            b.	-1: Invalid authentication hash
+            c.	-9: Generic Error (for example database or execution error.)
+            d.	-10: Invalid input parameter
+            e.	-11: Missing input parameter
+            f.	-12: OPS System error
+            g.  -23: Invalid Login
+            h.	-24: User has no rights. Operation begun by another user
+
+         * 
+         * 
+         */
+
+        /// <summary>
+        /// return information for parking status
+        /// </summary>
+        /// <param name="parkingStatusQuery">Object ParkingStatusQuery with plate to request</param>
+        /// <returns>parking status or error 
+        ///1: Operation saved without errors 
+        ///-1: Invalid authentication hash
+        ///-9: Generic Error (for example database or execution error.)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-23: Invalid Login
+        ///-24: User has no rights. Operation begun by another user
+        /// </returns>
+        [HttpPost]
+        [Route("QueryParkingStatusAPI")]
+        public ResultParkingStatusInfo QueryParkingStatusAPI([FromBody] ParkingStatusQuery parkingStatusQuery)
+        {
+            string xmlOut = "";
+            SortedList parametersOutRot = null;
+            SortedList parametersOutRes = null;
+            SortedList parametersOutAvtar = null;
+
+            ResultParkingStatusInfo response = new ResultParkingStatusInfo();
+            //SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(ParkingStatusQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(parkingStatusQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+                long lRotOperId = -1;
+                long lResOperId = -1;
+                int nRotExtension = -1;
+                int nZoneId = -1;
+                string strZoneName = "";
+                string strSectorName = "";
+                string strZoneColor = "673AB7";
+                string strSectorColor = "673AB7";
+
+                Logger_AddLogMessage(string.Format("QueryParkingStatusXML: xmlIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                parametersOutRot = new SortedList();
+                parametersOutRes = new SortedList();
+                parametersOutAvtar = new SortedList();
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
+                        (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - missing input parameter: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - incorrect hash: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+
+                            // Find last operation group for rotation and VIP articles
+                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString();
+                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lRotOperId, nContractId))
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting last rotation operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::RotOperId={0}", lRotOperId), LoggerSeverities.Info);
+
+                            if (lRotOperId < 0)
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                parametersOutRot["sta"] = UNPARKED.ToString();
+                            }
+                            else
+                            {
+                                // Obtain current parking operation info
+                                if (GetOperStatusData(lRotOperId, out parametersOutRot, nContractId))
+                                {
+                                    // Check to see if previous parking operation was started by another user
+                                    int nPrevMobileUserId = Convert.ToInt32(parametersOutRot["mui"]);
+                                    if (nPrevMobileUserId != -1)
+                                    {
+                                        if (Convert.ToInt32(parametersIn["mui"]) != nPrevMobileUserId)
+                                        {
+                                            rt = ResultType.Result_Error_ParkingStartedByDifferentUser;
+                                            response.isSuccess = false;
+                                            response.error = new Error((int)ResultType.Result_Error_ParkingStartedByDifferentUser, (int)SeverityError.Critical);
+                                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_ParkingStartedByDifferentUser).ToString();
+                                            return response;
+                                        }      
+                                    }
+                                }
+                                else
+                                {
+                                    rt = ResultType.Result_Error_Generic;
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting operation info: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+
+                                // Get virtual unit
+                                int iVirtualUnit = -1;
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    if (GetVirtualUnit(Convert.ToInt32(parametersOutRot["g"]), ref iVirtualUnit, nContractId))
+                                    {
+                                        if (iVirtualUnit < 0)
+                                        {
+                                            rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                            response.isSuccess = false;
+                                            response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                            return response;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                        return response;
+                                    }
+                                }
+
+                                // Send M1 for rotation
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                                    parametersIn["ad"] = parametersOutRot["ad"].ToString();
+                                    parametersIn["cdl"] = "1"; //compute date limits (and time)
+                                    parametersIn["u"] = iVirtualUnit.ToString();
+                                    parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+                                    Hashtable parametersInMapping = new Hashtable();
+
+                                    parametersInMapping["p"] = "m";
+                                    parametersInMapping["d"] = "d";
+                                    parametersInMapping["g"] = "g";
+                                    parametersInMapping["o"] = "o";
+                                    parametersInMapping["ad"] = "ad";
+                                    parametersInMapping["cdl"] = "cdl";
+                                    parametersInMapping["u"] = "u";
+                                    parametersInMapping["pt"] = "pt";
+                                    parametersInMapping["dll"] = "dll";
+
+                                    Hashtable parametersOutMapping = new Hashtable();
+
+                                    parametersOutMapping["Aad"] = "ad";
+                                    parametersOutMapping["Aq1"] = "q1";
+                                    parametersOutMapping["Aq2"] = "q2";
+                                    parametersOutMapping["At1"] = "t1";
+                                    parametersOutMapping["At2"] = "t2";
+                                    parametersOutMapping["Ad1"] = "d1";
+                                    parametersOutMapping["Ad2"] = "d2";
+                                    parametersOutMapping["Ao"] = "o";
+                                    parametersOutMapping["Adr0"] = "di";
+                                    parametersOutMapping["Araq"] = "aq";
+                                    parametersOutMapping["Arat"] = "at";
+                                    parametersOutMapping["Ar"] = "r";
+
+                                    SortedList parametersOutM1 = new SortedList();
+                                    rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
+
+                                    if (rt == ResultType.Result_OK)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRot.Remove("mui");
+                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRot["sta"] = PARKED.ToString();
+                                        parametersOutRot["ex"] = Convert.ToInt32(rt).ToString();
+                                        nRotExtension = Convert.ToInt32(rt);
+                                        parametersOutRot["aq"] = parametersOutM1["aq"];
+                                        parametersOutRot["at"] = parametersOutM1["at"];
+                                    }
+                                    else if (rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark || rt == ResultType.Result_Error_ReentryTimeError)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRot.Remove("mui");
+                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRot["sta"] = PARKED.ToString();
+                                        // If there is no extension, then the result is always -3
+                                        parametersOutRot["ex"] = "-3";
+                                        nRotExtension = Convert.ToInt32(rt);
+                                        rt = ResultType.Result_OK;
+                                    }
+
+                                    if (parametersOutRot["g"] != null)
+                                    {
+                                        if (parametersOutRot["g"].ToString().Trim().Length > 0)
+                                        {
+                                            GetGroupName(Convert.ToInt32(parametersOutRot["g"].ToString()), out strSectorName, out strSectorColor, nContractId);
+                                            if (strSectorName.Length > 0)
+                                                parametersOutRot["sectorname"] = strSectorName;
+                                            if (strSectorColor.Length > 0)
+                                                parametersOutRot["sectorcolor"] = strSectorColor;
+
+                                            if (GetGroupParent(Convert.ToInt32(parametersOutRot["g"].ToString()), ref nZoneId, nContractId))
+                                            {
+                                                if (nZoneId > 0)
+                                                {
+                                                    parametersOutRot["zone"] = nZoneId.ToString();
+                                                    GetGroupName(nZoneId, out strZoneName, out strZoneColor, nContractId);
+                                                    if (strZoneName.Length > 0)
+                                                        parametersOutRot["zonename"] = strZoneName;
+                                                    if (strZoneColor.Length > 0)
+                                                        parametersOutRot["zonecolor"] = strZoneColor;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (rt != ResultType.Result_OK)
+                                {
+                                    if (parametersOutRot == null)
+                                        parametersOutRot = new SortedList();
+                                    else
+                                        parametersOutRot.Clear();
+                                    parametersOutRot["r"] = Convert.ToInt32(rt).ToString();
+                                    xmlOut = GenerateXMLErrorResult(rt);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - M1 returned error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // Find last operation group for resident articles
+                            strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lResOperId, nContractId))
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting last resident operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::ResOperId={0}", lResOperId), LoggerSeverities.Error);
+
+                            if (lResOperId < 0)
+                            {
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                parametersOutRes["sta"] = UNPARKED.ToString();
+                            }
+                            else
+                            {
+                                // Check to see if previous parking operation was started by another user
+                                if (GetOperStatusData(lResOperId, out parametersOutRes, nContractId))
+                                {
+                                    // Check to see if previous parking operation was started by another user
+                                    int nPrevMobileUserId = Convert.ToInt32(parametersOutRes["mui"]);
+                                    if (nPrevMobileUserId != -1)
+                                    {
+                                        if (Convert.ToInt32(parametersIn["mui"]) != nPrevMobileUserId)
+                                            rt = ResultType.Result_Error_ParkingStartedByDifferentUser;
+                                    }
+                                }
+                                else
+                                    rt = ResultType.Result_Error_Generic;
+
+                                // Get virtual unit
+                                int iVirtualUnit = -1;
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    if (GetVirtualUnit(Convert.ToInt32(parametersOutRes["g"]), ref iVirtualUnit, nContractId))
+                                    {
+                                        if (iVirtualUnit < 0)
+                                        {
+                                            rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                            response.isSuccess = false;
+                                            response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                            return response;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                                        return response;
+                                    }
+                                }
+
+                                // Send M1 for resident
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                                    parametersIn["ad"] = parametersOutRes["ad"].ToString();
+                                    parametersIn["cdl"] = "1"; //compute date limits (and time)
+                                    parametersIn["u"] = iVirtualUnit.ToString();
+                                    parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+                                    Hashtable parametersInMapping = new Hashtable();
+
+                                    parametersInMapping["p"] = "m";
+                                    parametersInMapping["d"] = "d";
+                                    parametersInMapping["g"] = "g";
+                                    parametersInMapping["o"] = "o";
+                                    parametersInMapping["ad"] = "ad";
+                                    parametersInMapping["cdl"] = "cdl";
+                                    parametersInMapping["u"] = "u";
+                                    parametersInMapping["pt"] = "pt";
+                                    parametersInMapping["dll"] = "dll";
+
+                                    Hashtable parametersOutMapping = new Hashtable();
+
+                                    parametersOutMapping["Aad"] = "ad";
+                                    parametersOutMapping["Aq1"] = "q1";
+                                    parametersOutMapping["Aq2"] = "q2";
+                                    parametersOutMapping["At1"] = "t1";
+                                    parametersOutMapping["At2"] = "t2";
+                                    parametersOutMapping["Ad1"] = "d1";
+                                    parametersOutMapping["Ad2"] = "d2";
+                                    parametersOutMapping["Ao"] = "o";
+                                    parametersOutMapping["Adr0"] = "di";
+                                    parametersOutMapping["Araq"] = "aq";
+                                    parametersOutMapping["Arat"] = "at";
+                                    parametersOutMapping["Ar"] = "r";
+
+                                    SortedList parametersOutM1 = new SortedList();
+                                    rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
+
+                                    if (rt == ResultType.Result_OK)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRes.Remove("mui");
+                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRes["sta"] = PARKED.ToString();
+                                        parametersOutRes["ex"] = Convert.ToInt32(rt).ToString();
+                                        parametersOutRes["aq"] = parametersOutM1["aq"];
+                                        parametersOutRes["at"] = parametersOutM1["at"];
+                                    }
+                                    else if (rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark || rt == ResultType.Result_Error_ReentryTimeError)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRes.Remove("mui");
+                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRes["sta"] = PARKED.ToString();
+                                        // If there is no extension, then the result is always -3
+                                        parametersOutRes["ex"] = "-3";
+                                        rt = ResultType.Result_OK;
+                                    }
+
+                                    if (parametersOutRes["g"] != null)
+                                    {
+                                        if (parametersOutRes["g"].ToString().Trim().Length > 0)
+                                        {
+                                            GetGroupName(Convert.ToInt32(parametersOutRes["g"].ToString()), out strSectorName, out strSectorColor, nContractId);
+                                            if (strSectorName.Length > 0)
+                                                parametersOutRes["sectorname"] = strSectorName;
+                                            if (strSectorColor.Length > 0)
+                                                parametersOutRes["sectorcolor"] = strSectorColor;
+
+                                            if (GetGroupParent(Convert.ToInt32(parametersOutRes["g"].ToString()), ref nZoneId, nContractId))
+                                            {
+                                                if (nZoneId > 0)
+                                                {
+                                                    parametersOutRes["zone"] = nZoneId.ToString();
+                                                    GetGroupName(nZoneId, out strZoneName, out strZoneColor, nContractId);
+                                                    if (strZoneName.Length > 0)
+                                                        parametersOutRes["zonename"] = strZoneName;
+                                                    if (strZoneColor.Length > 0)
+                                                        parametersOutRes["zonecolor"] = strZoneColor;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (rt != ResultType.Result_OK)
+                                {
+                                    if (parametersOutRes == null)
+                                        parametersOutRes = new SortedList();
+                                    else
+                                        parametersOutRes.Clear();
+                                    parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
+                                    xmlOut = GenerateXMLErrorResult(rt);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - M1 returned error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // Determine the available tariff types to offer the user
+                            if (Convert.ToInt32(parametersOutRot["r"]) > 0 && Convert.ToInt32(parametersOutRes["r"]) > 0)
+                            {
+                                bool bIsResident = (IsResident(parametersIn["p"].ToString(), nContractId) > 0);
+                                bool bIsVip = (IsVip(parametersIn["p"].ToString(), nContractId) > 0);
+                                int nRotGroup = -1;
+                                int nResGroup = -1;
+                                int nCurGroup = -1;
+                                if (parametersOutRot["g"] != null)
+                                    nRotGroup = Convert.ToInt32(parametersOutRot["g"]);
+                                if (parametersOutRes["g"] != null)
+                                    nResGroup = Convert.ToInt32(parametersOutRes["g"]);
+                                if (parametersIn["g"] != null)
+                                    nCurGroup = Convert.ToInt32(parametersIn["g"]);
+                                if (!DetermineAvailableTariffs(nRotGroup, nResGroup, nRotExtension, nCurGroup, bIsResident, bIsVip, ref parametersOutAvtar, nContractId))
+                                {
+                                    if (parametersOutRot == null)
+                                        parametersOutRot = new SortedList();
+                                    else
+                                        parametersOutRot.Clear();
+                                    if (parametersOutRes == null)
+                                        parametersOutRes = new SortedList();
+                                    else
+                                        parametersOutRes.Clear();
+                                    parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting available tariffs: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                                else
+                                {
+                                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "avtar", parametersOutAvtar);
+
+                                    if (xmlOut.Length == 0)
+                                    {
+                                        if (parametersOutRot == null)
+                                            parametersOutRot = new SortedList();
+                                        else
+                                            parametersOutRot.Clear();
+                                        if (parametersOutRes == null)
+                                            parametersOutRes = new SortedList();
+                                        else
+                                            parametersOutRes.Clear();
+                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error generating XML output: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        return response;
+                                    }
+                                    else
+                                    {
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML: xmlOut= {0}", xmlOut), LoggerSeverities.Info);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    parametersOutRot["r"] = Convert.ToInt32(rt).ToString();
+                    parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
+                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error parsing input parameters: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                if (parametersOutRot == null)
+                    parametersOutRot = new SortedList();
+                if (parametersOutRes == null)
+                    parametersOutRes = new SortedList();
+                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+
+            ParkingStatusInfo parkingStatusInfo = new ParkingStatusInfo();
+            ParkingStatusRotationInfo parkingStatusRotationInfo = new ParkingStatusRotationInfo();
+            ParkingStatusResidentInfo parkingStatusResidentInfo = new ParkingStatusResidentInfo();
+
+            ConfigMapModel configMapModel = new ConfigMapModel();
+
+            var configRotation = configMapModel.configParkingStatusRotation();
+            IMapper iMapperRotation = configRotation.CreateMapper();
+            parkingStatusRotationInfo = iMapperRotation.Map<SortedList, ParkingStatusRotationInfo>((SortedList)parametersOutRot);
+
+            var configResident = configMapModel.configParkingStatusResident();
+            IMapper iMapperResident = configResident.CreateMapper();
+            parkingStatusResidentInfo = iMapperResident.Map<SortedList, ParkingStatusResidentInfo>((SortedList)parametersOutRes);
+
+            List<ParkingStatusTariffInfo> lista = new List<ParkingStatusTariffInfo>();
+            SortedList listTariffs = (SortedList)parametersOutAvtar;
+            var configTariffs = configMapModel.configParkingStatusTariffs();
+            IMapper iMapperTariffs = configTariffs.CreateMapper();
+            if (listTariffs != null && listTariffs.Count > 0)
+            {
+                int numTariffs = listTariffs.Count / 4;
+                for (int i = 1; i< numTariffs+1; i++)
+                {
+                    ParkingStatusTariffInfo tar = new ParkingStatusTariffInfo();
+                    tar.tariffId = (string)listTariffs["tarid" + i];
+                    tar.tariffDescription = (string)listTariffs["tardesc" + i];
+                    tar.tariffType = (string)listTariffs["tarad" + i];
+                    tar.tariffRefundable = (string)listTariffs["tarrfd" + i];
+                    lista.Add(tar);
+                }
+            }
+
+            parkingStatusInfo.parkingStatusTariffsInfo = lista.ToArray();
+            parkingStatusInfo.parkingStatusResidentInfo = parkingStatusResidentInfo;
+            parkingStatusInfo.parkingStatusRotationInfo = parkingStatusRotationInfo;
+
+            response.value = parkingStatusInfo;
+            return response;
+
+            //return xmlOut;
+        }
+
+        /*
+         * 	
+            The parameters of method ConfirmFinePaymentXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+	            <f>fine number</f>
+	            <d>date in format hh24missddMMYY</d> - *This parameter is optional
+	            <q>quantity paid in Euro Cents for the fine</q>
+                <mui>mobile user identifier (authorization token)</mui>
+                <cid>Cloud ID. Used for cloud notifications</cid>
+                <os>Operating system: 1 (Android), 2 (iOS)</os>
+                <ah>authentication hash</ah> - *This parameter is optional
+	        </arinpark_in>
+
+            b.	Result: is an integer with the next possible values:
+                a.	1: Fine payment saved without errors
+                b.	-1: Invalid authentication hash
+                c.	-5: Fine number not found
+                d.	-6: Fine number found but fine type is not payable.
+                e.	-7: Fine number not found but payment period has expired.
+                f.	-8: Fine number already paid.
+                g.	-9: Generic Error (for example database or execution error.)
+                h.	-10: Invalid input parameter
+                i.	-11: Missing input parameter
+                j.	-12: OPS System error
+                l.	-14: Quantity received different as the quantity calculated previously
+                m.  -20: Mobile user not found
+                n.  -23: Invalid Login
+                o.  -25: User does not have enough credit
+
+         * 
+         */
+
+        /// <summary>
+        /// return information for fine payment confirmation
+        /// </summary>
+        /// <param name="finePaymentConfirmQuery">Object FinePaymentConfirmQuery with quantity and plate to request</param>
+        /// <returns>parking confirm or error 
+        ///1: Fine payment saved without errors 
+        ///-1: Invalid authentication hash
+        ///-5: Fine number not found
+        ///-6: Fine number found but fine type is not payable.
+        ///-7: Fine number not found but payment period has expired.
+        ///-8: Fine number already paid.
+        ///-9: Generic Error (for example database or execution error.)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-14: Quantity received different as the quantity calculated previously
+        ///-20: Mobile user not found
+        ///-23: Invalid Login
+        ///-25: User does not have enough credit
+        /// </returns>
+        [HttpPost]
+        [Route("ConfirmFinePaymentAPI")]
+        public ResultFinePaymentConfirmInfo ConfirmFinePaymentAPI([FromBody] FinePaymentConfirmQuery finePaymentConfirmQuery)
+        {
+            int iRes = 0;
+
+            ResultFinePaymentConfirmInfo response = new ResultFinePaymentConfirmInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(FinePaymentConfirmQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(finePaymentConfirmQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                SortedList parametersM5Out = null;
+                SortedList parametersM4In = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["f"] == null || (parametersIn["f"].ToString().Length == 0)) ||
+                        (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0)) ||
+                        (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
+                        (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0)) ||
+                        (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Check to see if user exists, and if so, if they have enough credit
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nCredit = 0;
+                            if (GetMobileUserCredit(Convert.ToInt32(parametersIn["mui"].ToString()), ref nCredit, 0) != 1)
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found);
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                //return iRes;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Not_Found, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found).ToString();
+                                return response;
+                            }
+                            else
+                            {
+                                if (Convert.ToInt32(parametersIn["q"]) > nCredit)
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Not_Enough_Credit);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Not_Enough_Credit, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Not_Enough_Credit).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // Find group of last valid rotation parking to determine the corresponding virtual unit
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            int iGroupId = -1;
+                            int iVirtualUnit = -1;
+
+                            if (GetFineGroup(Convert.ToInt32(parametersIn["f"]), ref iGroupId, nContractId))
+                            {
+                                if (iGroupId > 0)
+                                    GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
+                                else
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error - Could not find group for fine: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error obtaining group for fine: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+
+                            if (iVirtualUnit < 0)
+                            {
+                                if (GetFirstVirtualUnit(ref iVirtualUnit, nContractId))
+                                {
+                                    if (iVirtualUnit < 0)
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iRes={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                        //return iRes;
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        return response;
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iRes={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                            }
+
+                            parametersIn["m"] = "1";  //Es pago por móvil
+
+                            Hashtable parametersM5InMapping = new Hashtable();
+
+                            parametersM5InMapping["f"] = "f";
+                            parametersM5InMapping["d"] = "d";
+                            parametersM5InMapping["m"] = "m";
+
+                            Hashtable parametersM5OutMapping = new Hashtable();
+
+                            parametersM5OutMapping["r"] = "r";
+                            parametersM5OutMapping["p"] = "p";
+                            parametersM5OutMapping["q"] = "q";
+                            parametersM5OutMapping["y"] = "y";
+
+                            iRes = SendM5(parametersIn, parametersM5InMapping, parametersM5OutMapping, iVirtualUnit, out parametersM5Out, nContractId);
+
+                            if (iRes > 0)
+                            {
+                                if (parametersIn["q"].ToString() == iRes.ToString())
+                                {
+
+                                    Hashtable parametersM4InMapping = new Hashtable();
+                                    parametersM4InMapping["f"] = "f";
+                                    parametersM4InMapping["y"] = "y";
+                                    parametersM4InMapping["p"] = "p";
+                                    parametersM4InMapping["q"] = "q";
+                                    parametersM4InMapping["u"] = "u";
+                                    parametersM4InMapping["d"] = "d";
+                                    parametersM4InMapping["mui"] = "mui";
+                                    parametersM4InMapping["cid"] = "cid";
+                                    parametersM4InMapping["os"] = "os";
+
+                                    parametersM4In = new SortedList();
+                                    parametersM4In["f"] = parametersIn["f"];
+                                    parametersM4In["y"] = parametersM5Out["y"];
+                                    parametersM4In["p"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersM4In["q"] = parametersIn["q"];
+                                    parametersM4In["u"] = iVirtualUnit.ToString();
+                                    parametersM4In["d"] = parametersIn["d"];
+                                    parametersM4In["mui"] = parametersIn["mui"];
+                                    parametersM4In["cid"] = parametersIn["cid"];
+                                    parametersM4In["os"] = parametersIn["os"];
+
+                                    ResultType rtM4 = SendM4(parametersM4In, parametersM4InMapping, iVirtualUnit, nContractId);
+                                    iRes = Convert.ToInt32(rtM4);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI: iOut= {0}", iRes), LoggerSeverities.Info);
+                                }
+                                else
+                                {
+                                    iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated).ToString();
+                                    return response;
+                                }
+
+                            }
+                            else
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                            }
+
+                        }
+                    }
+
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.value = iRes + "";
+            return response;
+
+            //return iRes;
         }
 
         /*
@@ -3944,6 +6362,7 @@ namespace OPSWebServicesAPI.Controllers
                             parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
                             parametersIn["u"] = iVirtualUnit.ToString();
                             parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                            parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
 
 
                             Hashtable parametersM1InMapping = new Hashtable();
@@ -3956,7 +6375,7 @@ namespace OPSWebServicesAPI.Controllers
                             parametersM1InMapping["q"] = "q";
                             parametersM1InMapping["u"] = "u";
                             parametersM1InMapping["pt"] = "pt";
-
+                            parametersM1InMapping["dll"] = "dll";
 
 
                             Hashtable parametersM1OutMapping = new Hashtable();
@@ -4168,6 +6587,1482 @@ namespace OPSWebServicesAPI.Controllers
             {
                 iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
                 Logger_AddLogMessage(string.Format("ConfirmParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+
+            }
+
+            return iRes;
+        }
+        */
+
+        /*
+         * 
+         * The parameters of method QueryUnParkingOperationXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+	            <p>plate</p>
+	            <d>date in format hh24missddMMYY</d> - *This parameter is optional
+                <ah>authentication hash</ah> - *This parameter is optional
+	        </arinpark_in>
+	            See the parking sector is not a parameter in this case because the unparking operation will be done with the last parking operation existing in the system.
+
+
+            b.	Result: is also a string containing an xml with the result of the method:
+            <arinpark_out>
+	            <r>Result of the method</r>	
+                <q>quantity in Euro Cents to be refunded</q>
+                <d1>Initial date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking</d1>
+                <d2>End date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking</d2>
+                <t>Tariff time in minutes for the parking operation chain after unparking (d2-d1) </t>
+                <ad>tariff type applied: in Bilbao for example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS</ad>
+            </arinpark_out>
+
+            The tag <r> of the method will have these possible values:
+                a.	1: UnParking is possible and the restrictions come after this tag.
+                b.	-1: Invalid authentication hash
+                c.	-4: Plate has no rights for doing an unparking operation
+                d.	-9: Generic Error (for example database or execution error.)
+                e.	-10: Invalid input parameter
+                f.	-11: Missing input parameter
+                g.	-12: OPS System error
+
+
+         * 
+         * 
+         */
+
+        /*
+        [HttpPost]
+        [Route("QueryUnParkingOperationXML")]
+        public string QueryUnParkingOperationXML(string xmlIn)
+        {
+            string xmlOut = "";
+            try
+            {
+                SortedList parametersIn = null;
+                SortedList parametersOut = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+
+                    if ((parametersIn["p"] == null) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Find group of last valid rotation or VIP parking to determine the corresponding virtual unit
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            long lOperId = -1;
+                            int iGroupId = -1;
+                            int iArticle = -1;
+                            int iVirtualUnit = -1;
+                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
+                                + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            if (GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId, nContractId))
+                            {
+                                if (lOperId > 0)
+                                {
+                                    if (GetOperationGroup(lOperId, ref iGroupId, nContractId))
+                                    {
+                                        if (iGroupId > 0)
+                                            GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
+                                        else
+                                            Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error - Could not find group for last operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                    }
+                                    else
+                                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error obtaining group for last operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+
+                                    GetOperationArticle(lOperId, ref iArticle, nContractId);
+                                    if (iArticle < 0)
+                                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error - Could not find article for last operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                }
+                                else
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error - Could not find last operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error obtaining last operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+
+                            if (iVirtualUnit < 0)
+                            {
+                                if (GetFirstVirtualUnit(ref iVirtualUnit, nContractId))
+                                {
+                                    if (iVirtualUnit < 0)
+                                    {
+                                        xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                        return xmlOut;
+                                    }
+
+                                }
+                                else
+                                {
+                                    xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                    return xmlOut;
+                                }
+                            }
+
+                            if (iArticle < 0)
+                                iArticle = Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotacion"]);
+
+                            parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString();
+                            parametersIn["ad"] = iArticle.ToString();
+                            parametersIn["u"] = iVirtualUnit.ToString();
+                            parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                            parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+                            Hashtable parametersInMapping = new Hashtable();
+
+                            parametersInMapping["p"] = "m";
+                            parametersInMapping["d"] = "d";
+                            parametersInMapping["u"] = "u";
+                            parametersInMapping["o"] = "o";
+                            parametersInMapping["ad"] = "ad";
+                            parametersInMapping["pt"] = "pt";
+                            parametersInMapping["dll"] = "dll";
+
+                            Hashtable parametersOutMapping = new Hashtable();
+
+                            parametersOutMapping["Aad"] = "ad";
+                            parametersOutMapping["Adi"] = "d1";
+                            parametersOutMapping["Ad"] = "d2";
+                            parametersOutMapping["Aq"] = "q";
+                            parametersOutMapping["At"] = "t";
+                            parametersOutMapping["Ar"] = "r";
+
+                            rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOut, nContractId);
+
+                            if (rt == ResultType.Result_OK)
+                            {
+                                xmlOut = GenerateXMLOuput(parametersOut);
+
+                                if (xmlOut.Length == 0)
+                                {
+                                    xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                }
+                                else
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML: xmlOut= {0}", xmlOut), LoggerSeverities.Info);
+                                }
+                            }
+                            //else if (rt == ResultType.Result_Error_Plate_Has_No_Return)
+                            //{
+                            //    // If plate does not have return rights, send a different error if it is because the user did a return, but still has the minimum parking time left
+                            //    lOperId = -1;
+                            //    GetLastOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId);
+                            //    if (lOperId > 0)
+                            //    {
+                            //        int iType = -1;
+                            //        if (GetOperationType(lOperId, ref iType))
+                            //        {
+                            //            if (iType != Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Refund"]))
+                            //            {
+                            //                parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                            //                parametersOutMapping["Ao"] = "o";
+
+                            //                rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOut);
+
+                            //                // If user is still parked
+                            //                if ((rt == ResultType.Result_OK && parametersOut["o"].ToString() == ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString())
+                            //                    || rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark)
+                            //                    rt = ResultType.Result_Error_No_Return_For_Minimum;
+                            //                else
+                            //                    rt = ResultType.Result_Error_Plate_Has_No_Return;
+
+                            //                parametersOut.Remove("o");
+                            //            }
+                            //        }
+                            //    }
+
+                            //    xmlOut = GenerateXMLErrorResult(rt);
+                            //    Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                            //}
+                            else
+                            {
+                                xmlOut = GenerateXMLErrorResult(rt);
+                                Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUnParkingOperationXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+
+            }
+
+            return xmlOut;
+        }
+        */
+
+        /*
+         * 
+         * The parameters of method ConfirmUnParkingOperationXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <p>plate</p>
+	            <d>date in format hh24missddMMYY </d> - *This parameter is optional
+                <q>Amount refunded in Euro Cents</q>
+                <mui>mobile user identifier (authorization token)</mui>
+                <cid>Cloud ID. Used for cloud notifications</cid>
+                <os>Operating system: 1 (Android), 2 (iOS)</os>
+                <ah>authentication hash</ah> - *This parameter is optional
+            </arinpark_in>
+
+           b.	Result: is an integer with the next possible values:
+                a.	1: Operation saved without errors
+                b.	-1: Invalid authentication hash
+                c.	-4: Plate has no rights for doing an unparking operation
+                d.	-9: Generic Error (for example database or execution error.)
+                e.	-10: Invalid input parameter
+                f.	-11: Missing input parameter
+                g.	-12: OPS System error
+                h.	-13: Operation already inserted
+                i.	-14: Quantity received different as the quantity calculated previously
+                j.  -20: Mobile user not found
+                k.  -23: Invalid Login
+                l.	-24: User has no rights. Operation begun by another user
+
+
+         * 
+         * 
+         */
+
+        /*
+        [HttpPost]
+        [Route("ConfirmUnParkingOperationXML")]
+        public int ConfirmUnParkingOperationXML(string xmlIn)
+        {
+            int iRes = 0;
+            try
+            {
+                SortedList parametersIn = null;
+                SortedList parametersM1Out = null;
+                SortedList parametersM2In = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+
+                    if ((parametersIn["p"] == null) ||
+                        (parametersIn["q"] == null) ||
+                        (parametersIn["mui"] == null) ||
+                        (parametersIn["cid"] == null) ||
+                        (parametersIn["os"] == null) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // If the date is not provided, then whether the operation exists or not cannot be determined since the query is based in part on the date
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            else
+                            {
+                                bool bOpExists = false;
+                                if (!OperationAlreadyExists(parametersIn["p"].ToString(), parametersIn["d"].ToString(), ref bOpExists, nContractId))
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                                else if (bOpExists)
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Operation_Already_Inserted);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                            }
+
+                            // Find group of last valid rotation or VIP parking to determine the corresponding virtual unit
+                            long lOperId = -1;
+                            int iGroupId = -1;
+                            int iArticle = -1;
+                            int iVirtualUnit = -1;
+                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
+                                + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            if (GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId, nContractId))
+                            {
+                                if (lOperId > 0)
+                                {
+                                    if (GetOperationGroup(lOperId, ref iGroupId, nContractId))
+                                    {
+                                        if (iGroupId > 0)
+                                            GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
+                                        else
+                                            Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error - Could not find group for last operation: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                    }
+                                    else
+                                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error obtaining group for last operation: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+
+                                    GetOperationArticle(lOperId, ref iArticle, nContractId);
+                                    if (iArticle < 0)
+                                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error - Could not find article for last operation: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                }
+                                else
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error - Could not find last operation: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error obtaining last operation: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+
+                            if (iVirtualUnit < 0)
+                            {
+                                if (GetFirstVirtualUnit(ref iVirtualUnit, nContractId))
+                                {
+                                    if (iVirtualUnit < 0)
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iRes={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                        return iRes;
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iRes={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                            }
+
+                            if (iArticle < 0)
+                                iArticle = Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotacion"]);
+
+                            // Check to make sure that it is the same user that started the operation
+                            int nPrevMobileUserId = -1;
+                            if (GetLastOperMobileUser(parametersIn["p"].ToString(), iArticle, parametersIn["d"].ToString(), out nPrevMobileUserId, nContractId))
+                            {
+                                if (nPrevMobileUserId > 0 && nPrevMobileUserId != Convert.ToInt32(parametersIn["mui"]))
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_ParkingStartedByDifferentUser);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                            }
+
+                            parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString();
+                            parametersIn["ad"] = iArticle.ToString();
+                            parametersIn["u"] = iVirtualUnit.ToString();
+                            parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+
+                            Hashtable parametersM1InMapping = new Hashtable();
+
+                            parametersM1InMapping["p"] = "m";
+                            parametersM1InMapping["d"] = "d";
+                            parametersM1InMapping["u"] = "u";
+                            parametersM1InMapping["o"] = "o";
+                            parametersM1InMapping["ad"] = "ad";
+                            parametersM1InMapping["pt"] = "pt";
+
+                            Hashtable parametersM1OutMapping = new Hashtable();
+
+                            parametersM1OutMapping["Aad"] = "ad";
+                            parametersM1OutMapping["Adi"] = "d1";
+                            parametersM1OutMapping["Ad"] = "d2";
+                            parametersM1OutMapping["Ao"] = "o";
+                            parametersM1OutMapping["Aq"] = "q";
+                            parametersM1OutMapping["At"] = "t";
+                            parametersM1OutMapping["Ar"] = "r";
+                            parametersM1OutMapping["Aaq"] = "qr";
+
+
+                            ResultType rtM1 = SendM1(parametersIn, parametersM1InMapping, parametersM1OutMapping, iVirtualUnit, out parametersM1Out, nContractId);
+
+                            iRes = Convert.ToInt32(rtM1);
+                            if (rtM1 == ResultType.Result_OK)
+                            {
+
+                                if (parametersIn["q"].ToString() == parametersM1Out["q"].ToString())
+                                {
+                                    Hashtable parametersM2InMapping = new Hashtable();
+                                    parametersM2InMapping["m"] = "m";
+                                    parametersM2InMapping["y"] = "y";
+                                    parametersM2InMapping["ad"] = "ad";
+                                    parametersM2InMapping["u"] = "u";
+                                    parametersM2InMapping["p"] = "p";
+                                    parametersM2InMapping["d"] = "d";
+                                    parametersM2InMapping["d1"] = "d1";
+                                    parametersM2InMapping["d2"] = "d2";
+                                    parametersM2InMapping["t"] = "t";
+                                    parametersM2InMapping["q"] = "q";
+                                    parametersM2InMapping["qr"] = "qr";
+                                    parametersM2InMapping["om"] = "om";
+                                    parametersM2InMapping["mui"] = "mui";
+                                    parametersM2InMapping["cid"] = "cid";
+                                    parametersM2InMapping["os"] = "os";
+
+                                    parametersM2In = new SortedList();
+                                    parametersM2In["m"] = parametersIn["p"];
+                                    parametersM2In["y"] = parametersM1Out["o"];
+                                    parametersM2In["ad"] = parametersM1Out["ad"];
+                                    parametersM2In["u"] = iVirtualUnit.ToString();
+                                    parametersM2In["p"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersM2In["d"] = parametersIn["d"];
+                                    parametersM2In["d1"] = parametersM1Out["d1"];
+                                    parametersM2In["d2"] = parametersM1Out["d2"];
+                                    parametersM2In["t"] = parametersM1Out["t"];
+                                    parametersM2In["q"] = parametersIn["q"];
+                                    parametersM2In["qr"] = parametersM1Out["qr"];
+                                    parametersM2In["om"] = "1"; //operation is always online
+                                    parametersM2In["mui"] = parametersIn["mui"];
+                                    parametersM2In["cid"] = parametersIn["cid"];
+                                    parametersM2In["os"] = parametersIn["os"];
+
+                                    ResultType rtM2 = SendM2(parametersM2In, parametersM2InMapping, iVirtualUnit, nContractId);
+                                    iRes = Convert.ToInt32(rtM2);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML: iOut= {0}", iRes), LoggerSeverities.Info);
+
+                                    bool bSpaceUpdate = false;
+                                    if (ConfigurationManager.AppSettings["EnableSpaceBonuses"].ToString().Equals("true"))
+                                        bSpaceUpdate = true;
+                                    if (rtM2 == ResultType.Result_OK)
+                                    {
+                                        if (bSpaceUpdate)
+                                        {
+                                            long lSpaceId = -1;
+                                            if (GetSpaceIdOperation(lOperId, ref lSpaceId, nContractId))
+                                            {
+                                                //UpdateSpaceStatus(lSpaceId, Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Free"]), parametersM1Out["d2"].ToString());
+                                                UpdateSpaceStatus(lSpaceId, Convert.ToInt32(ConfigurationManager.AppSettings["SpaceStatus.Free"]), nContractId);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
+                                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                }
+
+                            }
+                            //else if (rtM1 == ResultType.Result_Error_Plate_Has_No_Return)
+                            //{
+                            //    lOperId = -1;
+                            //    GetLastOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId);
+
+                            //    if (lOperId > 0)
+                            //    {
+                            //        // If plate does not have return rights, send a different error if it is because the user did a return, but still has the minimum parking time left
+                            //        int iType = -1;
+                            //        if (GetOperationType(lOperId, ref iType))
+                            //        {
+                            //            if (iType != Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Refund"]))
+                            //            {
+                            //                parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                            //                parametersM1OutMapping["Ao"] = "o";
+
+                            //                rtM1 = SendM1(parametersIn, parametersM1InMapping, parametersM1OutMapping, iVirtualUnit, out parametersM1Out);
+
+                            //                // If user is still parked
+                            //                if ((rtM1 == ResultType.Result_OK && parametersM1Out["o"].ToString() == ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString())
+                            //                    || rtM1 == ResultType.Result_Error_MaxTimeAlreadyUsedInPark)
+                            //                    rtM1 = ResultType.Result_Error_No_Return_For_Minimum;
+                            //                else
+                            //                    rtM1 = ResultType.Result_Error_Plate_Has_No_Return;
+
+                            //                parametersM1Out.Remove("o");
+                            //            }
+                            //        }
+                            //    }
+
+                            //    iRes = Convert.ToInt32(rtM1);
+                            //    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                            //}
+                            else
+                            {
+                                iRes = Convert.ToInt32(rtM1);
+                                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                            }
+
+                        }
+                    }
+
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+
+            }
+
+            return iRes;
+        }
+        */
+
+        /*
+         * 
+         * The parameters of method QueryParkingStatusXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <p>plate</p>
+	                <d>date in format hh24missddMMYY</d> - *This parameter is optional
+                    <mui>mobile user identifier (authorization token)</mui>
+                    <ah>authentication hash</ah> - *This parameter is optional
+	            </arinpark_in>
+
+	            The authentication hash will be a string generated using the input parameters. Using this value we will detect the method call has been made by a well known client.
+
+            b.	Result: is also a string containing an xml with the result of the method:
+                <arinpark_out>
+                     <rot>
+	                    <r>Result of the method</r>
+	                    <sta>status: 1 (UNPARKED), 2 (PARKED)</sta>
+                        <ex>Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)</ex> *
+                        <id>tariff ID: 101 (ESRO non resident), 103 (ESRE non resident)</id>* 
+                        <ad>Tariff type of current operation: 4 (ROTATION), 6 (VIPS) </ad> *
+                        <o>Current Operation Type: 1: First parking: 2: extension</o> *
+                        <di>Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension</di> *
+                        <df>End date of current operation (in format hh24missddMMYY) of the parking. In order to show the user the end of the current parking operation.</df>
+                        <aq>Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation</aq> *
+                        <at> Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation </at> *
+                        <g>parking sector of current operation</g> *
+                        <sectorname>Sector name</sectorname>
+                        <sectorcolor>Sector color</sectorcolor>
+                        <zone>Zone</zone>
+                        <zonename>Zone name</zonename>
+                        <zonecolor>Zone color</zonecolor>
+                        <lt>Latitude of current operation</lt> *
+                        <lg>Longitude of current operation</lg> *
+                        <re>Reference of current operation. 128 characters maximum</re> *
+                        <rfd>Refundable tariff: 0 (NO), 1 (YES) </rfd> *
+                        <od>Operation date</od>
+                        <streetname>name of street</streetname>
+                        <streetno>street address number</streetno>
+                    </rot>
+                    <res>
+	                    <r>Result of the method</r>
+	                    <sta>status: 1 (UNPARKED), 2 (PARKED)</sta>
+                        <ex>Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)</ex> *
+                        <id>tariff ID: 102 (ESRO resident), 104 (1 DAY TICKET), 105(5 DAY TICKET), 106 (20 DAY TICKET)</id>* 
+                        <ad>Tariff type of current operation: 5 (RESIDENTS), 104 (1 DAY TICKET), 105(5 DAY TICKET), 106 (20 DAY TICKET) </ad> *
+                        <o>Current Operation Type: 1: First parking: 2: extension</o> *
+                        <di>Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension</di> *
+                        <df>End date of current operation (in format hh24missddMMYY) of the parking. In order to show the user the end of the current parking operation.</df>
+                        <aq>Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation</aq> *
+                        <at> Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation </at> *
+                        <g>parking sector of current operation</g> *
+                        <sectorname>Sector name</sectorname>
+                        <sectorcolor>Sector color</sectorcolor>
+                        <zone>Zone</zone>
+                        <zonename>Zone name</zonename>
+                        <zonecolor>Zone color</zonecolor>
+                        <lt>Latitude of current operation</lt> *
+                        <lg>Longitude of current operation</lg> *
+                        <re>Reference of current operation. 128 characters maximum </re> *
+                        <rfd>Refundable tariff: 0 (NO), 1 (YES) </rfd> *
+                        <od>Operation date</od>
+                        <streetname>name of street</streetname>
+                        <streetno>street address number</streetno>
+                    </res>
+	                <avtar>
+		                <tarid1>Tariff 1 ID</tarid1>
+		                <tardesc1>Tariff 1 description</tardesc1>
+		                <tarad1>Tariff type for Tariff 1</tarad1>
+		                <tarrfd1>If Tariff 1 is refundable: 0 (NO), 1 (YES)</tarrfd1>
+		                .
+		                .
+		                .
+		                <taridn>Tariff n ID</taridn>
+		                <tardescn>Tariff n description</tardescn>
+		                <taradn>Tariff type for Tariff n</taradn>
+		                <tarrfdn>If Tariff n is refundable: 0 (NO), 1 (YES)</tarrfdn>
+	                </avtar>
+            </arinpark_out>
+
+         
+          * Only in case of parked plates
+
+            The tag <r> of the method will have these possible values:
+            a.	1: Success and the restrictions come after this tag.
+            b.	-1: Invalid authentication hash
+            c.	-9: Generic Error (for example database or execution error.)
+            d.	-10: Invalid input parameter
+            e.	-11: Missing input parameter
+            f.	-12: OPS System error
+            g.  -23: Invalid Login
+            h.	-24: User has no rights. Operation begun by another user
+
+         * 
+         * 
+         */
+
+        /*
+        [HttpPost]
+        [Route("QueryParkingStatusXML")]
+        public string QueryParkingStatusXML(string xmlIn)
+        {
+            string xmlOut = "";
+            SortedList parametersOutRot = null;
+            SortedList parametersOutRes = null;
+            SortedList parametersOutAvtar = null;
+
+            try
+            {
+                SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+                long lRotOperId = -1;
+                long lResOperId = -1;
+                int nRotExtension = -1;
+                int nZoneId = -1;
+                string strZoneName = "";
+                string strSectorName = "";
+                string strZoneColor = "673AB7";
+                string strSectorColor = "673AB7";
+
+                Logger_AddLogMessage(string.Format("QueryParkingStatusXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                parametersOutRot = new SortedList();
+                parametersOutRes = new SortedList();
+                parametersOutAvtar = new SortedList();
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["p"] == null) ||
+                        (parametersIn["mui"] == null) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - missing input parameter: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - incorrect hash: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+
+                            // Find last operation group for rotation and VIP articles
+                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString();
+                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lRotOperId, nContractId))
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting last rotation operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::RotOperId={0}", lRotOperId), LoggerSeverities.Error);
+
+                            if (lRotOperId < 0)
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                parametersOutRot["sta"] = UNPARKED.ToString();
+                            }
+                            else
+                            {
+                                // Obtain current parking operation info
+                                if (GetOperStatusData(lRotOperId, out parametersOutRot, nContractId))
+                                {
+                                    // Check to see if previous parking operation was started by another user
+                                    int nPrevMobileUserId = Convert.ToInt32(parametersOutRot["mui"]);
+                                    if (nPrevMobileUserId != -1)
+                                    {
+                                        if (Convert.ToInt32(parametersIn["mui"]) != nPrevMobileUserId)
+                                            rt = ResultType.Result_Error_ParkingStartedByDifferentUser;
+                                    }
+                                }
+                                else
+                                {
+                                    rt = ResultType.Result_Error_Generic;
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting operation info: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                }
+
+                                // Get virtual unit
+                                int iVirtualUnit = -1;
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    if (GetVirtualUnit(Convert.ToInt32(parametersOutRot["g"]), ref iVirtualUnit, nContractId))
+                                    {
+                                        if (iVirtualUnit < 0)
+                                        {
+                                            rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::No virtual unit found: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting virtual unit: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                    }
+                                }
+
+                                // Send M1 for rotation
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                                    parametersIn["ad"] = parametersOutRot["ad"].ToString();
+                                    parametersIn["cdl"] = "1"; //compute date limits (and time)
+                                    parametersIn["u"] = iVirtualUnit.ToString();
+                                    parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+                                    Hashtable parametersInMapping = new Hashtable();
+
+                                    parametersInMapping["p"] = "m";
+                                    parametersInMapping["d"] = "d";
+                                    parametersInMapping["g"] = "g";
+                                    parametersInMapping["o"] = "o";
+                                    parametersInMapping["ad"] = "ad";
+                                    parametersInMapping["cdl"] = "cdl";
+                                    parametersInMapping["u"] = "u";
+                                    parametersInMapping["pt"] = "pt";
+                                    parametersInMapping["dll"] = "dll";
+
+                                    Hashtable parametersOutMapping = new Hashtable();
+
+                                    parametersOutMapping["Aad"] = "ad";
+                                    parametersOutMapping["Aq1"] = "q1";
+                                    parametersOutMapping["Aq2"] = "q2";
+                                    parametersOutMapping["At1"] = "t1";
+                                    parametersOutMapping["At2"] = "t2";
+                                    parametersOutMapping["Ad1"] = "d1";
+                                    parametersOutMapping["Ad2"] = "d2";
+                                    parametersOutMapping["Ao"] = "o";
+                                    parametersOutMapping["Adr0"] = "di";
+                                    parametersOutMapping["Araq"] = "aq";
+                                    parametersOutMapping["Arat"] = "at";
+                                    parametersOutMapping["Ar"] = "r";
+
+                                    SortedList parametersOutM1 = new SortedList();
+                                    rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
+
+                                    if (rt == ResultType.Result_OK)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRot.Remove("mui");
+                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRot["sta"] = PARKED.ToString();
+                                        parametersOutRot["ex"] = Convert.ToInt32(rt).ToString();
+                                        nRotExtension = Convert.ToInt32(rt);
+                                        parametersOutRot["aq"] = parametersOutM1["aq"];
+                                        parametersOutRot["at"] = parametersOutM1["at"];
+                                    }
+                                    else if (rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark || rt == ResultType.Result_Error_ReentryTimeError)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRot.Remove("mui");
+                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRot["sta"] = PARKED.ToString();
+                                        // If there is no extension, then the result is always -3
+                                        parametersOutRot["ex"] = "-3";
+                                        nRotExtension = Convert.ToInt32(rt);
+                                        rt = ResultType.Result_OK;
+                                    }
+
+                                    if (parametersOutRot["g"] != null)
+                                    {
+                                        if (parametersOutRot["g"].ToString().Trim().Length > 0)
+                                        {
+                                            GetGroupName(Convert.ToInt32(parametersOutRot["g"].ToString()), out strSectorName, out strSectorColor, nContractId);
+                                            if (strSectorName.Length > 0)
+                                                parametersOutRot["sectorname"] = strSectorName;
+                                            if (strSectorColor.Length > 0)
+                                                parametersOutRot["sectorcolor"] = strSectorColor;
+
+                                            if (GetGroupParent(Convert.ToInt32(parametersOutRot["g"].ToString()), ref nZoneId, nContractId))
+                                            {
+                                                if (nZoneId > 0)
+                                                {
+                                                    parametersOutRot["zone"] = nZoneId.ToString();
+                                                    GetGroupName(nZoneId, out strZoneName, out strZoneColor, nContractId);
+                                                    if (strZoneName.Length > 0)
+                                                        parametersOutRot["zonename"] = strZoneName;
+                                                    if (strZoneColor.Length > 0)
+                                                        parametersOutRot["zonecolor"] = strZoneColor;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (rt != ResultType.Result_OK)
+                                {
+                                    if (parametersOutRot == null)
+                                        parametersOutRot = new SortedList();
+                                    else
+                                        parametersOutRot.Clear();
+                                    parametersOutRot["r"] = Convert.ToInt32(rt).ToString();
+                                    xmlOut = GenerateXMLErrorResult(rt);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - M1 returned error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                }
+                            }
+
+                            // Find last operation group for resident articles
+                            strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lResOperId, nContractId))
+                            {
+                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting last resident operation: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::ResOperId={0}", lResOperId), LoggerSeverities.Error);
+
+                            if (lResOperId < 0)
+                            {
+                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                parametersOutRes["sta"] = UNPARKED.ToString();
+                            }
+                            else
+                            {
+                                // Check to see if previous parking operation was started by another user
+                                if (GetOperStatusData(lResOperId, out parametersOutRes, nContractId))
+                                {
+                                    // Check to see if previous parking operation was started by another user
+                                    int nPrevMobileUserId = Convert.ToInt32(parametersOutRes["mui"]);
+                                    if (nPrevMobileUserId != -1)
+                                    {
+                                        if (Convert.ToInt32(parametersIn["mui"]) != nPrevMobileUserId)
+                                            rt = ResultType.Result_Error_ParkingStartedByDifferentUser;
+                                    }
+                                }
+                                else
+                                    rt = ResultType.Result_Error_Generic;
+
+                                // Get virtual unit
+                                int iVirtualUnit = -1;
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    if (GetVirtualUnit(Convert.ToInt32(parametersOutRes["g"]), ref iVirtualUnit, nContractId))
+                                    {
+                                        if (iVirtualUnit < 0)
+                                        {
+                                            rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::No virtual unit found: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting virtual unit: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                    }
+                                }
+
+                                // Send M1 for resident
+                                if (rt == ResultType.Result_OK)
+                                {
+                                    parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                                    parametersIn["ad"] = parametersOutRes["ad"].ToString();
+                                    parametersIn["cdl"] = "1"; //compute date limits (and time)
+                                    parametersIn["u"] = iVirtualUnit.ToString();
+                                    parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+
+                                    Hashtable parametersInMapping = new Hashtable();
+
+                                    parametersInMapping["p"] = "m";
+                                    parametersInMapping["d"] = "d";
+                                    parametersInMapping["g"] = "g";
+                                    parametersInMapping["o"] = "o";
+                                    parametersInMapping["ad"] = "ad";
+                                    parametersInMapping["cdl"] = "cdl";
+                                    parametersInMapping["u"] = "u";
+                                    parametersInMapping["pt"] = "pt";
+                                    parametersInMapping["dll"] = "dll";
+
+                                    Hashtable parametersOutMapping = new Hashtable();
+
+                                    parametersOutMapping["Aad"] = "ad";
+                                    parametersOutMapping["Aq1"] = "q1";
+                                    parametersOutMapping["Aq2"] = "q2";
+                                    parametersOutMapping["At1"] = "t1";
+                                    parametersOutMapping["At2"] = "t2";
+                                    parametersOutMapping["Ad1"] = "d1";
+                                    parametersOutMapping["Ad2"] = "d2";
+                                    parametersOutMapping["Ao"] = "o";
+                                    parametersOutMapping["Adr0"] = "di";
+                                    parametersOutMapping["Araq"] = "aq";
+                                    parametersOutMapping["Arat"] = "at";
+                                    parametersOutMapping["Ar"] = "r";
+
+                                    SortedList parametersOutM1 = new SortedList();
+                                    rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
+
+                                    if (rt == ResultType.Result_OK)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRes.Remove("mui");
+                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRes["sta"] = PARKED.ToString();
+                                        parametersOutRes["ex"] = Convert.ToInt32(rt).ToString();
+                                        parametersOutRes["aq"] = parametersOutM1["aq"];
+                                        parametersOutRes["at"] = parametersOutM1["at"];
+                                    }
+                                    else if (rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark || rt == ResultType.Result_Error_ReentryTimeError)
+                                    {
+                                        // Join the M1 data with the operation data
+                                        parametersOutRes.Remove("mui");
+                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                        parametersOutRes["sta"] = PARKED.ToString();
+                                        // If there is no extension, then the result is always -3
+                                        parametersOutRes["ex"] = "-3";
+                                        rt = ResultType.Result_OK;
+                                    }
+
+                                    if (parametersOutRes["g"] != null)
+                                    {
+                                        if (parametersOutRes["g"].ToString().Trim().Length > 0)
+                                        {
+                                            GetGroupName(Convert.ToInt32(parametersOutRes["g"].ToString()), out strSectorName, out strSectorColor, nContractId);
+                                            if (strSectorName.Length > 0)
+                                                parametersOutRes["sectorname"] = strSectorName;
+                                            if (strSectorColor.Length > 0)
+                                                parametersOutRes["sectorcolor"] = strSectorColor;
+
+                                            if (GetGroupParent(Convert.ToInt32(parametersOutRes["g"].ToString()), ref nZoneId, nContractId))
+                                            {
+                                                if (nZoneId > 0)
+                                                {
+                                                    parametersOutRes["zone"] = nZoneId.ToString();
+                                                    GetGroupName(nZoneId, out strZoneName, out strZoneColor, nContractId);
+                                                    if (strZoneName.Length > 0)
+                                                        parametersOutRes["zonename"] = strZoneName;
+                                                    if (strZoneColor.Length > 0)
+                                                        parametersOutRes["zonecolor"] = strZoneColor;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (rt != ResultType.Result_OK)
+                                {
+                                    if (parametersOutRes == null)
+                                        parametersOutRes = new SortedList();
+                                    else
+                                        parametersOutRes.Clear();
+                                    parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
+                                    xmlOut = GenerateXMLErrorResult(rt);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - M1 returned error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                }
+                            }
+
+                            // Determine the available tariff types to offer the user
+                            if (Convert.ToInt32(parametersOutRot["r"]) > 0 && Convert.ToInt32(parametersOutRes["r"]) > 0)
+                            {
+                                bool bIsResident = (IsResident(parametersIn["p"].ToString(), nContractId) > 0);
+                                bool bIsVip = (IsVip(parametersIn["p"].ToString(), nContractId) > 0);
+                                int nRotGroup = -1;
+                                int nResGroup = -1;
+                                int nCurGroup = -1;
+                                if (parametersOutRot["g"] != null)
+                                    nRotGroup = Convert.ToInt32(parametersOutRot["g"]);
+                                if (parametersOutRes["g"] != null)
+                                    nResGroup = Convert.ToInt32(parametersOutRes["g"]);
+                                if (parametersIn["g"] != null)
+                                    nCurGroup = Convert.ToInt32(parametersIn["g"]);
+                                if (!DetermineAvailableTariffs(nRotGroup, nResGroup, nRotExtension, nCurGroup, bIsResident, bIsVip, ref parametersOutAvtar, nContractId))
+                                {
+                                    if (parametersOutRot == null)
+                                        parametersOutRot = new SortedList();
+                                    else
+                                        parametersOutRot.Clear();
+                                    if (parametersOutRes == null)
+                                        parametersOutRes = new SortedList();
+                                    else
+                                        parametersOutRes.Clear();
+                                    parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting available tariffs: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                }
+                                else
+                                {
+                                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "avtar", parametersOutAvtar);
+
+                                    if (xmlOut.Length == 0)
+                                    {
+                                        if (parametersOutRot == null)
+                                            parametersOutRot = new SortedList();
+                                        else
+                                            parametersOutRot.Clear();
+                                        if (parametersOutRes == null)
+                                            parametersOutRes = new SortedList();
+                                        else
+                                            parametersOutRes.Clear();
+                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error generating XML output: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                    }
+                                    else
+                                    {
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML: xmlOut= {0}", xmlOut), LoggerSeverities.Info);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    parametersOutRot["r"] = Convert.ToInt32(rt).ToString();
+                    parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
+                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error parsing input parameters: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                if (parametersOutRot == null)
+                    parametersOutRot = new SortedList();
+                if (parametersOutRes == null)
+                    parametersOutRes = new SortedList();
+                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return xmlOut;
+        }
+        */
+
+        /*
+         * 	
+            The parameters of method ConfirmFinePaymentXML are:
+            a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+	            <f>fine number</f>
+	            <d>date in format hh24missddMMYY</d> - *This parameter is optional
+	            <q>quantity paid in Euro Cents for the fine</q>
+                <mui>mobile user identifier (authorization token)</mui>
+                <cid>Cloud ID. Used for cloud notifications</cid>
+                <os>Operating system: 1 (Android), 2 (iOS)</os>
+                <ah>authentication hash</ah> - *This parameter is optional
+	        </arinpark_in>
+
+            b.	Result: is an integer with the next possible values:
+                a.	1: Fine payment saved without errors
+                b.	-1: Invalid authentication hash
+                c.	-5: Fine number not found
+                d.	-6: Fine number found but fine type is not payable.
+                e.	-7: Fine number not found but payment period has expired.
+                f.	-8: Fine number already paid.
+                g.	-9: Generic Error (for example database or execution error.)
+                h.	-10: Invalid input parameter
+                i.	-11: Missing input parameter
+                j.	-12: OPS System error
+                l.	-14: Quantity received different as the quantity calculated previously
+                m.  -20: Mobile user not found
+                n.  -23: Invalid Login
+                o.  -25: User does not have enough credit
+
+         * 
+         */
+
+        /*
+        [HttpPost]
+        [Route("ConfirmFinePaymentXML")]
+        public int ConfirmFinePaymentXML(string xmlIn)
+        {
+            int iRes = 0;
+            try
+            {
+                SortedList parametersIn = null;
+                SortedList parametersM5Out = null;
+                SortedList parametersM4In = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+
+                    if ((parametersIn["f"] == null) ||
+                        (parametersIn["q"] == null) ||
+                        (parametersIn["mui"] == null) ||
+                        (parametersIn["cid"] == null) ||
+                        (parametersIn["os"] == null) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nMobileUserId = GetUserFromToken(strToken, 0);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Check to see if user exists, and if so, if they have enough credit
+                            // Send contract Id as 0 so that it uses the global users connection
+                            int nCredit = 0;
+                            if (GetMobileUserCredit(Convert.ToInt32(parametersIn["mui"].ToString()), ref nCredit, 0) != 1)
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found);
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                return iRes;
+                            }
+                            else
+                            {
+                                if (Convert.ToInt32(parametersIn["q"]) > nCredit)
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Not_Enough_Credit);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                            }
+
+                            // Find group of last valid rotation parking to determine the corresponding virtual unit
+                            if (parametersIn["d"] == null || parametersIn["d"].ToString().Length == 0)
+                                parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
+                            int iGroupId = -1;
+                            int iVirtualUnit = -1;
+
+                            if (GetFineGroup(Convert.ToInt32(parametersIn["f"]), ref iGroupId, nContractId))
+                            {
+                                if (iGroupId > 0)
+                                    GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
+                                else
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error - Could not find group for fine: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error obtaining group for fine: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+
+                            if (iVirtualUnit < 0)
+                            {
+                                if (GetFirstVirtualUnit(ref iVirtualUnit, nContractId))
+                                {
+                                    if (iVirtualUnit < 0)
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iRes={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                        return iRes;
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iRes={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                            }
+
+                            parametersIn["m"] = "1";  //Es pago por móvil
+
+                            Hashtable parametersM5InMapping = new Hashtable();
+
+                            parametersM5InMapping["f"] = "f";
+                            parametersM5InMapping["d"] = "d";
+                            parametersM5InMapping["m"] = "m";
+
+                            Hashtable parametersM5OutMapping = new Hashtable();
+
+                            parametersM5OutMapping["r"] = "r";
+                            parametersM5OutMapping["p"] = "p";
+                            parametersM5OutMapping["q"] = "q";
+                            parametersM5OutMapping["y"] = "y";
+
+                            iRes = SendM5(parametersIn, parametersM5InMapping, parametersM5OutMapping, iVirtualUnit, out parametersM5Out, nContractId);
+
+                            if (iRes > 0)
+                            {
+                                if (parametersIn["q"].ToString() == iRes.ToString())
+                                {
+
+                                    Hashtable parametersM4InMapping = new Hashtable();
+                                    parametersM4InMapping["f"] = "f";
+                                    parametersM4InMapping["y"] = "y";
+                                    parametersM4InMapping["p"] = "p";
+                                    parametersM4InMapping["q"] = "q";
+                                    parametersM4InMapping["u"] = "u";
+                                    parametersM4InMapping["d"] = "d";
+                                    parametersM4InMapping["mui"] = "mui";
+                                    parametersM4InMapping["cid"] = "cid";
+                                    parametersM4InMapping["os"] = "os";
+
+                                    parametersM4In = new SortedList();
+                                    parametersM4In["f"] = parametersIn["f"];
+                                    parametersM4In["y"] = parametersM5Out["y"];
+                                    parametersM4In["p"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                                    parametersM4In["q"] = parametersIn["q"];
+                                    parametersM4In["u"] = iVirtualUnit.ToString();
+                                    parametersM4In["d"] = parametersIn["d"];
+                                    parametersM4In["mui"] = parametersIn["mui"];
+                                    parametersM4In["cid"] = parametersIn["cid"];
+                                    parametersM4In["os"] = parametersIn["os"];
+
+                                    ResultType rtM4 = SendM4(parametersM4In, parametersM4InMapping, iVirtualUnit, nContractId);
+                                    iRes = Convert.ToInt32(rtM4);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML: iOut= {0}", iRes), LoggerSeverities.Info);
+                                }
+                                else
+                                {
+                                    iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                }
+
+                            }
+                            else
+                            {
+                                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                            }
+
+                        }
+                    }
+
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("ConfirmFinePaymentXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
                 Logger_AddLogException(e);
 
             }
@@ -5744,6 +9639,390 @@ namespace OPSWebServicesAPI.Controllers
             return bResult;
         }
 
+        private bool GetFineGroup(long lFineId, ref int iGroupId, int nContractId = 0)
+        {
+            bool bResult = true;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            iGroupId = -1;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT FIN_GRP_ID_ZONE FROM FINES WHERE FIN_ID = {0}", lFineId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        iGroupId = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetFineGroup::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetOperMobileUserId(int nOperId, ref int nMobileUserId, int nContractId = 0)
+        {
+            nMobileUserId = -1;
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID,-1) FROM OPERATIONS WHERE OPE_ID = {0}", nOperId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nMobileUserId = dataReader.GetInt32(0);
+                    bResult = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetOperMobileUserId::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetOperStatusData(long lOperId, out SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            parametersOut = null;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+            long lValue = -1;
+            long lAvailTarId = -1;
+
+            try
+            {
+                parametersOut = new SortedList();
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT OPE_DART_ID, OPE_DOPE_ID, TO_CHAR(OPE_INIDATE, 'hh24missddMMYY'), TO_CHAR(OPE_ENDDATE, 'hh24missddMMYY'), NVL(OPE_MOBI_USER_ID,-1), OPE_LATITUDE, OPE_LONGITUD, OPE_REFERENCE, OPE_GRP_ID, OPE_VALUE_VIS, OPE_DURATION, TO_CHAR(OPE_MOVDATE, 'hh24missddMMYY'), OPE_ADDR_STREET, OPE_ADDR_NUMBER FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    parametersOut["ad"] = dataReader.GetInt32(0).ToString();
+                    parametersOut["o"] = dataReader.GetInt32(1).ToString();
+                    parametersOut["di"] = dataReader.GetString(2);
+                    parametersOut["df"] = dataReader.GetString(3);
+                    parametersOut["mui"] = dataReader.GetInt32(4).ToString();
+                    if (!dataReader.IsDBNull(5))
+                        parametersOut["lt"] = dataReader.GetDouble(5).ToString().Replace(",", ".");
+                    if (!dataReader.IsDBNull(6))
+                        parametersOut["lg"] = dataReader.GetDouble(6).ToString().Replace(",", ".");
+                    if (!dataReader.IsDBNull(7))
+                        parametersOut["re"] = dataReader.GetString(7);
+                    // Operation cannot be refundable if it wasn't performed online
+                    if (Convert.ToInt32(parametersOut["mui"]) > 0)
+                        parametersOut["rfd"] = IsTariffRefundable(dataReader.GetInt32(8), dataReader.GetInt32(0), nContractId);
+                    else
+                        parametersOut["rfd"] = "0";
+                    parametersOut["g"] = dataReader.GetInt32(8);
+                    parametersOut["aq"] = dataReader.GetInt32(9);
+                    parametersOut["at"] = dataReader.GetInt32(10);
+                    parametersOut["od"] = dataReader.GetString(11);
+                    if (!dataReader.IsDBNull(12))
+                        parametersOut["streetname"] = dataReader.GetString(12);
+                    if (!dataReader.IsDBNull(13))
+                        parametersOut["streetno"] = dataReader.GetString(13);
+                    bResult = true;
+                }
+
+                if (bResult)
+                {
+                    bResult = false;
+
+                    strSQL = string.Format("SELECT MAT_ID FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_DART_ID = {0} AND MAT_GRP_ID = {1}",
+                        parametersOut["ad"], parametersOut["g"]);
+                    oraCmd.CommandText = strSQL;
+
+                    if (dataReader != null)
+                    {
+                        dataReader.Close();
+                        dataReader.Dispose();
+                    }
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+
+                        if (!dataReader.IsDBNull(0))
+                            lAvailTarId = dataReader.GetInt32(0);
+
+                        if (lAvailTarId > 0)
+                        {
+                            parametersOut["id"] = lAvailTarId.ToString();
+                            bResult = true;
+                        }
+                    }
+
+                    // If available tariff was not found by searching by article ID then search by tariff value
+                    if (lAvailTarId < 0)
+                    {
+                        strSQL = string.Format("SELECT MAT_ID FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_VALUE = {0} AND MAT_GRP_ID = {1}",
+                            parametersOut["aq"], parametersOut["g"]);
+                        oraCmd.CommandText = strSQL;
+
+                        if (dataReader != null)
+                        {
+                            dataReader.Close();
+                            dataReader.Dispose();
+                        }
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.HasRows)
+                        {
+                            dataReader.Read();
+
+                            if (!dataReader.IsDBNull(0))
+                                lAvailTarId = dataReader.GetInt32(0);
+
+                            if (lAvailTarId > 0)
+                            {
+                                parametersOut["id"] = lAvailTarId.ToString();
+                                bResult = true;
+                            }
+                        }
+                    }
+
+                    if (lAvailTarId < 0)
+                        Logger_AddLogMessage(string.Format("GetOperStatusData::Error - could not find tariff id: ArtId: {0}, Value: {1}", parametersOut["ad"].ToString(), parametersOut["aq"].ToString()), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetOperStatusData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private int IsTariffRefundable(int nGroupId, int nArticleId, int nContractId = 0)
+        {
+            int nRefundable = 0;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_GRP_ID = {0} AND MAT_DART_ID = {1}", nGroupId, nArticleId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nRefundable = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("IsTariffRefundable::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return nRefundable;
+        }
+
         private bool GetGroupParent(int nGroupId, ref int nParentId, int nContractId = 0)
         {
             nParentId = -1;
@@ -6704,10 +10983,16 @@ namespace OPSWebServicesAPI.Controllers
 
                     string strM2Out = null;
 
+                    //Return values:
+                    //AckMessage.AckTypes.ACK_PROCESSED = 2
+                    //NackMessage.NackTypes.NACK_ERROR_BECS = 1
                     int resultM2Out = OPSMessage_M02Process(parametersM2In, strM2In, nContractId);
-                    strM2Out = "<r>" + resultM2Out + "</r>";
+                    if (resultM2Out == (int)AckMessage.AckTypes.ACK_PROCESSED)
+                        strM2Out = "<ap id=''>" + resultM2Out + "</ap>";
+                    if (resultM2Out == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                        strM2Out = "<nb id=''><error>" + resultM2Out + "</error></nb>";
 
-                    if (resultM2Out > 0)//No hay error generico
+                    if (resultM2Out == (int)AckMessage.AckTypes.ACK_PROCESSED)//No hay error generico
                     //if (OPSMessage(strM2In, iVirtualUnit, out strM2Out, nContractId))
                     {
                         Logger_AddLogMessage(string.Format("SendM2::OPSMessageOut = {0}", strM2Out), LoggerSeverities.Info);
@@ -6744,6 +11029,187 @@ namespace OPSWebServicesAPI.Controllers
             return rtRes;
         }
 
+        private ResultType SendM4(SortedList parametersIn, Hashtable parametersInMapping, int iVirtualUnit, int nContractId = 0)
+        {
+            ResultType rtRes = ResultType.Result_OK;
+
+            try
+            {
+                SortedList parametersM4In = new SortedList();
+
+                foreach (DictionaryEntry item in parametersIn)
+                {
+
+                    if (parametersInMapping[item.Key.ToString()] != null)
+                    {
+                        parametersM4In[parametersInMapping[item.Key.ToString()]] = item.Value.ToString();
+                    }
+                }
+
+                string strM4In = GenerateOPSMessage("m4", parametersM4In);
+
+                if (strM4In.Length > 0)
+                {
+
+                    Logger_AddLogMessage(string.Format("SendM4::OPSMessageIn = {0}", strM4In), LoggerSeverities.Info);
+
+                    string strM4Out = null;
+
+                    int resultM4Out = OPSMessage_M04Process(parametersM4In, strM4In, nContractId);
+                    if (resultM4Out == (int)AckMessage.AckTypes.ACK_PROCESSED)
+                        strM4Out = "<ap id=''>" + resultM4Out + "</ap>";
+                    if (resultM4Out == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                        strM4Out = "<nb id=''><error>" + resultM4Out + "</error></nb>";
+
+                    if (resultM4Out == (int)AckMessage.AckTypes.ACK_PROCESSED)//No hay error generico
+                    //if (OPSMessage(strM4In, iVirtualUnit, out strM4Out, nContractId))
+                    {
+                        Logger_AddLogMessage(string.Format("SendM4::OPSMessageOut = {0}", strM4Out), LoggerSeverities.Info);
+                        SortedList parametersM4Out = new SortedList();
+                        rtRes = FindOPSMessageOutputParameters(strM4Out, out parametersM4Out);
+
+                        if (rtRes != ResultType.Result_OK)
+                        {
+                            Logger_AddLogMessage(string.Format("SendM4::Error In MessageOut = {0}", strM4Out), LoggerSeverities.Error);
+                        }
+
+
+                    }
+                    else
+                    {
+                        rtRes = ResultType.Result_Error_OPS_Error;
+                        Logger_AddLogMessage(string.Format("SendM4::Error Managing MessageIn = {0}", strM4In), LoggerSeverities.Error);
+                    }
+                }
+                else
+                {
+                    rtRes = ResultType.Result_Error_OPS_Error;
+                    Logger_AddLogMessage("SendM4::Error Generationg OPS M4 Message", LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                rtRes = ResultType.Result_Error_Generic;
+                Logger_AddLogMessage("SendM4::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+
+            return rtRes;
+        }
+
+        private int SendM5(SortedList parametersIn, Hashtable parametersInMapping, Hashtable parametersOutMapping, int iVirtualUnit, out SortedList parametersOut, int nContractId = 0)
+        {
+            int iRes = Convert.ToInt32(ResultType.Result_OK);
+            parametersOut = null;
+
+            try
+            {
+                SortedList parametersM5In = new SortedList();
+
+                foreach (DictionaryEntry item in parametersIn)
+                {
+
+                    if (parametersInMapping[item.Key.ToString()] != null)
+                    {
+                        parametersM5In[parametersInMapping[item.Key.ToString()]] = item.Value.ToString();
+                    }
+                }
+
+                string strM5In = GenerateOPSMessage("m5", parametersM5In);
+
+                if (strM5In.Length > 0)
+                {
+
+                    Logger_AddLogMessage(string.Format("SendM5::OPSMessageIn = {0}", strM5In), LoggerSeverities.Info);
+
+                    string strM5Out = null;
+
+                    //parametersM5In: d=CURRENT_DATE, f=fin_id, m=1(pago móvil)
+                    SortedList parametersM5Out = OPSMessage_M05Process(parametersM5In["f"].ToString(), nContractId);
+
+                    if (parametersM5Out["r"].ToString() != "-99")//No hay error generico
+                    //if (OPSMessage(strM5In, iVirtualUnit, out strM5Out, nContractId))
+                    {
+                        //Logger_AddLogMessage(string.Format("SendM5::OPSMessageOut = {0}", strM5Out), LoggerSeverities.Info);
+
+                        //ResultType rtM5Out = FindOPSMessageOutputParameters(strM5Out, out parametersM5Out);
+
+                        //if (rtM5Out == ResultType.Result_OK)
+                        //{
+                        parametersOut = new SortedList();
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+
+                        foreach (DictionaryEntry item in parametersM5Out)
+                        {
+                            if (parametersOutMapping[item.Key.ToString()] != null)
+                            {
+                                parametersOut[parametersOutMapping[item.Key.ToString()]] = item.Value.ToString();
+                            }
+
+                        }
+
+                        if (parametersM5Out["p"].ToString() == "1")
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_FineNumberAlreadyPayed);
+                        }
+                        else
+                        {
+                            if (parametersM5Out["r"].ToString() == ConfigurationManager.AppSettings["M05.ErrorCodes.NotFound"].ToString())
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_FineNumberNotFound);
+                            }
+                            else if (parametersM5Out["r"].ToString() == ConfigurationManager.AppSettings["M05.ErrorCodes.OK"].ToString())
+                            {
+                                iRes = Convert.ToInt32(parametersM5Out["q"].ToString());
+                            }
+                            else if (parametersM5Out["r"].ToString() == ConfigurationManager.AppSettings["M05.ErrorCodes.TypeNotPayable"].ToString())
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_FineNumberFoundButNotPayable);
+                            }
+                            else if (parametersM5Out["r"].ToString() == ConfigurationManager.AppSettings["M05.ErrorCodes.TimeExpired"].ToString())
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_FineNumberFoundButTimeExpired);
+                            }
+                            else
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                            }
+                        }
+
+                        //}
+                        //else
+                        //{
+                        //    iRes = Convert.ToInt32(rtM5Out);
+                        //    Logger_AddLogMessage(string.Format("SendM5::Error In MessageOut = {0}", strM5Out), LoggerSeverities.Error);
+                        //}
+
+
+
+                    }
+                    else
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_OPS_Error);
+                        Logger_AddLogMessage(string.Format("SendM5::Error Managing MessageIn = {0}", strM5In), LoggerSeverities.Error);
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(ResultType.Result_Error_OPS_Error);
+                    Logger_AddLogMessage("SendM5::Error Generationg OPS M5 Message", LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage("SendM5::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+
+            return iRes;
+        }
+
         /// <summary>
         /// Metodo para sustituir el proceso de pedir la información del Process de M01 vía servicio asmx (mirar Process de M01)
         /// Internamente se realizan varios procesos pero en ARINPARK sólo se usa el primero:
@@ -6758,14 +11224,14 @@ namespace OPSWebServicesAPI.Controllers
         /// <param name="strM1In"></param>
         /// <param name="nContractId"></param>
         /// <returns></returns>
-        public StringCollection OPSMessage_M01Process(SortedList parametersM1In, string strM1In, int nContractId)
+        private StringCollection OPSMessage_M01Process(SortedList parametersM1In, string strM1In, int nContractId)
         {
             int ERROR_NOERROR = Convert.ToInt32(ConfigurationManager.AppSettings["M01.ErrorCodes.NoError"].ToString());
             int CAD_UNDEFINED = -1;
             int M1_CARD_ALREADY_USED = -14; // User Card Already used in a current parking
 
             DateTime _date = DateTime.Now;
-            DateTime _dateMax = DateTime.Now;
+            DateTime _dateMax = DateTime.MinValue;
             string fecha = (parametersM1In.IndexOfKey("d") == -1) ? "" :parametersM1In.GetByIndex(parametersM1In.IndexOfKey("d")).ToString();
             string fechaMax = (parametersM1In.IndexOfKey("d2") == -1) ? "" : parametersM1In.GetByIndex(parametersM1In.IndexOfKey("d2")).ToString();
             if (fecha != "") _date = DateTime.ParseExact(fecha, "HHmmssddMMyy", null);
@@ -7013,9 +11479,21 @@ namespace OPSWebServicesAPI.Controllers
 
         }
 
-        public int OPSMessage_M02Process(SortedList parametersM2In, string strM2In, int nContractId)
+        /// <summary>
+        /// Metodo para sustituir el proceso de pedir la información del Process de M02 vía servicio asmx (mirar Process de M02)
+        /// Devuelve un entero con el resultado codificado
+        /// </summary>
+        /// <param name="parametersM2In"></param>
+        /// <param name="strM2In"></param>
+        /// <param name="nContractId"></param>
+        /// <returns></returns>
+        private int OPSMessage_M02Process(SortedList parametersM2In, string strM2In, int nContractId)
         {
-            /// Returns 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
+            //Return values:
+            //AckMessage.AckTypes.ACK_PROCESSED = 2
+            //NackMessage.NackTypes.NACK_ERROR_BECS = 1
+
+            /// 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
             int nInsOperRdo = -1;
 
             //ILogger logger = null;
@@ -7033,48 +11511,50 @@ namespace OPSWebServicesAPI.Controllers
             int OPERATIONS_DOWNLOCK_OPEN = 106;
             int OPERATIONS_BILLREADER_REFUNDRECEIPT = 107;
 
-            int _operationDefId = Convert.ToInt32(parametersM2In["y"]); 
-            int _unitId = Convert.ToInt32(parametersM2In["u"]);
-            DateTime _date = OPS.Comm.Dtx.StringToDtx(parametersM2In["d"].ToString());
-            DateTime _dateIni = OPS.Comm.Dtx.StringToDtx(parametersM2In["d1"].ToString());
-            DateTime _dateEnd = OPS.Comm.Dtx.StringToDtx(parametersM2In["d2"].ToString());            
-            int _time = Convert.ToInt32(parametersM2In["t"]);
-            int _operationId = Convert.ToInt32(parametersM2In["o"]);
-            double _quantity = Convert.ToDouble(parametersM2In["q"], (IFormatProvider)culture.NumberFormat);       
-            int _groupId = Convert.ToInt32(parametersM2In["g"]);
-            int _articleDefId = Convert.ToInt32(parametersM2In["ad"]);
-            int _paytypeDefId = Convert.ToInt32(parametersM2In["p"]);
-            int _iPostPay = Convert.ToInt32(parametersM2In["pp"]);
-            int _iOS = Convert.ToInt32(parametersM2In["os"]);
-            int _mobileUserId = Convert.ToInt32(parametersM2In["mui"]);
-            string _szCloudId = parametersM2In["cid"].ToString();
-            string _vehicleId = parametersM2In["m"].ToString();
-            int _onlineMessage = Convert.ToInt32(parametersM2In["om"]);
+            int _operationDefId = (parametersM2In["y"] == null) ? -1 : Convert.ToInt32(parametersM2In["y"]); 
+            int _unitId = (parametersM2In["u"] == null) ? -1 : Convert.ToInt32(parametersM2In["u"]);
+            int _groupId = (parametersM2In["g"] == null) ? -1 : Convert.ToInt32(parametersM2In["g"]);
+            int _articleDefId = (parametersM2In["ad"] == null) ? -1 : Convert.ToInt32(parametersM2In["ad"]);
+            int _paytypeDefId = (parametersM2In["p"] == null) ? -1 : Convert.ToInt32(parametersM2In["p"]);
+            int _iPostPay = (parametersM2In["pp"] == null) ? -1 : Convert.ToInt32(parametersM2In["pp"]);
+            int _iOS = (parametersM2In["os"] == null) ? -1 : Convert.ToInt32(parametersM2In["os"]);
+            int _mobileUserId = (parametersM2In["mui"] == null) ? -1 : Convert.ToInt32(parametersM2In["mui"]);
+            int _time = (parametersM2In["t"] == null) ? -1 : Convert.ToInt32(parametersM2In["t"]);
+            int _onlineMessage = (parametersM2In["om"] == null) ? -1 : Convert.ToInt32(parametersM2In["om"]);
+            double _quantity = (parametersM2In["q"] == null) ? -1 : Convert.ToDouble(parametersM2In["q"], (IFormatProvider)culture.NumberFormat);
+            DateTime _date = (parametersM2In["d"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["d"].ToString());
+            DateTime _dateIni = (parametersM2In["d1"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["d1"].ToString());
+            DateTime _dateEnd = (parametersM2In["d2"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["d2"].ToString());            
+            string _szCloudId = (parametersM2In["cid"] == null) ? "" : parametersM2In["cid"].ToString();
+            string _vehicleId = (parametersM2In["m"] == null) ? "" : parametersM2In["m"].ToString();
 
-            double _dLatitud = (parametersM2In["lt"] == null) ? 0 : Convert.ToDouble(parametersM2In["lt"], (IFormatProvider)culture.NumberFormat);//
-            double _dLongitud = (parametersM2In["lg"] == null) ? 0 : Convert.ToDouble(parametersM2In["lg"], (IFormatProvider)culture.NumberFormat);//
-            int _iSpaceId = (parametersM2In["spcid"] == null) ? 0 : Convert.ToInt32(parametersM2In["spcid"]);// 
-            string _szReference = (parametersM2In["ref"] == null) ? "0" : parametersM2In["ref"].ToString();//
+            int _operationId = (parametersM2In["o"] == null) ? -1 : Convert.ToInt32(parametersM2In["o"]);
 
-            DateTime _dtExpirDate = OPS.Comm.Dtx.StringToDtx(parametersM2In["td"].ToString());//
-            uint _ulChipCardId = Convert.ToUInt32(parametersM2In["chi"]);//
-            double _dChipCardCredit = Convert.ToDouble(parametersM2In["chc"], (IFormatProvider)culture.NumberFormat);//
-            double _quantityReal = Convert.ToDouble(parametersM2In["rq"], (IFormatProvider)culture.NumberFormat);//
-            int _quantityReturned = Convert.ToInt32(parametersM2In["qr"]);//  
-            int _binType = Convert.ToInt32(parametersM2In["bt"]);//
-            int _articleId = Convert.ToInt32(parametersM2In["a"]);//
-            int _paytypeDefIdVis = Convert.ToInt32(parametersM2In["pvis"]);//           
-            string _szCCName = parametersM2In["tm"].ToString();// 
-            string _szCCNumber = parametersM2In["tn"].ToString();//
-            string _szRechargeCCNumber = parametersM2In["rtn"].ToString();//
-            string _szRechargeCCName = parametersM2In["rtm"].ToString();//
-            string _szCCCodServ = parametersM2In["ts"].ToString();//
-            string _szCCDiscData = parametersM2In["tdd"].ToString();//
-            string _vaoCard1 = parametersM2In["vci1"].ToString();//
-            string _vaoCard2 = parametersM2In["vci2"].ToString();//
-            string _vaoCard3 = parametersM2In["vci3"].ToString();//
-            string _coid = parametersM2In["coid"].ToString();//  
-            int _ticketNumber = Convert.ToInt32(parametersM2In["tcn"]);//
+            double _dLatitud = (parametersM2In["lt"] == null) ? -999 : Convert.ToDouble(parametersM2In["lt"], (IFormatProvider)culture.NumberFormat);//
+            double _dLongitud = (parametersM2In["lg"] == null) ? -999 : Convert.ToDouble(parametersM2In["lg"], (IFormatProvider)culture.NumberFormat);//
+            int _iSpaceId = (parametersM2In["spcid"] == null) ? -1 : Convert.ToInt32(parametersM2In["spcid"]);// 
+            string _szReference = (parametersM2In["ref"] == null) ? "" : parametersM2In["ref"].ToString();//
+
+            DateTime _dtExpirDate = (parametersM2In["td"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["td"].ToString());//
+            uint _ulChipCardId = (parametersM2In["chi"] == null) ? 0 : Convert.ToUInt32(parametersM2In["chi"]);//
+            double _dChipCardCredit = (parametersM2In["chc"] == null) ? -1 : Convert.ToDouble(parametersM2In["chc"], (IFormatProvider)culture.NumberFormat);//
+            double _quantityReal = (parametersM2In["rq"] == null) ? -1 : Convert.ToDouble(parametersM2In["rq"], (IFormatProvider)culture.NumberFormat);//
+            int _quantityReturned = (parametersM2In["qr"] == null) ? -1 : Convert.ToInt32(parametersM2In["qr"]);//  
+            int _binType = (parametersM2In["bt"] == null) ? -1 : Convert.ToInt32(parametersM2In["bt"]);//
+            int _articleId = (parametersM2In["a"] == null) ? -1 : Convert.ToInt32(parametersM2In["a"]);//
+            int _paytypeDefIdVis = (parametersM2In["pvis"] == null) ? -1 : Convert.ToInt32(parametersM2In["pvis"]);//    
+            int _ticketNumber = (parametersM2In["tcm"] == null) ? -1 : Convert.ToInt32(parametersM2In["tcn"]);//
+            string _szCCName = (parametersM2In["tm"] == null) ? "" : parametersM2In["tm"].ToString();// 
+            string _szCCNumber = (parametersM2In["tn"] == null) ? "" : parametersM2In["tn"].ToString();//
+            string _szRechargeCCNumber = (parametersM2In["rtn"] == null) ? "" : parametersM2In["rtn"].ToString();//
+            string _szRechargeCCName = (parametersM2In["rtm"] == null) ? "" : parametersM2In["rtm"].ToString();//
+            string _szCCCodServ = (parametersM2In["ts"] == null) ? "" : parametersM2In["ts"].ToString();//
+            string _szCCDiscData = (parametersM2In["tdd"] == null) ? "" : parametersM2In["tdd"].ToString();//
+            string _vaoCard1 = (parametersM2In["vci1"] == null) ? "" : parametersM2In["vci1"].ToString();//
+            string _vaoCard2 = (parametersM2In["vci2"] == null) ? "" : parametersM2In["vci2"].ToString();//
+            string _vaoCard3 = (parametersM2In["vci3"] == null) ? "" : parametersM2In["vci3"].ToString();//
+            string _coid = (parametersM2In["coid"] == null) ? "" : parametersM2In["coid"].ToString();//  
+            
 
             int _nStatus = -1;
             int STATUS_INSERT = 0;
@@ -7089,185 +11569,63 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (_operationDefId == OPERATIONS_GUARD_CLOCK_IN)
                 {
-                    CmpClockInDB cmp = new CmpClockInDB();
-                    if (cmp.Insert(Convert.ToInt32(_vehicleId), _unitId, _date) < 0)
-                    {
-                        Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
-                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                    }
-                    else
-                    {
-                        Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                        //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                    }
-
+                    //CmpClockInDB cmp = new CmpClockInDB();
+                    //if (cmp.Insert(Convert.ToInt32(_vehicleId), _unitId, _date) < 0)
+                    //{
+                    //    Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                    //    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    //    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    //}
+                    //else
+                    //{
+                    //    Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                    //    //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                    //    return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    //}
+                    return OperationsCmpInsertClockIn(nContractId, tran, _mobileUserId, _unitId, _date);
                 }
                 else if ((_operationDefId == OPERATIONS_UPLOCK_OPEN) || (_operationDefId == OPERATIONS_DOWNLOCK_OPEN))
                 {
-
-                    OracleConnection oraDBConn = null;
-                    OracleCommand oraCmd = null;
-                    OracleCommand selCmd = null;
-
-                    try
-                    {
-                        Logger_AddLogMessage("[Msg02:Process]: UP OR DOWN LOCK OPENNING", LoggerSeverities.Info);
-
-                        //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                        //						logger = DatabaseFactory.Logger;
-
-                        string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
-                        if (sConn == null)
-                            throw new Exception("No ConnectionString configuration");
-
-                        oraDBConn = new OracleConnection(sConn);
-                        oraCmd = new OracleCommand();
-                        oraCmd.Connection = oraDBConn;
-                        oraCmd.Connection.Open();
-
-                        tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
-
-                        String selectUE = String.Format("select count(*) from USER_EVENTS where ue_uni_id={0} and ue_ope_id={1}", _unitId, _operationId);
-
-                        selCmd = new OracleCommand();
-                        selCmd.Connection = (OracleConnection)oraDBConn;
-                        selCmd.CommandText = selectUE;
-                        selCmd.Transaction = (OracleTransaction)tran;
-
-                        if (oraDBConn.State == System.Data.ConnectionState.Open)
-                        {
-                            int iNumRegs = Convert.ToInt32(selCmd.ExecuteScalar());
-
-                            if (iNumRegs == 0)
-                            {
-
-
-                                String updateUE = String.Format("insert into USER_EVENTS (UE_DUE_ID, UE_UNI_ID, UE_DATE, UE_USER_ID, UE_OPE_ID) values " +
-                                    "({0},{1}, to_date('{2}','hh24missddmmyy'),{3},{4})",
-                                    _operationDefId,
-                                    _unitId,
-                                    OPS.Comm.Dtx.DtxToString(_date),
-                                    _ulChipCardId,
-                                    _operationId);
-
-                                oraCmd = new OracleCommand();
-                                oraCmd.Connection = (OracleConnection)oraDBConn;
-                                oraCmd.CommandText = updateUE;
-                                oraCmd.Transaction = (OracleTransaction)tran;
-
-                                if (oraCmd.ExecuteNonQuery() != 1)
-                                {
-
-                                    if (oraCmd != null)
-                                    {
-                                        oraCmd.Dispose();
-                                        oraCmd = null;
-                                    }
-
-                                    if (selCmd != null)
-                                    {
-                                        selCmd.Dispose();
-                                        selCmd = null;
-                                    }
-
-                                    RollbackTrans(tran);
-
-                                    Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
-
-                                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (oraCmd != null)
-                            {
-                                oraCmd.Dispose();
-                                oraCmd = null;
-                            }
-
-                            if (selCmd != null)
-                            {
-                                selCmd.Dispose();
-                                selCmd = null;
-                            }
-
-                            RollbackTrans(tran);
-
-                            Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
-
-                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                        }
-
-
-                        if (oraCmd != null)
-                        {
-                            oraCmd.Dispose();
-                            oraCmd = null;
-                        }
-
-                        if (selCmd != null)
-                        {
-                            selCmd.Dispose();
-                            selCmd = null;
-                        }
-
-                        CommitTrans(tran);
-
-                        Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                        //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                    }
-                    catch (Exception exc)
-                    {
-                        if (oraCmd != null)
-                        {
-                            oraCmd.Dispose();
-                            oraCmd = null;
-                        }
-
-                        if (selCmd != null)
-                        {
-                            selCmd.Dispose();
-                            selCmd = null;
-                        }
-
-                        RollbackTrans(tran);
-
-                        Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
-                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                    }
+                    return OperationsUplockOpenDownlockOpen(nContractId, tran, _unitId, _operationId, _operationDefId, _date, _ulChipCardId);
                 }
                 else if (_operationDefId == OPERATIONS_BILLREADER_REFUNDRECEIPT)
                 {
-                    CmpBillReaderRefundsDB cmp = new CmpBillReaderRefundsDB();
-                    if (cmp.Insert(_unitId, _date, Convert.ToInt32(_quantity)) < 0)
-                    {
-                        Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
-                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                    }
-                    else
-                    {
-                        Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                        //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                    }
+                    //CmpBillReaderRefundsDB cmp = new CmpBillReaderRefundsDB();
+                    //if (cmp.Insert(_unitId, _date, Convert.ToInt32(_quantity)) < 0)
+                    //{
+                    //    Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                    //    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    //    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    //}
+                    //else
+                    //{
+                    //    Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                    //    //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                    //    return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    //}
+                    return OperationsCmpInsertBillReaderFounds(nContractId, tran, Convert.ToInt32(_quantity), _unitId, _date);
                 }
                 else
                 {
 
                     if (_groupId == -1)     // If  no group <g> passed search the 1st physical parent...
                     {
-                        _groupId = new CmpGroupsChildsDB().GetFirstPhysicalParent(_unitId);
+                        //_groupId = new CmpGroupsChildsDB().GetFirstPhysicalParent(_unitId);
+                        _groupId = GetFirstPhysicalParent(_unitId, nContractId);
                         if (_groupId == -1) // If no group found that is an error...
                         {
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
 
                     int iBinFormat = -1;
                     if (_binType == -1)
                     {
-                        CmpParametersDB cmpParam = new CmpParametersDB();
-                        string strBinFormat = cmpParam.GetParameter("P_BIN_FORMAT");
+                        //CmpParametersDB cmpParam = new CmpParametersDB();
+                        //string strBinFormat = cmpParam.GetParameter("P_BIN_FORMAT");
+                        string strBinFormat = "";
+                        GetParameter("P_BIN_FORMAT", out strBinFormat, nContractId);
                         if (strBinFormat != "")
                         {
                             iBinFormat = Convert.ToInt32(strBinFormat);
@@ -7280,16 +11638,19 @@ namespace OPSWebServicesAPI.Controllers
 
                     ILogger logger = DatabaseFactory.Logger;
                     CmpOperationsDB cmp = new CmpOperationsDB();
-                    if (!Msg07.ListaNegra(logger, _szCCNumber, iBinFormat))
+                    //if (!Msg07.ListaNegra(logger, _szCCNumber, iBinFormat))
+                    if (!Msg07ListaNegra(_szCCNumber, iBinFormat, nContractId))
                     {
-
+                        Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + _szCCNumber + " is NOT in blacklist", LoggerSeverities.Info);
                         int nNewOperationID = 0;
                         int iRealTime = -1;
                         int iQuantity = -1;
 
                         if ((_operationDefId == OPERATIONS_DEF_PARKING) || (_operationDefId == OPERATIONS_DEF_EXTENSION))
                         {
-                            GetM2CompData(_vehicleId, _groupId, _dateIni, _dateEnd, _articleDefId, _unitId, ref iRealTime, ref iQuantity);
+                            //Creo que no es necesario volver a calcular el iRealTime ya que siempre es _time
+                            //GetM2CompData(_vehicleId, _groupId, _dateIni, _dateEnd, _articleDefId, _unitId, ref iRealTime, ref iQuantity);
+                            iRealTime = _time;
                         }
                         else if (_operationDefId == OPERATIONS_DEF_REFUND)
                         {
@@ -7298,9 +11659,10 @@ namespace OPSWebServicesAPI.Controllers
                         }
 
                         /// Returns 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
-                        nInsOperRdo = cmp.InsertOperation(_operationDefId, _operationId, _articleId, _groupId, _unitId, _paytypeDefId, _date,
-                            _dateIni, _dateEnd, _time, _quantity, _vehicleId, _articleDefId, _mobileUserId, _iPostPay, _dChipCardCredit, _ulChipCardId, -1, -1, iRealTime, _quantityReturned, _onlineMessage, _ticketNumber, ref nNewOperationID, out tran);
-
+                        //nInsOperRdo = cmp.InsertOperation(_operationDefId, _operationId, _articleId, _groupId, _unitId, _paytypeDefId, _date,
+                        //    _dateIni, _dateEnd, _time, _quantity, _vehicleId, _articleDefId, _mobileUserId, _iPostPay, _dChipCardCredit, _ulChipCardId, -1, -1, iRealTime, _quantityReturned, _onlineMessage, _ticketNumber, ref nNewOperationID, out tran);
+                        nInsOperRdo = CmpInsertOperation(_operationDefId, _operationId, _articleId, _groupId, _unitId, _paytypeDefId, _date,
+                            _dateIni, _dateEnd, _time, _quantity, _vehicleId, _articleDefId, _mobileUserId, _iPostPay, _dChipCardCredit, _ulChipCardId, -1, -1, iRealTime, _quantityReturned, _onlineMessage, _ticketNumber, ref nNewOperationID, out tran, nContractId);
 
                         //if(nInsOperRdo==1)
                         //{
@@ -7326,6 +11688,7 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (_iPostPay == 1)
@@ -7341,6 +11704,7 @@ namespace OPSWebServicesAPI.Controllers
 
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateCOID(_coid, nNewOperationID, tran))
@@ -7348,6 +11712,7 @@ namespace OPSWebServicesAPI.Controllers
 
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
 
@@ -7360,17 +11725,20 @@ namespace OPSWebServicesAPI.Controllers
                                     {
                                         RollbackTrans(tran);
                                         //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                     }
                                     if (!UpdateMoneyOffDiscount(nNewOperationID, i + 1, _couponsId[i], tran))
                                     {
                                         RollbackTrans(tran);
                                         //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                     }
                                 }
                                 if (!UpdateValueVis(nNewOperationID, _quantityReal, tran))
                                 {
                                     RollbackTrans(tran);
                                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                 }
 
                             }
@@ -7379,204 +11747,53 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateReference(_szReference, nNewOperationID, tran))
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateCloudData(_mobileUserId, _szCloudId, _iOS, nNewOperationID, tran))
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateSpaceInfo(_iSpaceId, nNewOperationID, tran))
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
-                            OPS.Components.Data.CmpCreditCardDB cmpCreditCard = null;
-                            cmpCreditCard = new OPS.Components.Data.CmpCreditCardDB();
-
-                            if (cmpCreditCard == null)
+                            //Creo el método CmpCreditCard para la lógica de CreditCard
+                            //Es la misma lógica en M2 y en M4.
+                            //En M2 strOperInfo es _vehicleId
+                            //En M4 strOperInfo es fineNumber (realmente fineId) y _szRechargeCCNumber = "" y _szRechargeCCName = ""
+                            int resCreditCard = CmpCreditCard(tran, _szCCNumber, _szCCName, _unitId, nNewOperationID, _szRechargeCCNumber, _nStatus, _szRechargeCCName, _dtExpirDate, _szCCCodServ, _szCCDiscData, iBinFormat, _date, _quantity, _vehicleId);
+                            if (resCreditCard == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
                             {
-                                RollbackTrans(tran);
-                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
-                            try
-                            {
-                                if (_szCCNumber != "")
-                                {
-                                    if (logger != null)
-                                        logger.AddLog("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
 
-                                    CmpCreditCardsTransactionsDB cmpCreditCardsTransactionsDB = new CmpCreditCardsTransactionsDB();
-                                    if (_szCCNumber == "CCZ_OPERATIONID")
-                                    {
-                                        //szCCName contiene el número de transacción
-                                        //nNewOperationID
-                                        OracleConnection oraDBConn = null;
-                                        OracleCommand oraCmd = null;
-
-
-                                        //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                                        //logger = DatabaseFactory.Logger;
-                                        oraDBConn = (OracleConnection)tran.Connection;
-
-
-                                        //
-                                        string state = String.Empty;
-                                        string selectMFT = "select mft_status from mifare_transaction where MFT_UNI_TRANS_ID = " + _szCCName;
-                                        selectMFT += " and MFT_UNI_ID = " + _unitId;
-
-                                        if (oraDBConn.State == System.Data.ConnectionState.Open)
-                                        {
-                                            oraCmd = new OracleCommand();
-                                            oraCmd.Connection = (OracleConnection)oraDBConn;
-                                            oraCmd.CommandText = selectMFT;
-                                            oraCmd.Transaction = (OracleTransaction)tran;
-
-                                            OracleDataReader rd = oraCmd.ExecuteReader();
-
-                                            while (rd.Read())
-                                            {
-                                                int i = rd.GetOrdinal("MFT_STATUS");
-                                                state = (rd.GetInt32(rd.GetOrdinal("MFT_STATUS"))).ToString();
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            RollbackTrans(tran);
-                                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                        }
-
-                                        if (state == "20")
-                                        {
-                                            string updateMFT = "update mifare_transaction ";
-                                            updateMFT += "set mft_status = 30, mft_ope_id = " + nNewOperationID.ToString();
-                                            updateMFT += "  where MFT_UNI_TRANS_ID= " + _szCCName + " and MFT_UNI_ID = " + _unitId;
-
-                                            if (oraDBConn.State == System.Data.ConnectionState.Open)
-                                            {
-                                                oraCmd = new OracleCommand();
-                                                oraCmd.Connection = (OracleConnection)oraDBConn;
-                                                oraCmd.CommandText = updateMFT;
-                                                oraCmd.Transaction = (OracleTransaction)tran;
-                                                int numRowsAffected = oraCmd.ExecuteNonQuery();
-
-                                                if (numRowsAffected == 0)
-                                                {
-                                                    RollbackTrans(tran);
-                                                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                RollbackTrans(tran);
-                                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-
-                                            }
-                                        }
-                                        else
-                                        {
-                                            RollbackTrans(tran);
-                                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                        }
-
-                                        if (_szRechargeCCNumber != "")
-                                        {
-                                            Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
-                                            _nStatus = STATUS_INSERT;
-                                            if (cmpCreditCard.Insert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
-                                            {
-                                                RollbackTrans(tran);
-                                                Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
-                                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                            }
-                                            else
-                                            {
-                                                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                                            }
-                                        }
-
-
-                                    }
-                                    else if (iBinFormat == Msg07.DEF_BIN_FORMAT_EMV_TAS && _szCCNumber == "TRANSACTION_ID")
-                                    {
-                                        int iTransId = -1;
-                                        if (cmpCreditCardsTransactionsDB.InsertCommitTrans(tran, _szCCName, _date, nNewOperationID, Convert.ToInt32(_quantity), _unitId, _vehicleId, out iTransId) < 0)
-                                        {
-                                            RollbackTrans(tran);
-                                            Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
-                                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                        }
-                                        else
-                                        {
-                                            Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                                        }
-                                    }
-                                    else if (iBinFormat == Msg07.DEF_BIN_FORMAT_EMV_TAS && _szCCNumber != "TRANSACTION_ID")
-                                    {
-                                        RollbackTrans(tran);
-                                        Logger_AddLogMessage("[Msg02:Process]:TRANSACTION ID IS NOT ATTACHED", LoggerSeverities.Debug);
-                                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                    }
-                                    else
-                                    {
-                                        _nStatus = STATUS_INSERT;
-                                        if (cmpCreditCard.Insert(tran, nNewOperationID, _szCCNumber, _szCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
-                                        {
-                                            RollbackTrans(tran);
-                                            Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
-                                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                        }
-                                        else
-                                        {
-                                            Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                                        }
-                                    }
-                                }
-                                else if (_szRechargeCCNumber != "")
-                                {
-                                    Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
-                                    _nStatus = STATUS_INSERT;
-                                    if (cmpCreditCard.Insert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
-                                    {
-                                        RollbackTrans(tran);
-                                        Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
-                                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                    }
-                                    else
-                                    {
-                                        Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                                    }
-                                }
-                                else
-                                {
-                                    Logger_AddLogMessage("[Msg02:Process]: Operation WITHOUT Card Id", LoggerSeverities.Debug);
-                                }
-                            }
-                            catch (Exception exc)
-                            {
-                                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
-                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                            }
                         }
                         else if (nInsOperRdo == 1)
                         {
                             Logger_AddLogMessage("[Msg02:Process]: Operation already exists in DB", LoggerSeverities.Debug);
                             //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
                         }
                         else
                         {
                             RollbackTrans(tran);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                     else
@@ -7585,12 +11802,14 @@ namespace OPSWebServicesAPI.Controllers
                         if (!InsertFraudMsgs(_unitId, _date, _szCCNumber, _szCCName, _dtExpirDate, _vehicleId, strM2In, tran))
                         {
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                     
 
                     CommitTrans(tran);
                     //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                    return (int)AckMessage.AckTypes.ACK_PROCESSED;
                 }
 
             }
@@ -7598,8 +11817,2089 @@ namespace OPSWebServicesAPI.Controllers
             {
                 Logger_AddLogMessage("[Msg02:Process] EXCEPTION: " + e.ToString(), LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
-            return nInsOperRdo;
+        }
+
+        /// <summary>
+        /// Metodo para sustituir el proceso de pedir la información del Process de M04 vía servicio asmx (mirar Process de M04)
+        /// Devuelve un entero con el resultado codificado
+        /// </summary>
+        /// <param name="fine_id"></param>
+        /// <param name="nContractId"></param>
+        /// <returns>SortedList con la información</returns>
+        private int OPSMessage_M04Process(SortedList parametersM4In, string strM4In, int nContractId = 0)
+        {
+            System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
+            string FINES_DEF_CODES_FINE = (string)appSettings.GetValue("FinesDefCodes.Fine", typeof(string));
+            int FINES_DEF_PAYMENT = (int)appSettings.GetValue("FinesDef.Payment", typeof(int));
+            int OPERATIONS_DEF_PAYMENT = (int)appSettings.GetValue("OperationsDef.Payment", typeof(int));
+
+            int OPERATIONS_BILLREADER_REFUNDRECEIPT = 107;
+            int STATUS_INSERT = 0;
+            int _nStatus = -1;
+
+            string _fineNumber = (parametersM4In["f"] == null) ? "" : parametersM4In["f"].ToString();
+            long _lfineDef = (parametersM4In["y"] == null) ? -1 : Convert.ToInt64(parametersM4In["y"]);
+            int _paymentDefId = (parametersM4In["p"] == null) ? -1 : Convert.ToInt32(parametersM4In["p"]);
+            double _quantity = (parametersM4In["q"] == null) ? -1 : Convert.ToDouble(parametersM4In["q"]);
+            int _unitId = (parametersM4In["u"] == null) ? -1 : Convert.ToInt32(parametersM4In["u"]);
+            DateTime _date = (parametersM4In["d"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM4In["d"].ToString());
+            int _mobileUserId = (parametersM4In["mui"] == null) ? -1 : Convert.ToInt32(parametersM4In["mui"]);
+            string _szCloudId = (parametersM4In["cid"] == null) ? "" : parametersM4In["cid"].ToString();
+            int _iOS = (parametersM4In["os"] == null) ? 0 : Convert.ToInt32(parametersM4In["os"]);
+
+            //No se pasan estos parámetros por lo que siempre serán null ?????????
+            int _operationId = (parametersM4In["o"] == null) ? -1 : Convert.ToInt32(parametersM4In["o"]);
+            int _operType = (parametersM4In["ot"] == null) ? -1 : Convert.ToInt32(parametersM4In["ot"]);
+            string _szCCNumber = (parametersM4In["tn"] == null) ? "" : parametersM4In["tn"].ToString();
+            DateTime _dtExpirDate = (parametersM4In["td"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM4In["td"].ToString());
+            string _szCCName = (parametersM4In["tm"] == null) ? "" : parametersM4In["tm"].ToString();
+            string _szCCCodServ = (parametersM4In["ts"] == null) ? "" : parametersM4In["ts"].ToString();
+            string _szCCDiscData = (parametersM4In["tdd"] == null) ? "" : parametersM4In["tdd"].ToString();
+            uint _ulChipCardId = (parametersM4In["chi"] == null) ? 0 : Convert.ToUInt32(parametersM4In["chi"]);
+            double _dChipCardCredit = (parametersM4In["chc"] == null) ? -1 : Convert.ToDouble(parametersM4In["chc"]);
+            int _onlineMessage = (parametersM4In["om"] == null) ? 0 : Convert.ToInt32(parametersM4In["om"]);
+            int _ticketNumber = (parametersM4In["tcn"] == null) ? -1 : Convert.ToInt32(parametersM4In["tcn"]);
+            int _binType = (parametersM4In["bt"] == null) ? -1 : Convert.ToInt32(parametersM4In["bt"]);
+
+
+            //***** Parameters needed for FINES
+            //id is not necessary
+            //defId is FINE_TYPE_PAYMENT
+            //number is the "fineNumber" parameter (optional)
+            string vehicleId = null;
+            string model = null;
+            string manufacturer = null;
+            string colour = null;
+            int groupId = -1;
+            int streetId = -1;
+            int streetNumber = -1;
+            //date is the "date" parameter
+            string comments = null;
+            int userId = -1;
+            //unitId is the "unitId" parameter
+            //payed is TRUE
+            //int paymentDefId = -1; // Could be calculated through the "paymentDefDescShort" parameter, but is not used
+            //sent is not necessary
+            //extrasent is not necessary
+
+            //***** Parameters needed for OPERATIONS (see also parameters for FINES)
+            //quantity is the "quantity" parameter
+
+            try
+            {
+                Console.WriteLine("M04.cs:Proccess - Inicio del procesado del M04");
+                ILogger logger = null;
+                IDbTransaction tran = null;
+                logger = DatabaseFactory.Logger;
+                Logger_AddLogMessage("[Msg04:Process]", LoggerSeverities.Debug);
+
+                // this._paymentDefId == OPERATIONS_BILLREADER_REFUNDRECEIPT !!!!!!!!!!!!!!!! chapuza momentanea
+                if (_operType == OPERATIONS_BILLREADER_REFUNDRECEIPT || _paymentDefId == OPERATIONS_BILLREADER_REFUNDRECEIPT)
+                {
+
+                    //CmpBillReaderRefundsFineDB cmp = new CmpBillReaderRefundsFineDB();
+                    //if (cmp.Insert(_unitId, _date, Convert.ToInt32(_quantity), _fineNumber, _lfineDef) < 0)
+                    //{
+                    //    Logger_AddLogMessage("[Msg04:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                    //    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    //    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    //}
+                    //else
+                    //{
+                    //    Logger_AddLogMessage("[Msg04:Process]: RESULT OK", LoggerSeverities.Debug);
+                    //    //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                    //    return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    //}
+
+                    return OperationsCmpInsertBillReaderFoundsFine(nContractId, tran, Convert.ToInt32(_quantity), _unitId, _date, _fineNumber, _lfineDef);
+
+                }
+                else
+                {
+                    int iBinFormat = -1;
+                    if (_binType == -1)
+                    {
+                        //CmpParametersDB cmpParam = new CmpParametersDB();
+                        //string strBinFormat = cmpParam.GetParameter("P_BIN_FORMAT");
+                        string strBinFormat = "";
+                        GetParameter("P_BIN_FORMAT", out strBinFormat, nContractId);
+                        if (strBinFormat != "")
+                        {
+                            iBinFormat = Convert.ToInt32(strBinFormat);
+                        }
+                    }
+                    else
+                    {
+                        iBinFormat = _binType;
+                    }
+
+                    //if (!Msg07.ListaNegra(logger, _szCCNumber, iBinFormat))
+                    if (!Msg07ListaNegra(_szCCNumber, iBinFormat, nContractId))
+                    {
+                        Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + _szCCNumber + " is NOT in blacklist", LoggerSeverities.Info);
+                        // Step 1: Search for an existing fine
+                        //DataTable dt = null;
+                        //CmpFinesDB fdb = new CmpFinesDB();
+                        if (_fineNumber != null)
+                        {
+                            //Creo este método para el calculo de la FINE ya que el código comentado (viene del M04) no puede estar bien.
+                            //No puede ser: _fineNumber realmente es FIN_ID
+                            if (!CmpGetFine(_fineNumber, FINES_DEF_CODES_FINE, ref vehicleId, ref model, ref manufacturer, ref colour, ref groupId, ref streetId, ref streetNumber, ref comments, ref userId, nContractId))
+                            {
+                                Logger_AddLogMessage("[Msg04:Process]:ERROR ON SELECT FINE", LoggerSeverities.Debug);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            }
+                            Logger_AddLogMessage("[Msg04:Process]: data refs calculated", LoggerSeverities.Info);
+                            /*
+                            string sql = "SELECT * "
+                                + "FROM FINES "
+                                + "INNER JOIN FINES_DEF ON FINES.FIN_DFIN_ID = FINES_DEF.DFIN_ID "
+                                + "WHERE FIN_NUMBER = @FINES.FIN_NUMBER@ "
+                                + "AND DFIN_COD_ID = @FINES_DEF.DFIN_COD_ID@";
+                            dt = fdb.GetData(sql, new object[] { _fineNumber, FINES_DEF_CODES_FINE });
+                            if (dt.Rows.Count > 0)
+                            {
+                                vehicleId = (dt.Rows[0]["FIN_VEHICLEID"] == DBNull.Value ? null : (string)dt.Rows[0]["FIN_VEHICLEID"]);
+                                model = (dt.Rows[0]["FIN_MODEL"] == DBNull.Value ? null : (string)dt.Rows[0]["FIN_MODEL"]);
+                                manufacturer = (dt.Rows[0]["FIN_MANUFACTURER"] == DBNull.Value ? null : (string)dt.Rows[0]["FIN_MANUFACTURER"]);
+                                colour = (dt.Rows[0]["FIN_COLOUR"] == DBNull.Value ? null : (string)dt.Rows[0]["FIN_COLOUR"]);
+                                groupId = (dt.Rows[0]["FIN_GRP_ID"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["FIN_GRP_ID"]));
+                                streetId = (dt.Rows[0]["FIN_STR_ID"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["FIN_STR_ID"]));
+                                streetNumber = (dt.Rows[0]["FIN_STRNUMBER"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["FIN_STRNUMBER"]));
+                                comments = (dt.Rows[0]["FIN_COMMENTS"] == DBNull.Value ? null : (string)dt.Rows[0]["FIN_COMMENTS"]);
+                                userId = (dt.Rows[0]["FIN_USR_ID"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["FIN_USR_ID"]));
+                                //quantity = Convert.ToDouble(dt.Rows[0]["DFIN_VALUE"]);
+                            }
+                            else
+                            {
+                                CmpFinesHisDB fhdb = new CmpFinesHisDB();
+                                sql = "SELECT * "
+                                    + "FROM FINES_HIS "
+                                    + "INNER JOIN FINES_DEF ON FINES_HIS.HFIN_DFIN_ID = FINES_DEF.DFIN_ID "
+                                    + "WHERE HFIN_NUMBER = @FINES_HIS.HFIN_NUMBER@ "
+                                    + "AND DFIN_COD_ID = @FINES_DEF.DFIN_COD_ID@";
+                                dt = fhdb.GetData(sql, new object[] { _fineNumber, FINES_DEF_CODES_FINE });
+                                if (dt.Rows.Count > 0)
+                                {
+                                    vehicleId = (dt.Rows[0]["HFIN_VEHICLEID"] == DBNull.Value ? null : (string)dt.Rows[0]["HFIN_VEHICLEID"]);
+                                    model = (dt.Rows[0]["HFIN_MODEL"] == DBNull.Value ? null : (string)dt.Rows[0]["HFIN_MODEL"]);
+                                    manufacturer = (dt.Rows[0]["HFIN_MANUFACTURER"] == DBNull.Value ? null : (string)dt.Rows[0]["HFIN_MANUFACTURER"]);
+                                    colour = (dt.Rows[0]["HFIN_COLOUR"] == DBNull.Value ? null : (string)dt.Rows[0]["HFIN_COLOUR"]);
+                                    groupId = (dt.Rows[0]["HFIN_GRP_ID"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["HFIN_GRP_ID"]));
+                                    streetId = (dt.Rows[0]["HFIN_STR_ID"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["HFIN_STR_ID"]));
+                                    streetNumber = (dt.Rows[0]["HFIN_STRNUMBER"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["HFIN_STRNUMBER"]));
+                                    comments = (dt.Rows[0]["HFIN_COMMENTS"] == DBNull.Value ? null : (string)dt.Rows[0]["HFIN_COMMENTS"]);
+                                    userId = (dt.Rows[0]["HFIN_USR_ID"] == DBNull.Value ? -1 : Convert.ToInt32(dt.Rows[0]["HFIN_USR_ID"]));
+                                    //quantity = Convert.ToDouble(dt.Rows[0]["DFIN_VALUE"]);
+                                }
+                            }
+                            */
+                        }
+                        //				else
+                        //				{
+                        //					// Quantity can be calculated based on _fineDefId parameter
+                        //					CmpFinesDefDB fddb = new CmpFinesDefDB();
+                        //					DataTable fddt = fddb.GetData(null, "DFIN_DESCSHORT = @FINES_DEF.DFIN_DESCSHORT@", 
+                        //						new object[] {_fineDefDescShort});
+                        //					if (fddt.Rows.Count > 0)
+                        //						quantity = (double)fddt.Rows[0]["DFIN_VALUE"];
+                        //				}
+                        if (groupId == -1)
+                        {
+                            Logger_AddLogMessage("[Msg04:Process]: group getted in parentsList", LoggerSeverities.Info);
+                            // Get the physical groups tree and store it in parentsList
+                            //CmpGroupsChildsDB gcdb = new CmpGroupsChildsDB();
+                            //groupId = gcdb.GetFirstPhysicalParent(_unitId);
+                            groupId = GetFirstPhysicalParent(_unitId, nContractId);
+                        }
+
+                        // Step 2: Insert the payed register in the FINES table
+
+                        // ESTO NO FUNCIONA Y LO SE, LO SE ... falta la adecuación a la nueva tabla FINES
+                        /*
+						* CFE - 020705 - Elimino inserción en fines de pagos llegados por m4
+						fdb.InsertFine(FINES_DEF_PAYMENT,  vehicleId, model, manufacturer,
+							colour, groupId, groupId, streetId, streetNumber, _date, comments, userId, _unitId, _paymentDefId,-1,-1);
+						*/
+
+                        // Step 3: Insert the register in the OPERATIONS table
+                        CmpOperationsDB odb = new CmpOperationsDB();
+                        int nNewOperationID = 0;
+
+
+                        /// Returns 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
+                        //int nInsOperRdo = odb.InsertOperation(OPERATIONS_DEF_PAYMENT, _operationId, -1, groupId,
+                        //    _unitId, _paymentDefId, _date, DateTime.MinValue, DateTime.MinValue, -1, _quantity, vehicleId, -1, _mobileUserId, -1,
+                        //    _dChipCardCredit, _ulChipCardId, (_fineNumber == null ? -1 : Convert.ToDouble(_fineNumber)),
+                        //    _lfineDef, -1, -1, _onlineMessage, _ticketNumber, ref nNewOperationID, out tran);
+
+                        int nInsOperRdo = CmpInsertOperation(OPERATIONS_DEF_PAYMENT, _operationId, -1, groupId,
+                            _unitId, _paymentDefId, _date, DateTime.MinValue, DateTime.MinValue, -1, _quantity, vehicleId, -1, _mobileUserId, -1,
+                            _dChipCardCredit, _ulChipCardId, (_fineNumber == null ? -1 : Convert.ToDouble(_fineNumber)),
+                            _lfineDef, -1, -1, _onlineMessage, _ticketNumber, ref nNewOperationID, out tran, nContractId);
+
+                        // Smartcode implementation
+                        if (_fineNumber.Length <= 10)
+                        {
+                            if ((nInsOperRdo == 0) && (_fineNumber != null))
+                            {
+                                CFineManager oFineManager = new CFineManager();
+                                oFineManager.SetLogger(logger);
+                                oFineManager.SetDBTransaction(tran);
+                                oFineManager.SetFineStatus(int.Parse(_fineNumber));
+                            }
+                        }
+                        else
+                        {
+                            string sFineCode = "";
+                            for (int i = 0; i < 10; i++)
+                            {
+                                string sByte = _fineNumber.Substring(i * 2, 2);
+                                int nValue = Convert.ToInt32(sByte);
+                                char cByte = (char)nValue;
+                                sFineCode += cByte.ToString();
+                            }
+                            CFineManager oFineManager = new CFineManager();
+                            oFineManager.SetLogger(logger);
+                            oFineManager.SetDBTransaction(tran);
+                            oFineManager.UpdateOperationFineNumber(nNewOperationID, sFineCode);
+                        }
+
+                        if (nInsOperRdo == 0)
+                        {
+                            if (!UpdateCloudData(_mobileUserId, _szCloudId, _iOS, nNewOperationID, tran))
+                            {
+                                RollbackTrans(tran);
+                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            }
+
+                            //Creo el método CmpCreditCard para la lógica de CreditCard
+                            //Es la misma lógica en M2 y en M4.
+                            //En M2 strOperInfo es _vehicleId
+                            //En M4 strOperInfo es fineNumber (realmente fineId) y _szRechargeCCNumber = "" y _szRechargeCCName = ""
+                            int resCreditCard = CmpCreditCard(tran, _szCCNumber, _szCCName, _unitId, nNewOperationID, "", _nStatus, "", _dtExpirDate, _szCCCodServ, _szCCDiscData, iBinFormat, _date, _quantity, _fineNumber);
+                            if (resCreditCard == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                            {
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            }
+                        }
+                        else if (nInsOperRdo == 1)
+                        {
+                            //RollbackTrans(tran);
+                            Logger_AddLogMessage("[Msg04:Process]: Operation already exists in DB", LoggerSeverities.Debug);
+                            //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                        }
+                        else
+                        {
+                            Logger_AddLogMessage("[Msg04:Process]: nInsOperRdo = -1", LoggerSeverities.Info);
+                            RollbackTrans(tran);
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+
+                    }
+                    else
+                    {
+                        if (!InsertFraudMsgs(_unitId, _date, _szCCNumber, _szCCName, _dtExpirDate, _fineNumber, "", tran))
+                        {
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+
+                    }
+                }
+
+                CommitTrans(tran);
+                // Finished.
+                //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+            }
+            catch (Exception)
+            {
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+        }
+
+        /// <summary>
+        /// Metodo para sustituir el proceso de pedir la información del Process de M05 vía servicio asmx (mirar Process de M05)
+        /// Devuelve una SortedList con toda la información
+        /// </summary>
+        /// <param name="fine_id"></param>
+        /// <param name="nContractId"></param>
+        /// <returns>SortedList con la información</returns>
+        private SortedList OPSMessage_M05Process(string fine_id, int nContractId = 0)
+        {
+            SortedList parametersOut = new SortedList();
+
+            string FINES_DEF_CODES_FINE = ConfigurationManager.AppSettings["FinesDefCodes.Fine"].ToString();
+            // Data to include in the response
+            string responseFineNumber = fine_id;
+            int responseFineDefId = -1; // May be NULL
+            string responseVehicleId = null; // May be NULL
+            double responseQuantity = -1.0; // May be NULL
+            DateTime responseDate = DateTime.MinValue; // May be NULL
+            int responseResult = -99; // Cannot be NULL. Default result is Error generic
+            int responsePayed = 0;
+            int responseGrpId = 0;
+            bool responseIsHollyday = false;
+            string strDayCode = "";
+            // Auxiliar variables
+            int payInPdm;
+
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT FIN_DFIN_ID, "
+                            + "       FIN_VEHICLEID, "
+                            + "       FIN_DATE, "
+                            + "       fdq.DFINQ_VALUE, "
+                            + "       fd1.DFIN_PAYINPDM, "
+                            + "		  FIN_STATUSADMON, "
+                            + "		  FIN_GRP_ID_ZONE, "
+                            + "		  DDAY_CODE, "
+                            + "		  DFINQ_INI_MINUTE, "
+                            + "		  DFINQ_END_MINUTE, "
+                            //+ "       CASE WHEN (trunc(f.fin_date + 1) in (SELECT day_date FROM DAYS)) THEN 1 ELSE 0 END as IsHollyday, "
+                            + "		  trunc((CURRENT_DATE - f.fin_date) * 24 * 60) ELAPSED_MINUTES  "
+                            + " FROM DAYS_DEF dd, FINES f "
+                            + " INNER JOIN FINES_DEF fd1 ON f.FIN_DFIN_ID = fd1.DFIN_ID, FINES_DEF fd2 "
+                            + " INNER JOIN FINES_DEF_QUANTITY fdq ON fd2.DFIN_ID = fdq.DFINQ_ID "
+                            + " WHERE FIN_ID = " + fine_id + " and fd1.dfin_pay_dday_id=dday_id "
+                            + "   AND fd1.DFIN_COD_ID = 1 "
+                            + "   and fd1.dfin_id = fd2.dfin_id "
+                            + "   and f.fin_date >= fdq.dfinq_inidate "
+                            + "   and f.fin_date < fdq.dfinq_endate");
+
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    bool bExit = false;
+                    while (dataReader.Read() && !bExit)
+                    {
+                        responseResult = 0;
+
+                        responseFineDefId = dataReader.GetInt32(0);// "FIN_DFIN_ID"
+                        responseVehicleId = dataReader.GetString(1);// "FIN_VEHICLEID"
+                        responseQuantity = dataReader.GetDouble(3);//"DFINQ_VALUE"
+                        responseDate = dataReader.GetDateTime(2);//"FIN_DATE"
+                        payInPdm = dataReader.GetInt32(4);//"DFIN_PAYINPDM"
+                        responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
+                        strDayCode = dataReader.GetString(7);//"DDAY_CODE"
+
+                        if (dataReader.GetInt32(5) != CFineManager.C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                        {
+                            responsePayed = 1;
+                        }
+
+
+                        int iFinQIniMinute = dataReader.GetInt32(8);//"DFINQ_INI_MINUTE"
+                        int iFinQEndMinute = dataReader.GetInt32(9);//"DFINQ_END_MINUTE"
+                        int iElapsedMinutes = dataReader.GetInt32(10);//"ELAPSED_MINUTES"
+
+                        //responseIsHollyday = dataReader.GetBoolean(10);//IsHollyday
+
+
+                        //CFineManager oFineManager = new CFineManager();
+                        //bool bFinePaymentInTime = oFineManager.IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode);
+
+                        bool bFinePaymentInTime = IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode, nContractId);
+
+                        if (payInPdm == 0)
+                        {
+                            responseResult = -1;
+                            bExit = true;
+                        }
+                        else if (bFinePaymentInTime)
+                        {
+                            if ((iElapsedMinutes > iFinQIniMinute) && (iElapsedMinutes <= iFinQEndMinute))
+                            {
+                                responseResult = 1;
+                                bExit = true;
+                            }
+                            else
+                            {
+                                responseResult = -2;
+                            }
+                        }
+                        else
+                        {
+                            responseResult = -2;
+                            bExit = true;
+                        }
+                    }
+                }
+                else
+                {
+                    //todavía no existe la multa
+                    // existe alguna operación de pago de la misma
+
+                    strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                    oraCmd.CommandText = strSQL;
+
+                    if (dataReader != null)
+                    {
+                        dataReader.Close();
+                        dataReader.Dispose();
+                    }
+
+                    dataReader = oraCmd.ExecuteReader();
+
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        if (dataReader.GetInt32(0) > 0)
+                            responsePayed = 1;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("CheckMobileUserName::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+            parametersOut.Add("r", responseResult);//1
+            parametersOut.Add("f", responseFineNumber);//20999998
+            parametersOut.Add("y", responseFineDefId);//1
+            parametersOut.Add("m", responseVehicleId);//1234GTK
+            parametersOut.Add("q", responseQuantity);//320
+            parametersOut.Add("d", responseDate);//114516060521
+            parametersOut.Add("g", responseGrpId);//60002
+            parametersOut.Add("p", responsePayed);//0
+
+            return parametersOut;
+        }
+
+        //Es la misma lógica en M2 y en M4.
+        //En M2 strOperInfo es _vehicleId
+        //En M4 strOperInfo es fineNumber (realmente fineId) y _szRechargeCCNumber = "" y _szRechargeCCName = ""
+        //Si hay que implementarla sería similar a CmpInsertOperation para el INSERT de CREDIT_CARD y el SELECT de mifare_transaction
+        private int CmpCreditCard(IDbTransaction tran, string _szCCNumber, string _szCCName, int _unitId, int nNewOperationID, string _szRechargeCCNumber, int _nStatus, string _szRechargeCCName, DateTime _dtExpirDate,string _szCCCodServ, string _szCCDiscData, int iBinFormat, DateTime _date, double _quantity, string strOperInfo)
+        {
+            int STATUS_INSERT = 0;
+            OPS.Components.Data.CmpCreditCardDB cmpCreditCard = null;
+            cmpCreditCard = new OPS.Components.Data.CmpCreditCardDB();
+
+            if (cmpCreditCard == null)
+            {
+                RollbackTrans(tran);
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+
+            try
+            {
+                if (_szCCNumber != "")
+                {
+                    Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
+
+                    CmpCreditCardsTransactionsDB cmpCreditCardsTransactionsDB = new CmpCreditCardsTransactionsDB();
+                    if (_szCCNumber == "CCZ_OPERATIONID")
+                    {
+                        //szCCName contiene el número de transacción
+                        //nNewOperationID
+                        OracleConnection oraDBConn = null;
+                        OracleCommand oraCmd = null;
+
+
+                        //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                        //logger = DatabaseFactory.Logger;
+                        oraDBConn = (OracleConnection)tran.Connection;
+
+
+                        //
+                        string state = String.Empty;
+                        string selectMFT = "select mft_status from mifare_transaction where MFT_UNI_TRANS_ID = " + _szCCName;
+                        selectMFT += " and MFT_UNI_ID = " + _unitId;
+
+                        if (oraDBConn.State == System.Data.ConnectionState.Open)
+                        {
+                            oraCmd = new OracleCommand();
+                            oraCmd.Connection = (OracleConnection)oraDBConn;
+                            oraCmd.CommandText = selectMFT;
+                            oraCmd.Transaction = (OracleTransaction)tran;
+
+                            OracleDataReader rd = oraCmd.ExecuteReader();
+
+                            while (rd.Read())
+                            {
+                                int i = rd.GetOrdinal("MFT_STATUS");
+                                state = (rd.GetInt32(rd.GetOrdinal("MFT_STATUS"))).ToString();
+                            }
+
+                        }
+                        else
+                        {
+                            RollbackTrans(tran);
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+
+                        if (state == "20")
+                        {
+                            string updateMFT = "update mifare_transaction ";
+                            updateMFT += "set mft_status = 30, mft_ope_id = " + nNewOperationID.ToString();
+                            updateMFT += "  where MFT_UNI_TRANS_ID= " + _szCCName + " and MFT_UNI_ID = " + _unitId;
+
+                            if (oraDBConn.State == System.Data.ConnectionState.Open)
+                            {
+                                oraCmd = new OracleCommand();
+                                oraCmd.Connection = (OracleConnection)oraDBConn;
+                                oraCmd.CommandText = updateMFT;
+                                oraCmd.Transaction = (OracleTransaction)tran;
+                                int numRowsAffected = oraCmd.ExecuteNonQuery();
+
+                                if (numRowsAffected == 0)
+                                {
+                                    RollbackTrans(tran);
+                                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                }
+                            }
+                            else
+                            {
+                                RollbackTrans(tran);
+                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+
+                            }
+                        }
+                        else
+                        {
+                            RollbackTrans(tran);
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+
+                        if (_szRechargeCCNumber != "")
+                        {
+                            Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
+                            _nStatus = STATUS_INSERT;
+                            if (cmpCreditCard.Insert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
+                            {
+                                RollbackTrans(tran);
+                                Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            }
+                            else
+                            {
+                                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                            }
+                        }
+
+                        return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    }
+                    else if (iBinFormat == Msg07.DEF_BIN_FORMAT_EMV_TAS && _szCCNumber == "TRANSACTION_ID")
+                    {
+                        int iTransId = -1;
+                        if (cmpCreditCardsTransactionsDB.InsertCommitTrans(tran, _szCCName, _date, nNewOperationID, Convert.ToInt32(_quantity), _unitId, strOperInfo, out iTransId) < 0)
+                        {
+                            RollbackTrans(tran);
+                            Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+                        else
+                        {
+                            Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                        }
+                    }
+                    else if (iBinFormat == Msg07.DEF_BIN_FORMAT_EMV_TAS && _szCCNumber != "TRANSACTION_ID")
+                    {
+                        RollbackTrans(tran);
+                        Logger_AddLogMessage("[Msg02:Process]:TRANSACTION ID IS NOT ATTACHED", LoggerSeverities.Debug);
+                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    }
+                    else
+                    {
+                        _nStatus = STATUS_INSERT;
+                        if (cmpCreditCard.Insert(tran, nNewOperationID, _szCCNumber, _szCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
+                        {
+                            RollbackTrans(tran);
+                            Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+                        else
+                        {
+                            Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                        }
+                    }
+                }
+                else if (_szRechargeCCNumber != "")
+                {
+                    Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
+                    _nStatus = STATUS_INSERT;
+                    if (cmpCreditCard.Insert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
+                    {
+                        RollbackTrans(tran);
+                        Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                        //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    }
+                    else
+                    {
+                        Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                        return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    }
+                }
+                else
+                {
+                    Logger_AddLogMessage("[Msg02:Process]: Operation WITHOUT Card Id", LoggerSeverities.Debug);
+                    return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new register in the OPERATIONS table.
+        /// Returns 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
+        /// </summary>
+        /// <param name="dopeid">OPE_DOPE_ID value. Cannot be NULL</param>
+        /// <param name="opeopeid">OPE_OPE_ID value. -1 for NULL</param>
+        /// <param name="artid">OPE_ART_ID value. -1 for NULL</param>
+        /// <param name="grpid">OPE_GRP_ID value. Cannot be NULL</param>
+        /// <param name="uniid">OPE_UNI_ID value. Cannot be NULL</param>
+        /// <param name="dpayid">OPE_DPAY_ID value. -1 for NULL</param>
+        /// <param name="mov">OPE_MOVDATE value. DateTime.MinValue for NULL</param>
+        /// <param name="ini">OPE_INIDATE value. DateTime.MinValue for NULL</param>
+        /// <param name="end">OPE_ENDDATE value. DateTime.MinValue for NULL</param>
+        /// <param name="duration">OPE_DURATION value. -1 for NULL</param>
+        /// <param name="quantity">OPE_VALUE value. -1 for NULL</param>
+        /// <param name="vehicleid">OPE_VEHICLEID value. May be NULL</param>
+        /// <param name="dartid">OPE_DART_ID</param>
+        /// <param name="mobileUserId">OPE_MOBI_USER_ID</param>
+        /// <param name="postpay">OPE_POST_PAY</param>
+        /// <param name="dChipCardCredit">OPE_CHIPCARD_CREDIT</param>
+        /// <param name="ulChipCardId">OPE_CHIPCARD_ID</param>
+        /// <param name="lFineNumber">OPE_FIN_ID</param>
+        /// <param name="lFineType">OPE_FIN_DFIN_ID</param>
+        /// <param name="iRealDuration">OPE_REALDURATION</param>
+        /// <param name="quantityReturned">OPE_VALUE_IN_RETURN</param>
+        /// <param name="iOpOnLine">OPE_OP_ONLINE</param>
+        /// <param name="iTicketNumber">OPE_TICKETNUM</param>
+        /// <param name="nNewOperationsDB">new operatioin ID if any</param>
+        /// <param name="tran">trnasaction</param>
+        /// <param name="nContractId">village</param>
+        /// <returns></returns>
+        private int CmpInsertOperation(int dopeid, int opeopeid, int artid, int grpid, int uniid, int dpayid, DateTime mov,
+            DateTime ini, DateTime end, int duration, double quantity, string vehicleid, int dartid, int mobileUserId,
+            int postpay, double dChipCardCredit, ulong ulChipCardId, double lFineNumber, long lFineType, int iRealDuration,
+            int quantityReturned, int iOpOnLine, int iTicketNumber, ref int nNewOperationsDB, out IDbTransaction tran, int nContractId)
+        {
+
+            tran = null;
+            int nRdo = 1;
+            if (CmpExistsOperation(dopeid, opeopeid, artid, grpid, uniid, dpayid, mov,
+                ini, end, duration, quantity, vehicleid, nContractId))
+                return 1;
+
+            nNewOperationsDB = 0;
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[Msg02:Process]: INSERT OPERATION", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select SEQ_OPERATIONS.NEXTVAL FROM DUAL");
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                selCmd.CommandText = selectUE;
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    nNewOperationsDB = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (nNewOperationsDB > 0)
+                    {
+                        //to_date(NVL('{7}',to_char(SYSDATE,'DD/MM/YYYY HH24:MI:SS')), 'DD/MM/YYYY HH24:MI:SS')
+                        String updateUE = String.Format("INSERT INTO OPERATIONS " +
+                            "(OPE_ID, OPE_DOPE_ID, OPE_OPE_ID, OPE_ART_ID, OPE_GRP_ID, OPE_UNI_ID, OPE_DPAY_ID, OPE_MOVDATE, OPE_INIDATE, OPE_ENDDATE, " +
+                            "OPE_DURATION, OPE_VALUE, OPE_VEHICLEID, OPE_DART_ID, OPE_MOBI_USER_ID, OPE_POST_PAY, OPE_CHIPCARD_ID, OPE_CHIPCARD_CREDIT, " +
+                            "OPE_FIN_ID, OPE_FIN_DFIN_ID, OPE_REALDURATION, OPE_VALUE_IN_RETURN, OPE_OP_ONLINE, OPE_TICKETNUM) " +
+                            " VALUES ({0},{1},{2},{3},{4},{5},{6},to_date('{7}', 'DD/MM/YYYY HH24:MI:SS'),to_date('{8}', 'DD/MM/YYYY HH24:MI:SS'),to_date('{9}', 'DD/MM/YYYY HH24:MI:SS')," +
+                            "{10},{11},'{12}',{13},{14},{15},{16},{17}," +
+                            "{18},{19},{20},{21},{22},{23}) ",
+                            nNewOperationsDB, dopeid, (opeopeid == -1 ? ("NULL") : (object)opeopeid), (artid == -1 ? ("NULL") : (object)artid), grpid, uniid, (dpayid == -1 ? ("NULL") : (object)dpayid), (mov == DateTime.MinValue ? DBNull.Value : (object)mov), (ini == DateTime.MinValue ? DBNull.Value : (object)ini), (end == DateTime.MinValue ? DBNull.Value : (object)end),
+                            (duration == -1 ? ("NULL") : (object)duration), (quantity == -1 ? ("NULL") : (object)quantity), (vehicleid == null ? ("NULL") : (object)vehicleid), (dartid == -1 ? ("NULL") : (object)dartid), (mobileUserId == -1 ? ("NULL") : (object)mobileUserId), (postpay == -1 ? ("NULL") : (object)postpay), (ulChipCardId == 0 ? ("NULL") : (object)ulChipCardId), (dChipCardCredit == -1 ? ("NULL") : (object)dChipCardCredit),
+                            (lFineNumber == -1 ? ("NULL") : (object)lFineNumber), (lFineType == -1 ? ("NULL") : (object)lFineType), (iRealDuration == -1 ? ("NULL") : (object)iRealDuration), (quantityReturned == -1 ? ("NULL") : (object)quantityReturned), (iOpOnLine == -1 ? ("NULL") : (object)iOpOnLine), (iTicketNumber == -1 ? ("NULL") : (object)iTicketNumber));
+
+                        oraCmd = new OracleCommand();
+                        oraCmd.Connection = (OracleConnection)oraDBConn;
+                        oraCmd.CommandText = updateUE;
+                        oraCmd.Transaction = (OracleTransaction)tran;
+
+                        Logger_AddLogMessage("[Msg02:Process]: SQL: " + updateUE, LoggerSeverities.Info);
+
+                        if (oraCmd.ExecuteNonQuery() != 1)
+                        {
+
+                            if (oraCmd != null)
+                            {
+                                oraCmd.Dispose();
+                                oraCmd = null;
+                            }
+
+                            if (selCmd != null)
+                            {
+                                selCmd.Dispose();
+                                selCmd = null;
+                            }
+
+                            //RollbackTrans(tran);
+
+                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                            return -1;
+                        }
+                    }
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    //RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    return -1;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                //CommitTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+
+                return 0;
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                //RollbackTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Verifies if an operation exists in the OPERATIONS table.
+        /// </summary>
+        /// <param name="dopeid">OPE_DOPE_ID value. -1 for NULL</param>
+        /// <param name="opeopeid">OPE_OPE_ID value. -1 for NULL</param>
+        /// <param name="artid">OPE_ART_ID value. -1 for NULL</param>
+        /// <param name="grpid">OPE_GRP_ID value. -1 for NULL</param>
+        /// <param name="uniid">OPE_UNI_ID value. -1 for NULL</param>
+        /// <param name="dpayid">OPE_DPAY_ID value. -1 for NULL</param>
+        /// <param name="mov">OPE_MOVDATE value. DateTime.MinValue for NULL</param>
+        /// <param name="ini">OPE_INIDATE value. DateTime.MinValue for NULL</param>
+        /// <param name="end">OPE_ENDDATE value. DateTime.MinValue for NULL</param>
+        /// <param name="duration">OPE_DURATION value. -1 for NULL</param>
+        /// <param name="quantity">OPE_VALUE value. -1 for NULL</param>
+        /// <param name="vehicleid">OPE_VEHICLEID value. May be NULL</param>
+        /// <param name="nContractId">municipio</param>
+        private bool CmpExistsOperation(int dopeid, int opeopeid, int artid, int grpid, int uniid, int dpayid, DateTime mov,
+            DateTime ini, DateTime end, int duration, double quantity, string vehicleid, int nContractId)
+        {
+            bool bExists = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format(" SELECT COUNT(*) FROM OPERATIONS " +
+                    "WHERE OPE_DOPE_ID = {0} AND OPE_OPE_ID = {1} AND OPE_ART_ID = {2} AND OPE_GRP_ID = {3} AND OPE_UNI_ID = {4} AND OPE_DPAY_ID = {5}" +
+                    " AND OPE_MOVDATE = to_date('{6}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_INIDATE = to_date('{7}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_ENDDATE = to_date('{8}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_DURATION = {9} AND OPE_VALUE = {10} AND OPE_VEHICLEID = '{11}'",
+                    dopeid, opeopeid, artid, grpid, uniid, dpayid, mov, 
+                    ini, end, duration, quantity, vehicleid);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    int numOp = dataReader.GetInt32(0);
+                    if (numOp > 0)
+                        bExists = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("CheckApplicationVersion::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bExists;
+        }
+
+        private bool CmpGetFine(string fineNumber, string fineDefCode, ref string vehicleId, ref string model, ref string manufacturer,
+            ref string colour, ref int groupId, ref int streetId, ref int streetNumber, ref string comments, ref int userId, int nContractId)
+        {
+
+            bool bExists = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT FIN_VEHICLEID, FIN_MODEL, FIN_MANUFACTURER, FIN_COLOUR, FIN_GRP_ID, FIN_STR_ID, FIN_STRNUMBER, FIN_COMMENTS, FIN_USR_ID "
+                    + "FROM FINES "
+                    + "INNER JOIN FINES_DEF ON FINES.FIN_DFIN_ID = FINES_DEF.DFIN_ID "
+                    + "WHERE FIN_ID = {0} "
+                    + "AND DFIN_COD_ID = {1}", fineNumber, fineDefCode);
+
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    if (dataReader.Read())
+                    {
+                        vehicleId = dataReader.IsDBNull(0) ? "" : dataReader.GetString(0);// "FIN_VEHICLEID"
+                        model = dataReader.IsDBNull(1) ? "" : dataReader.GetString(1);// "FIN_MODEL"
+                        manufacturer = dataReader.IsDBNull(2) ? "" : dataReader.GetString(2);// "FIN_MANUFACTURER"
+                        colour = dataReader.IsDBNull(3) ? "" : dataReader.GetString(3);// "FIN_COLOUR"
+                        groupId = dataReader.IsDBNull(4) ? -1 : dataReader.GetInt32(4);// "FIN_GRP_ID"
+                        streetId = dataReader.IsDBNull(5) ? -1 : dataReader.GetInt32(5);// "FIN_STR_ID"
+                        streetNumber = dataReader.IsDBNull(6) ? -1 : dataReader.GetInt32(6);// "FIN_STRNUMBER"
+                        comments = dataReader.IsDBNull(7) ? "" : dataReader.GetString(7);// "FIN_COMMENTS"
+                        userId = dataReader.IsDBNull(8) ? -1 : dataReader.GetInt32(8);// "FIN_USR_ID"
+                        bExists = true;
+                    }
+                }
+                else
+                {
+                    strSQL = string.Format("SELECT FIN_VEHICLEID, FIN_MODEL, FIN_MANUFACTURER, FIN_COLOUR, FIN_GRP_ID, FIN_STR_ID, FIN_STRNUMBER, FIN_COMMENTS, FIN_USR_ID "
+                        + "FROM FINES_HIS "
+                        + "INNER JOIN FINES_DEF ON FINES_HIS.HFIN_DFIN_ID = FINES_DEF.DFIN_ID "
+                        + "WHERE HFIN_ID = {0} "
+                        + "AND DFIN_COD_ID = {1}", fineNumber, fineDefCode);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        if (dataReader.Read())
+                        {
+                            vehicleId = dataReader.GetString(0);// "FIN_VEHICLEID"
+                            model = dataReader.GetString(1);// "FIN_MODEL"
+                            manufacturer = dataReader.GetString(2);// "FIN_MANUFACTURER"
+                            colour = dataReader.GetString(3);// "FIN_COLOUR"
+                            groupId = dataReader.GetInt32(4);// "FIN_GRP_ID"
+                            streetId = dataReader.GetInt32(5);// "FIN_STR_ID"
+                            streetNumber = dataReader.GetInt32(6);// "FIN_STRNUMBER"
+                            comments = dataReader.GetString(7);// "FIN_COMMENTS"
+                            userId = dataReader.GetInt32(8);// "FIN_USR_ID"
+                            bExists = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("CheckApplicationVersion::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bExists;
+        }
+
+        private bool Msg07ListaNegra(string szCCNumber, int iBinFormat, int nContractId)
+        {
+            int nResult = -1;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = String.Format("select count(*) " +
+                                "from  blacklist_cards b " +
+                                "where b.bc_number = '{0}' ", szCCNumber);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nResult = dataReader.GetInt32(0);
+                    if (nResult > 0)
+                    {
+                        Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + szCCNumber + " is in blacklist", LoggerSeverities.Debug);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("Msg07ListaNegra::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return (nResult > 0);
+        }
+
+        private bool GetOperationGroup(long lOperId, ref int iGroupId, int nContractId = 0)
+        {
+            bool bResult = true;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            iGroupId = -1;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT OPE_GRP_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        iGroupId = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetOperationGroup::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetOperationArticle(long lOperId, ref int iArticle, int nContractId = 0)
+        {
+            bool bResult = true;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            iArticle = -1;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT OPE_DART_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        iArticle = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetOperationArticle::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetFirstVirtualUnit(ref int nVirtualUnit, int nContractId = 0)
+        {
+            nVirtualUnit = -1;
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+
+                string strSQL = "SELECT NVL(GVU_UNI_ID,-1) FROM GROUP_VIRTUAL_UNIT ORDER BY GVU_UNI_ID";
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nVirtualUnit = dataReader.GetInt32(0);
+                    bResult = true;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetFirstVirtualUnit::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+
+
+            }
+
+            return bResult;
+        }
+
+        private bool GetSpaceIdOperation(long lOperId, ref long lSpaceId, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            lSpaceId = -1;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT OPE_PS_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        lSpaceId = dataReader.GetInt64(0);
+                    if (lSpaceId > 0)
+                        bResult = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetSpaceIdOperation::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private int GetFirstPhysicalParent(int uniid, int nContractId)
+        {
+            int firstChild = -1;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("select CGRP_ID FROM  GROUPS_CHILDS INNER JOIN GROUPS  ON CGRP_ID = GRP_ID  INNER JOIN GROUPS_DEF " +
+                    "ON GRP_DGRP_ID = DGRP_ID WHERE CGRP_CHILD = {0} AND DGRP_PHYORDER IS NOT NULL ORDER BY CGRP_ORDER ASC", uniid);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    firstChild = dataReader.Read() ? dataReader.GetInt32(0) : -1;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("CheckApplicationVersion::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return firstChild;
+        }
+
+        private int OperationsCmpInsertBillReaderFoundsFine(int nContractId, IDbTransaction tran, int iValue, int iUniID, DateTime dtDate, string sFineNumber, long lFineDef)
+        {
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[Msg02:Process]: BILLREADER_REFUNDSFINE", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select count(*) from BILLREADER_REFUNDSFINE where RBILLF_UNI_ID={0} and RBILLF_DATE=to_date('{1}','hh24missddmmyy')", iUniID, OPS.Comm.Dtx.DtxToString(dtDate));
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                selCmd.CommandText = selectUE;
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    int iNumRegs = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (iNumRegs == 0)
+                    {
+
+                        String updateUE = String.Format(" INSERT INTO BILLREADER_REFUNDSFINE (RBILLF_UNI_ID, RBILLF_DATE, RBILLF_VALUE, RBILLF_FIN_ID, RBILLF_DFIN_ID) " +
+                        " VALUES ({0},to_date('{1}','hh24missddmmyy'),{2},{3},{4}) ", iUniID, dtDate, iValue, sFineNumber, lFineDef);
+
+                        oraCmd = new OracleCommand();
+                        oraCmd.Connection = (OracleConnection)oraDBConn;
+                        oraCmd.CommandText = updateUE;
+                        oraCmd.Transaction = (OracleTransaction)tran;
+
+                        if (oraCmd.ExecuteNonQuery() != 1)
+                        {
+
+                            if (oraCmd != null)
+                            {
+                                oraCmd.Dispose();
+                                oraCmd = null;
+                            }
+
+                            if (selCmd != null)
+                            {
+                                selCmd.Dispose();
+                                selCmd = null;
+                            }
+
+                            RollbackTrans(tran);
+
+                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+                    }
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                CommitTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                RollbackTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+        }
+
+        private int OperationsCmpInsertBillReaderFounds(int nContractId, IDbTransaction tran, int iValue, int iUniID, DateTime dtDate)
+        {
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[Msg02:Process]: BILLREADER_REFUNDS", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select count(*) from BILLREADER_REFUNDS where RBILL_UNI_ID={0} and RBILL_DATE=to_date('{1}','hh24missddmmyy')", iUniID, OPS.Comm.Dtx.DtxToString(dtDate));
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                selCmd.CommandText = selectUE;
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    int iNumRegs = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (iNumRegs == 0)
+                    {
+
+                        String updateUE = String.Format(" INSERT INTO BILLREADER_REFUNDS (RBILL_UNI_ID, RBILL_DATE, RBILL_VALUE) " +
+                        " VALUES ({0},{1},{2}) ", iUniID, dtDate, iValue);
+
+                        oraCmd = new OracleCommand();
+                        oraCmd.Connection = (OracleConnection)oraDBConn;
+                        oraCmd.CommandText = updateUE;
+                        oraCmd.Transaction = (OracleTransaction)tran;
+
+                        if (oraCmd.ExecuteNonQuery() != 1)
+                        {
+
+                            if (oraCmd != null)
+                            {
+                                oraCmd.Dispose();
+                                oraCmd = null;
+                            }
+
+                            if (selCmd != null)
+                            {
+                                selCmd.Dispose();
+                                selCmd = null;
+                            }
+
+                            RollbackTrans(tran);
+
+                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+                    }
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                CommitTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                RollbackTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+        }
+
+        private int OperationsCmpInsertClockIn(int nContractId, IDbTransaction tran, int iUserID, int iUniID, DateTime dtDate)
+        {
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[Msg02:Process]: CLOCK_IN", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select count(*) from clock_in where ci_usr_id={0} and ci_date=to_date('{1}','hh24missddmmyy')", iUserID, OPS.Comm.Dtx.DtxToString(dtDate));
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                selCmd.CommandText = selectUE;
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    int iNumRegs = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (iNumRegs == 0)
+                    {
+
+
+                        String updateUE = String.Format(" INSERT INTO CLOCK_IN (CI_USR_ID, CI_UNI_ID, CI_DATE) " +
+                        " VALUES ({0},{1},{2}) ", iUserID, iUniID, dtDate);
+
+                        oraCmd = new OracleCommand();
+                        oraCmd.Connection = (OracleConnection)oraDBConn;
+                        oraCmd.CommandText = updateUE;
+                        oraCmd.Transaction = (OracleTransaction)tran;
+
+                        if (oraCmd.ExecuteNonQuery() != 1)
+                        {
+
+                            if (oraCmd != null)
+                            {
+                                oraCmd.Dispose();
+                                oraCmd = null;
+                            }
+
+                            if (selCmd != null)
+                            {
+                                selCmd.Dispose();
+                                selCmd = null;
+                            }
+
+                            RollbackTrans(tran);
+
+                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+                    }
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                CommitTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                RollbackTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+        }
+
+        private int OperationsUplockOpenDownlockOpen(int nContractId, IDbTransaction tran, int _unitId, int _operationId, int _operationDefId, DateTime _date, uint _ulChipCardId)
+        {
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[Msg02:Process]: UP OR DOWN LOCK OPENNING", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select count(*) from USER_EVENTS where ue_uni_id={0} and ue_ope_id={1}", _unitId, _operationId);
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                selCmd.CommandText = selectUE;
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    int iNumRegs = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (iNumRegs == 0)
+                    {
+
+
+                        String updateUE = String.Format("insert into USER_EVENTS (UE_DUE_ID, UE_UNI_ID, UE_DATE, UE_USER_ID, UE_OPE_ID) values " +
+                            "({0},{1}, to_date('{2}','hh24missddmmyy'),{3},{4})",
+                            _operationDefId,
+                            _unitId,
+                            OPS.Comm.Dtx.DtxToString(_date),
+                            _ulChipCardId,
+                            _operationId);
+
+                        oraCmd = new OracleCommand();
+                        oraCmd.Connection = (OracleConnection)oraDBConn;
+                        oraCmd.CommandText = updateUE;
+                        oraCmd.Transaction = (OracleTransaction)tran;
+
+                        if (oraCmd.ExecuteNonQuery() != 1)
+                        {
+
+                            if (oraCmd != null)
+                            {
+                                oraCmd.Dispose();
+                                oraCmd = null;
+                            }
+
+                            if (selCmd != null)
+                            {
+                                selCmd.Dispose();
+                                selCmd = null;
+                            }
+
+                            RollbackTrans(tran);
+
+                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                            //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        }
+                    }
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
+                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                CommitTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
+                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                RollbackTrans(tran);
+
+                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
+                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
         }
 
         private bool GetM2CompData(string _vehicleId, int _groupId, DateTime _dateIni, DateTime _dateEnd, int _articleDefId, int _unitId, ref int iResRealTime, ref int iResQuantity)
@@ -8560,7 +14860,7 @@ namespace OPSWebServicesAPI.Controllers
         /// <param name="strDayCode"></param>
         /// <param name="nContractId"></param>
         /// <returns>devuelve si es pagable o no</returns>
-        public bool IsFinePaymentInTime(DateTime dtFineDatetime, DateTime dtOpePaymentDateTime, int iTimeForPayment, string strDayCode, int nContractId)
+        private bool IsFinePaymentInTime(DateTime dtFineDatetime, DateTime dtOpePaymentDateTime, int iTimeForPayment, string strDayCode, int nContractId)
         {
             bool bReturn = false;
 
@@ -8770,11 +15070,155 @@ namespace OPSWebServicesAPI.Controllers
             return nMobileUserId;
         }
 
-        public TokenValidationResult DefaultVerification(string encodedTokenFromWebPage)
+        private TokenValidationResult DefaultVerification(string encodedTokenFromWebPage)
         {
             var jot = new JotProvider();
 
             return jot.Validate(encodedTokenFromWebPage);
+        }
+
+        private int IsResident(string strPlate, int nContractId = 0)
+        {
+            int nResult = -1;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT COUNT(*) FROM RESIDENTS WHERE RES_VEHICLEID = '{0}'", strPlate);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nResult = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("IsResident::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return nResult;
+        }
+
+        private int IsVip(string strPlate, int nContractId = 0)
+        {
+            int nResult = -1;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT COUNT(*) FROM VIPS WHERE VIP_VEHICLEID = '{0}'", strPlate);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nResult = dataReader.GetInt32(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("IsVip::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return nResult;
         }
 
         private int GetMobileUserCredit(int nMobileUserId, ref int nCredit, int nContractId = 0)
@@ -9590,6 +16034,265 @@ namespace OPSWebServicesAPI.Controllers
             return nSpaceId;
         }
 
+        private bool DetermineAvailableTariffs(int nRotGroup, int nResGroup, int nRotExtension, int nCurGroup, bool bIsResident, bool bIsVip, ref SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+
+            try
+            {
+                parametersOut = new SortedList();
+                string strGroupList = "";
+                string strArticlesList = "";
+
+                if (nRotGroup == -1 && nResGroup == -1)     // No parking
+                {
+                    if (nCurGroup > 0)
+                        strGroupList = nCurGroup.ToString();
+
+                    if (bIsVip)
+                    {
+                        // Even though considered VIP, still offer the possibility to park as rotation
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.Vip"].ToString();
+                    }
+                    else if (bIsResident)
+                    {
+                        // Even though considered resident, still offer the possibility to park as rotation
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                    }
+                    else
+                    {
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                    }
+                }
+                else if (nRotGroup != -1 && nResGroup == -1)    // Only Rotation parking
+                {
+                    strGroupList = nRotGroup.ToString();
+                    if (bIsVip)
+                    {
+                        // Even though considered VIP, still offer the possibility to park as rotation
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.Vip"].ToString();
+                    }
+                    else
+                    {
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                    }
+                }
+                else if (nRotGroup == -1 && nResGroup != -1)    // Only Resident parking
+                {
+                    strGroupList = nResGroup.ToString();
+                    if (bIsResident)
+                    {
+                        // Even though considered resident, still offer the possibility to park as rotation
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                    }
+                    else
+                    {
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                    }
+                }
+                else     // Both Rotation and Resident parking
+                {
+                    strGroupList = nRotGroup.ToString() + ", " + nResGroup.ToString();
+                    if (bIsVip)
+                    {
+                        // Even though considered VIP, still offer the possibility to park as rotation
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.Vip"].ToString();
+                    }
+                    else if (bIsResident)
+                    {
+                        // Even though considered resident, still offer the possibility to park as rotation
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                    }
+                    else
+                    {
+                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                    }
+                }
+
+                if (GetAvailableTariffData(strGroupList, strArticlesList, ref parametersOut, nContractId))
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("DetermineAvailableTariffs::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return bResult;
+        }
+        private bool GetAvailableTariffData(ref SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            string strWhereList = "";
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                int nIndex = 0;
+                foreach (string strValue in parametersOut.Values)
+                {
+                    if (nIndex++ > 0)
+                        strWhereList += ", ";
+
+                    strWhereList += strValue;
+                }
+                parametersOut.Clear();
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT MAT_ID, MAT_DESC, MAT_DART_ID, MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_ID IN ({0})", strWhereList);
+                oraCmd.CommandText = strSQL;
+
+                nIndex = 1;
+                dataReader = oraCmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    parametersOut["tarid" + nIndex.ToString()] = dataReader.GetInt32(0).ToString();
+                    parametersOut["tardesc" + nIndex.ToString()] = dataReader.GetString(1);
+                    parametersOut["tarad" + nIndex.ToString()] = dataReader.GetInt32(2).ToString();
+                    parametersOut["tarrfd" + nIndex.ToString()] = dataReader.GetInt32(3).ToString();
+                    nIndex++;
+                }
+
+                if (parametersOut.Count > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetAvailableTariffData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetAvailableTariffData(string strGroupList, string strArticleList, ref SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                parametersOut.Clear();
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT MAT_ID, MAT_DESC, MAT_DART_ID, MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_DART_ID IN ({0})", strArticleList);
+                if (strGroupList.Length > 0)
+                    strSQL += string.Format(" AND MAT_GRP_ID IN ({0})", strGroupList);
+                oraCmd.CommandText = strSQL;
+
+                int nIndex = 1;
+                dataReader = oraCmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    parametersOut["tarid" + nIndex.ToString()] = dataReader.GetInt32(0).ToString();
+                    parametersOut["tardesc" + nIndex.ToString()] = dataReader.GetString(1);
+                    parametersOut["tarad" + nIndex.ToString()] = dataReader.GetInt32(2).ToString();
+                    parametersOut["tarrfd" + nIndex.ToString()] = dataReader.GetInt32(3).ToString();
+                    nIndex++;
+                }
+
+                if (parametersOut.Count > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetAvailableTariffData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
         private bool UpdateOperationData(SortedList ParametersIn, out long lOperId, int nContractId = 0)
         {
             bool bResult = false;
@@ -9813,7 +16516,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="dt">DateTime to convert</param>
         /// <returns>string in OPS-dtx format</returns>
-        public string DtxToString(DateTime dt)
+        private string DtxToString(DateTime dt)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(dt.Hour.ToString("D2"));

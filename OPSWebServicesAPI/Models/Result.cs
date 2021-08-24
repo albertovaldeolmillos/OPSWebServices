@@ -94,4 +94,30 @@ namespace OPSWebServicesAPI.Models
     {
         public string value { get; set; }
     }
+
+    public class ResultParkingConfirmInfo : Result
+    {
+        public string value { get; set; }
+    }
+
+    public class ResultUnParkingQueryInfo : Result
+    {
+        public UnParkingQueryInfo value { get; set; }
+    }
+
+    public class ResultUnParkingConfirmInfo : Result
+    {
+        public string value { get; set; }
+    }
+
+    public class ResultParkingStatusInfo : Result
+    {
+        public ParkingStatusInfo value { get; set; }
+    }
+
+    public class ResultFinePaymentConfirmInfo : Result
+    {
+        public string value { get; set; }
+    }
+    
 }

@@ -199,8 +199,15 @@
     <Compile Include="Models\Contract.cs" />
     <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\FinePaymentConfirmQuery.cs" />
+    <Compile Include="Models\ParkingConfirmQuery.cs" />
     <Compile Include="Models\ParkingMoneyInfo.cs" />
     <Compile Include="Models\ParkingMoneyQuery.cs" />
+    <Compile Include="Models\ParkingStatusInfo.cs" />
+    <Compile Include="Models\ParkingStatusQuery.cs" />
+    <Compile Include="Models\ParkingStatusResidentInfo.cs" />
+    <Compile Include="Models\ParkingStatusRotationInfo.cs" />
+    <Compile Include="Models\ParkingStatusTariffInfo.cs" />
     <Compile Include="Models\ParkingStepsInfo.cs" />
     <Compile Include="Models\ParkingStepsQuery.cs" />
     <Compile Include="Models\ParkingTimeInfo.cs" />
@@ -210,6 +217,9 @@
     <Compile Include="Models\Step.cs" />
     <Compile Include="Models\StreetsInfo.cs" />
     <Compile Include="Models\StreetsQuery.cs" />
+    <Compile Include="Models\UnParkingConfirmQuery.cs" />
+    <Compile Include="Models\UnParkingQuery.cs" />
+    <Compile Include="Models\UnParkingQueryInfo.cs" />
     <Compile Include="Models\UserChangePassword.cs" />
     <Compile Include="Models\UserLogin.cs" />
     <Compile Include="Models\Notification.cs" />
