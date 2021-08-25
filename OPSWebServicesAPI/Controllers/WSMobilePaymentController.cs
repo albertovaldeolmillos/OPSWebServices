@@ -3628,7 +3628,7 @@ namespace OPSWebServicesAPI.Controllers
                 string strZoneColor = "673AB7";
                 string strSectorColor = "673AB7";
 
-                Logger_AddLogMessage(string.Format("QueryParkingStatusXML: xmlIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI: xmlIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
 
                 parametersOutRot = new SortedList();
                 parametersOutRes = new SortedList();
@@ -3645,7 +3645,7 @@ namespace OPSWebServicesAPI.Controllers
                         parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - missing input parameter: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - missing input parameter: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                         response.isSuccess = false;
                         response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
@@ -3671,7 +3671,7 @@ namespace OPSWebServicesAPI.Controllers
                             parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - incorrect hash: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - incorrect hash: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                             response.isSuccess = false;
                             response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
@@ -3699,7 +3699,7 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
                                 response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
@@ -3707,7 +3707,7 @@ namespace OPSWebServicesAPI.Controllers
                                 return response;
                             }
                             else
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
 
                             // Determine if token is valid
                             TokenValidationResult tokenResult = DefaultVerification(strToken);
@@ -3717,7 +3717,7 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
                                 response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
@@ -3738,7 +3738,7 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting last rotation operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting last rotation operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
                                 response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
@@ -3746,7 +3746,7 @@ namespace OPSWebServicesAPI.Controllers
                                 return response;
                             }
 
-                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::RotOperId={0}", lRotOperId), LoggerSeverities.Info);
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::RotOperId={0}", lRotOperId), LoggerSeverities.Info);
 
                             if (lRotOperId < 0)
                             {
@@ -3775,7 +3775,7 @@ namespace OPSWebServicesAPI.Controllers
                                 else
                                 {
                                     rt = ResultType.Result_Error_Generic;
-                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting operation info: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting operation info: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
                                     response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -3791,7 +3791,7 @@ namespace OPSWebServicesAPI.Controllers
                                         if (iVirtualUnit < 0)
                                         {
                                             rt = ResultType.Result_Error_Invalid_Input_Parameter;
-                                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                             response.isSuccess = false;
                                             response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
                                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
@@ -3801,7 +3801,7 @@ namespace OPSWebServicesAPI.Controllers
                                     else
                                     {
                                         rt = ResultType.Result_Error_Invalid_Input_Parameter;
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                         response.isSuccess = false;
                                         response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
                                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
@@ -3906,7 +3906,7 @@ namespace OPSWebServicesAPI.Controllers
                                         parametersOutRot.Clear();
                                     parametersOutRot["r"] = Convert.ToInt32(rt).ToString();
                                     xmlOut = GenerateXMLErrorResult(rt);
-                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - M1 returned error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - M1 returned error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                                     response.isSuccess = false;
                                     response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -3921,7 +3921,7 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting last resident operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting last resident operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
                                 response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
@@ -3929,7 +3929,7 @@ namespace OPSWebServicesAPI.Controllers
                                 return response;
                             }
 
-                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::ResOperId={0}", lResOperId), LoggerSeverities.Error);
+                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::ResOperId={0}", lResOperId), LoggerSeverities.Error);
 
                             if (lResOperId < 0)
                             {
@@ -3961,7 +3961,7 @@ namespace OPSWebServicesAPI.Controllers
                                         if (iVirtualUnit < 0)
                                         {
                                             rt = ResultType.Result_Error_Invalid_Input_Parameter;
-                                            Logger_AddLogMessage(string.Format("QueryParkingStatusXML::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                             response.isSuccess = false;
                                             response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
                                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
@@ -3971,7 +3971,7 @@ namespace OPSWebServicesAPI.Controllers
                                     else
                                     {
                                         rt = ResultType.Result_Error_Invalid_Input_Parameter;
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                         response.isSuccess = false;
                                         response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
                                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
@@ -4074,7 +4074,7 @@ namespace OPSWebServicesAPI.Controllers
                                         parametersOutRes.Clear();
                                     parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
                                     xmlOut = GenerateXMLErrorResult(rt);
-                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error - M1 returned error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - M1 returned error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                                     response.isSuccess = false;
                                     response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -4109,7 +4109,7 @@ namespace OPSWebServicesAPI.Controllers
                                     parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error getting available tariffs: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting available tariffs: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                                     response.isSuccess = false;
                                     response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -4132,7 +4132,7 @@ namespace OPSWebServicesAPI.Controllers
                                         parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                         parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                         xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error generating XML output: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error generating XML output: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                                         response.isSuccess = false;
                                         response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -4140,14 +4140,14 @@ namespace OPSWebServicesAPI.Controllers
                                     }
                                     else
                                     {
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusXML: xmlOut= {0}", xmlOut), LoggerSeverities.Info);
+                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI: parametersOutRot={0}, parametersOutRes={1}, parametersOutAvtar={2}", SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Info);
                                     }
                                 }
                             }
                             else
                             {
                                 xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                                 response.isSuccess = false;
                                 response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -4161,7 +4161,7 @@ namespace OPSWebServicesAPI.Controllers
                     parametersOutRot["r"] = Convert.ToInt32(rt).ToString();
                     parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
                     xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                    Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error parsing input parameters: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error parsing input parameters: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                     response.isSuccess = false;
                     response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -4177,7 +4177,7 @@ namespace OPSWebServicesAPI.Controllers
                 parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                Logger_AddLogMessage(string.Format("QueryParkingStatusXML::Error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
                 response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
