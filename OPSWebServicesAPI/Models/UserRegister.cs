@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -62,16 +63,19 @@ namespace OPSWebServicesAPI.Models
         /// (*) Username
         /// </summary>
         [DisplayName("un")]
+        [Required]
         public string userName { get; set; }
         /// <summary>
         /// (*) password
         /// </summary>
         [DisplayName("pw")]
+        [Required]
         public string password { get; set; }
         /// <summary>
         /// (*) First Surname
         /// </summary>
         [DisplayName("fs")]
+        [Required]
         public string firstSurname { get; set; }
         /// <summary>
         /// Second Surname
@@ -82,21 +86,25 @@ namespace OPSWebServicesAPI.Models
         /// (*) Contract ID
         /// </summary>
         [DisplayName("contid")]
+        [Required]
         public string contractId { get; set; }
         /// <summary>
         /// (*) E-Mail
         /// </summary>
         [DisplayName("em")]
+        [Required]
         public string email { get; set; }
         /// <summary>
         /// (*) Main Mobile Phone
         /// </summary>
         [DisplayName("mmp")]
+        [Required]
         public string mainMobilePhone { get; set; }
         /// <summary>
         /// (*) Names
         /// </summary>
         [DisplayName("na")]
+        [Required]
         public string names { get; set; }
         /// <summary>
         /// NIF, NIE or CIF
@@ -107,11 +115,13 @@ namespace OPSWebServicesAPI.Models
         /// (*) Notifications
         /// </summary>
         [DisplayName("notifications")]
+        [Required]
         public Notification notifications { get; set; }
         /// <summary>
         /// (*) Plates
         /// </summary>
         [DisplayName("plates")]
+        [Required]
         public Plate[] plates { get; set; }
         /// <summary>
         /// Mobile user founds

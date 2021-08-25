@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OPSWebServicesAPI.Models
 {
@@ -11,6 +12,7 @@ namespace OPSWebServicesAPI.Models
         /// (*) Contract ID
         /// </summary>
         [DisplayName("contid")]
+        [Required]
         public string contractId { get; set; }
     }
 }

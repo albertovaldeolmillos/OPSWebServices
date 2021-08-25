@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -75,26 +76,31 @@ namespace OPSWebServicesAPI.Models
         /// (*) E-Mail
         /// </summary>
         [DisplayName("em")]
+        [Required]
         public string email { get; set; }
         /// <summary>
         /// (*) First Surname
         /// </summary>
         [DisplayName("fs")]
+        [Required]
         public string firstSurname { get; set; }
         /// <summary>
         /// (*) Main Mobile Phone
         /// </summary>
         [DisplayName("mmp")]
+        [Required]
         public string mainMobilePhone { get; set; }
         /// <summary>
         /// (*) Mobile user Id (authorization token)
         /// </summary>
         [DisplayName("mui")]
+        [Required]
         public string authorizationToken { get; set; }
         /// <summary>
         /// (*) Names
         /// </summary>
         [DisplayName("na")]
+        [Required]
         public string names { get; set; }
         /// <summary>
         /// NIF, NIE or CIF
@@ -105,6 +111,7 @@ namespace OPSWebServicesAPI.Models
         /// (*) Notifications
         /// </summary>
         [DisplayName("notifications")]
+        [Required]
         public Notification notifications { get; set; }
         /// <summary>
         /// Operative System (1: Android, 2: iOS)
@@ -115,6 +122,7 @@ namespace OPSWebServicesAPI.Models
         /// (*) Plates
         /// </summary>
         [DisplayName("plates")]
+        [Required]
         public Plate[] plates { get; set; }
         /// <summary>
         /// Second Surname

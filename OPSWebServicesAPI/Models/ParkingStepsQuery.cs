@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OPSWebServicesAPI.Models
 {
@@ -11,16 +12,19 @@ namespace OPSWebServicesAPI.Models
         /// (*) Contract ID
         /// </summary>
         [DisplayName("contid")]
+        [Required]
         public string contractId { get; set; }
         /// <summary>
         /// (*) Plate
         /// </summary>
         [DisplayName("p")]
+        [Required]
         public string plate { get; set; }
         /// <summary>
         /// (*) Sector
         /// </summary>
         [DisplayName("g")]
+        [Required]
         public string sector { get; set; }
         /// <summary>
         /// Date in format hh24missddMMYY

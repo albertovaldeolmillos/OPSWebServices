@@ -4533,6 +4533,40 @@ namespace OPSWebServicesAPI.Controllers
                             else
                             {
                                 Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                switch (iRes) {
+                                    case (int)ResultType.Result_Error_FineNumberAlreadyPayed:
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_FineNumberAlreadyPayed, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_FineNumberAlreadyPayed).ToString();
+                                        return response;
+                                    case (int)ResultType.Result_Error_FineNumberNotFound:
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_FineNumberNotFound, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_FineNumberNotFound).ToString();
+                                        return response;
+                                    case (int)ResultType.Result_Error_FineNumberFoundButNotPayable:
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_FineNumberFoundButNotPayable, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_FineNumberFoundButNotPayable).ToString();
+                                        return response;
+                                    case (int)ResultType.Result_Error_FineNumberFoundButTimeExpired:
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_FineNumberFoundButTimeExpired, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_FineNumberFoundButTimeExpired).ToString();
+                                        return response;
+                                    case (int)ResultType.Result_Error_OPS_Error:
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
+                                        return response;
+                                    case (int)ResultType.Result_Error_Generic:
+                                    default:
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        return response;
+                                }
+             
                             }
 
                         }
