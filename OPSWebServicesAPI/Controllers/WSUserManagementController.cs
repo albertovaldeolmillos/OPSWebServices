@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,6 +18,8 @@ using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Xml;
 using AutoMapper;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Jot;
 using Newtonsoft.Json;
 using OPS.Comm;
@@ -1149,8 +1152,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
@@ -1187,11 +1189,11 @@ namespace OPSWebServicesAPI.Controllers
                         {
                             // Determine contract ID if any
                             int nContractId = 0;
-                            if (parametersIn["contid"] != null)
-                            {
-                                if (parametersIn["contid"].ToString().Trim().Length > 0)
-                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
-                            }
+                            //if (parametersIn["contid"] != null)
+                            //{
+                            //    if (parametersIn["contid"].ToString().Trim().Length > 0)
+                            //        nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            //}
                             // Set Contract Id to 0 to force all user queries to use the global users connection
                             nContractId = 0;
 
@@ -2152,6 +2154,696 @@ namespace OPSWebServicesAPI.Controllers
             response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
             response.value = nMobileUserId +"";
             return response;
+        }
+
+        /*
+         * The parameters of method QueryUserCreditXML are:
+
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <mui>Mobile user id (authorization token)</mui>
+                    <ah>authentication hash</ah> - *This parameter is optional
+	            </arinpark_in>
+
+            b.	Result: is an integer with the next possible values:
+                a.	>0: Credit total expressed in Euro cents
+                b.	-1: Invalid authentication hash
+                c.	-9: Generic Error (for example database or execution error.)
+                d.	-10: Invalid input parameter
+                e.	-11: Missing input parameter
+                f.	-12: OPS System error
+                g.	-20: User not found.
+
+         */
+
+        /// <summary>
+        /// return user credit in euro cents
+        /// </summary>
+        /// <param name="userQuery">Object UserQuery with authorizationToken to request</param>
+        /// <returns>
+        ///>0: Credit total expressed in Euro cents 
+        ///-1: Invalid authentication hash
+        ///-9: Generic Error (for example database or execution error.)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-20: Mobile user not found
+        /// </returns>
+        [HttpPost]
+        [Route("QueryUserCreditAPI")]
+        public ResultCreditUserInfo QueryUserCreditAPI([FromBody] UserQuery userQuery)
+        {
+            int iRes = 0;
+
+            ResultCreditUserInfo response = new ResultCreditUserInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UserQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(userQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUserCreditAPI: xmlIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Bad hash: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            //if (parametersIn["contid"] != null)
+                            //{
+                            //    if (parametersIn["contid"].ToString().Trim().Length > 0)
+                            //        nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            //}
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            int nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUserCreditAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get user credit
+                            iRes = GetUserCredit(Convert.ToInt32(parametersIn["mui"]), nContractId);
+                            if (iRes < 0)
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Could not obtain user credit: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                //return iRes;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(rt).ToString();
+                    return response;
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.value = iRes + "";
+            return response;
+
+            //return iRes;
+        }
+
+        /*
+         The parameters of method RechargeUserCreditXML are:
+
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <mui>Mobile user id (authorization token)</mui>
+                    <am>Amount (expressed in Euro cents)</am>
+                    <cid>Cloud ID. ID used in official notification clouds<cid>
+                    <os>Operative System (1: Android, 2: iOS)</os>
+                    <sim>Simulate Sermepa response (0 = false, 1 = true) *Optional and only for testing
+                    <ah>authentication hash</ah> - *This parameter is optional	            
+                </arinpark_in>
+
+
+            b.	b.	Result: is also a string containing an xml with the result of the method:
+                <arinpark_out>
+                    <r>Result of the method</r>
+                    <or>Order ID</or>
+                    <mu>Notification URL for payment gateway response</mu>
+                </arinpark_out>
+
+                The tag <r> of the method will have these possible values:
+                    a.	1: Data come after this tag
+                    b.	-1: Invalid authentication hash
+                    c.	-9: Generic Error (for example database or execution error.)
+                    d.	-10: Invalid input parameter
+                    e.	-11: Missing input parameter
+                    f.	-12: OPS System error
+                    g.	-20: User not found.
+         */
+
+        /// <summary>
+        /// return information for user recharge credit
+        /// </summary>
+        /// <param name="userRechargeQuery">Object UserRechargeQuery with amount and user information</param>
+        /// <returns>
+        ///1: User recharge credit information
+        ///-1: Invalid authentication hash
+        ///-9: Generic Error (for example database or execution error)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-20: User not found.
+        /// </returns>
+        [HttpPost]
+        [Route("RechargeUserCreditAPI")]
+        public ResultUserRechargeInfo RechargeUserCreditAPI([FromBody] UserRechargeQuery userRechargeQuery)
+        {
+            //string xmlOut = "";
+
+            ResultUserRechargeInfo response = new ResultUserRechargeInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UserRechargeQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(userRechargeQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                //SortedList parametersOut = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
+                        (parametersIn["am"] == null || (parametersIn["am"].ToString().Length == 0)) ||
+                        (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0)) ||
+                        (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Bad hash: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_InvalidAuthenticationHash"), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            int nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Obtain transaction data
+                            if (!GetTransactionData(parametersIn["mui"].ToString(), Convert.ToInt32(parametersIn["am"]), out parametersOut, nContractId))
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Could not obtain transaction data: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            // Update cloud information
+                            if (!UpdateWebCredentials(Convert.ToInt32(parametersIn["mui"]), parametersIn["cid"].ToString(), Convert.ToInt32(parametersIn["os"]), nContractId))
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Could not update web credentials: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            //xmlOut = GenerateXMLOuput(parametersOut);
+
+                            if (parametersIn["sim"] != null)
+                            {
+                                if (Convert.ToInt32(parametersIn["sim"]) == 1)
+                                    SimulateResponse(parametersOut["or"].ToString(), parametersIn["mui"].ToString(), Convert.ToInt32(parametersIn["am"]), nContractId);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: parametersIn= {0}, error={1}", SortedListToString(parametersIn), rt.ToString()), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(rt).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+
+            UserRechargeInfo userRechargeInfo = new UserRechargeInfo();
+            ConfigMapModel configMapModel = new ConfigMapModel();
+
+            var config = configMapModel.configUserRecharge();
+            IMapper iMapper = config.CreateMapper();
+            userRechargeInfo = iMapper.Map<SortedList, UserRechargeInfo>((SortedList)parametersOut);
+
+            response.value = userRechargeInfo;
+            return response;
+
+            //return xmlOut;
+        }
+
+        /*
+         * The parameters of method QueryUserReportXML are:
+
+        a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <mui>Mobile user id (authorization token)</mui>
+                <d1>Report start date (Format: hh24missddMMYY)</d1>
+                <d2>Report end date (Format: hh24missddMMYY)</d2>
+                <ots>Filter. List of Operation types 
+                    <ot>(1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing)</ot>
+                    …
+                    <ot>(1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing)</ot>
+                </ots>
+                <mail>User email</mail>
+                <rfmt>Report Format (1: PDF, something else?)</rfmt>
+                <ah>authentication hash</ah> - *This parameter is optional
+	        </arinpark_in>
+
+        b.	Result: is an integer with the next possible values:<<
+            a.	1: saved without errors
+            b.	-1: Invalid authentication hash
+            c.	-9: Generic Error (for example database or execution error.)
+            d.	-10: Invalid input parameter
+            e.	-11: Missing input parameter
+            f.	-12: OPS System error
+            g.	-20: Mobile user id not found
+
+         */
+
+        /// <summary>
+        /// return report with user operations information
+        /// </summary>
+        /// <param name="userReportQuery">Object UserReportQuery with dates and user information to request</param>
+        /// <returns>
+        ///1: saved without errors
+        ///-1: Invalid authentication hash
+        ///-9: Generic Error (for example database or execution error)
+        ///-10: Invalid input parameter
+        ///-11: Missing input parameter
+        ///-12: OPS System error
+        ///-20: User not found.
+        /// </returns>
+        [HttpPost]
+        [Route("QueryUserReportAPI")]
+        public ResultUserReportInfo QueryUserReportAPI([FromBody] UserReportQuery userReportQuery)
+        {
+            int iRes = 0;
+
+            ResultUserReportInfo response = new ResultUserReportInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(UserReportQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(userReportQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                SortedList parametersReport = new SortedList();
+                SortedList parametersUser = null;
+                SortedList operationList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUserReportAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
+                        (parametersIn["d1"] == null || (parametersIn["d1"].ToString().Length == 0)) ||
+                        (parametersIn["d2"] == null || (parametersIn["d2"].ToString().Length == 0)) ||
+                        (parametersIn["mail"] == null || (parametersIn["mail"].ToString().Length == 0)) ||
+                        (parametersIn["rfmt"] == null || (parametersIn["rfmt"].ToString().Length == 0)) ||
+                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Bad hash: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // *** TEMP - For testing purposes
+                            int nMobileUserId = 0;
+                            if (strToken.Length < 10)
+                            {
+                                nMobileUserId = Convert.ToInt32(strToken);
+                            }
+                            else
+                            {
+                                // Try to obtain user from token
+                                // Send contract Id as 0 so that it uses the global users connection
+                                nMobileUserId = GetUserFromToken(strToken, 0);
+
+                                if (nMobileUserId <= 0)
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                    //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                    return response;
+                                }
+                                else
+                                    Logger_AddLogMessage(string.Format("QueryUserReportAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                                // Determine if token is valid
+                                TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                                if (tokenResult != TokenValidationResult.Passed)
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                    //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                    return response;
+                                }
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get parking data for assigned plates
+                            string strContractList = ConfigurationManager.AppSettings["ContractList"].ToString();
+                            if (strContractList.Length == 0)
+                                strContractList = "0," + parametersIn["contid"].ToString();
+                            if (!GetUserOperationReportData(parametersIn, DATE_FORMAT_RANGE, out operationList, strContractList))
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Could not obtain operation data: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                //return iRes;
+                                response.isSuccess = false;
+                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            if (operationList.Count >= 0)
+                            {
+                                parametersReport["mui"] = parametersIn["mui"];
+                                parametersReport["d1"] = parametersIn["d1"];
+                                parametersReport["d2"] = parametersIn["d2"];
+                                parametersReport["oper"] = operationList;
+
+                                string strCif = "";
+                                GetCIF(out strCif, nContractId);
+                                if (strCif.Length > 0)
+                                    parametersReport["cif"] = "CIF: " + strCif;
+                                else
+                                    parametersReport["cif"] = " ";
+
+                                // Obtain user data for report
+                                // Send contract Id as 0 so that it uses the global users connection
+                                GetUserData(Convert.ToInt32(parametersReport["mui"].ToString()), out parametersUser, 0);
+
+                                // Generate report file
+                                string strFilePath = ConfigurationManager.AppSettings["ReportPath"].ToString() + ConfigurationManager.AppSettings["ReportFilePrefix"].ToString() + parametersReport["mui"] + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
+                                if (GeneratePDF(parametersReport, parametersUser, strFilePath))
+                                {
+                                    if (!SendEmail(parametersIn["mail"].ToString(), strFilePath))
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Error sending email: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                        //return iRes;
+                                        response.isSuccess = false;
+                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                        return response;
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Error generating PDF: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                    //return iRes;
+                                    response.isSuccess = false;
+                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUserReportAPI::No operations were found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                            iRes = Convert.ToInt32(ResultType.Result_OK);
+                        }
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(rt).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.value = iRes + "";
+            return response;
+
+            //return iRes;
         }
 
         /*
@@ -3645,6 +4337,500 @@ namespace OPSWebServicesAPI.Controllers
         }
         */
 
+        /*
+         * The parameters of method QueryUserCreditXML are:
+
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <mui>Mobile user id (authorization token)</mui>
+                    <ah>authentication hash</ah> - *This parameter is optional
+	            </arinpark_in>
+
+            b.	Result: is an integer with the next possible values:
+                a.	>0: Credit total expressed in Euro cents
+                b.	-1: Invalid authentication hash
+                c.	-9: Generic Error (for example database or execution error.)
+                d.	-10: Invalid input parameter
+                e.	-11: Missing input parameter
+                f.	-12: OPS System error
+                g.	-20: User not found.
+
+         */
+
+        /*
+        [HttpPost]
+        [Route("QueryUserCreditXML")]
+        public int QueryUserCreditXML(string xmlIn)
+        {
+            int iRes = 0;
+            try
+            {
+                SortedList parametersIn = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUserCreditXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null) ||
+                        (parametersIn["mui"].ToString().Length == 0) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error - Missing parameter: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error - Bad hash: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            int nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUserCreditXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get user credit
+                            iRes = GetUserCredit(Convert.ToInt32(parametersIn["mui"]), nContractId);
+                            if (iRes < 0)
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error - Could not obtain user credit: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                return iRes;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                }
+
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUserCreditXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return iRes;
+        }
+        */
+
+        /*
+         The parameters of method RechargeUserCreditXML are:
+
+            a.	xmlIn: xml containing input parameters of the method:
+                <arinpark_in>
+                    <mui>Mobile user id (authorization token)</mui>
+                    <am>Amount (expressed in Euro cents)</am>
+                    <cid>Cloud ID. ID used in official notification clouds<cid>
+                    <os>Operative System (1: Android, 2: iOS)</os>
+                    <sim>Simulate Sermepa response (0 = false, 1 = true) *Optional and only for testing
+                    <ah>authentication hash</ah> - *This parameter is optional	            
+                </arinpark_in>
+
+
+            b.	b.	Result: is also a string containing an xml with the result of the method:
+                <arinpark_out>
+                    <r>Result of the method</r>
+                    <or>Order ID</or>
+                    <mu>Notification URL for payment gateway response</mu>
+                </arinpark_out>
+
+                The tag <r> of the method will have these possible values:
+                    a.	1: Data come after this tag
+                    b.	-1: Invalid authentication hash
+                    c.	-9: Generic Error (for example database or execution error.)
+                    d.	-10: Invalid input parameter
+                    e.	-11: Missing input parameter
+                    f.	-12: OPS System error
+                    g.	-20: User not found.
+         */
+
+        /*
+        [HttpPost]
+        [Route("RechargeUserCreditXML")]
+        public string RechargeUserCreditXML(string xmlIn)
+        {
+            string xmlOut = "";
+
+            try
+            {
+                SortedList parametersIn = null;
+                SortedList parametersOut = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("RechargeUserCreditXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0) ||
+                        parametersIn["am"] == null ||
+                        parametersIn["cid"] == null ||
+                        parametersIn["os"] == null ||
+                        parametersIn["contid"] == null)
+                    {
+                        xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error - Missing parameter: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error - Bad hash: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+                            // Set Contract Id to 0 to force all user queries to use the global users connection
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            int nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Obtain transaction data
+                            if (!GetTransactionData(parametersIn["mui"].ToString(), Convert.ToInt32(parametersIn["am"]), out parametersOut, nContractId))
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error - Could not obtain transaction data: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            // Update cloud information
+                            if (!UpdateWebCredentials(Convert.ToInt32(parametersIn["mui"]), parametersIn["cid"].ToString(), Convert.ToInt32(parametersIn["os"]), nContractId))
+                            {
+                                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error - Could not update web credentials: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                                return xmlOut;
+                            }
+
+                            parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            xmlOut = GenerateXMLOuput(parametersOut);
+
+                            if (parametersIn["sim"] != null)
+                            {
+                                if (Convert.ToInt32(parametersIn["sim"]) == 1)
+                                    SimulateResponse(parametersOut["or"].ToString(), parametersIn["mui"].ToString(), Convert.ToInt32(parametersIn["am"]), nContractId);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("RechargeUserCreditXML::Error: xmlIn= {0}, xmlOut={1}", xmlIn, xmlOut), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return xmlOut;
+        }
+        */
+
+        /*
+         * The parameters of method QueryUserReportXML are:
+
+        a.	xmlIn: xml containing input parameters of the method:
+            <arinpark_in>
+                <mui>Mobile user id (authorization token)</mui>
+                <d1>Report start date (Format: hh24missddMMYY)</d1>
+                <d2>Report end date (Format: hh24missddMMYY)</d2>
+                <ots>Filter. List of Operation types 
+                    <ot>(1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing)</ot>
+                    …
+                    <ot>(1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing)</ot>
+                </ots>
+                <mail>User email</mail>
+                <rfmt>Report Format (1: PDF, something else?)</rfmt>
+                <ah>authentication hash</ah> - *This parameter is optional
+	        </arinpark_in>
+
+        b.	Result: is an integer with the next possible values:<<
+            a.	1: saved without errors
+            b.	-1: Invalid authentication hash
+            c.	-9: Generic Error (for example database or execution error.)
+            d.	-10: Invalid input parameter
+            e.	-11: Missing input parameter
+            f.	-12: OPS System error
+            g.	-20: Mobile user id not found
+
+         */
+
+        /*
+        [HttpPost]
+        [Route("QueryUserReportXML")]
+        public int QueryUserReportXML(string xmlIn)
+        {
+            int iRes = 0;
+
+            try
+            {
+                SortedList parametersIn = null;
+                SortedList parametersReport = new SortedList();
+                SortedList parametersUser = null;
+                SortedList operationList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("QueryUserReportXML: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParameters(xmlIn, out parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
+                        (parametersIn["d1"] == null) ||
+                        (parametersIn["d2"] == null) ||
+                        (parametersIn["mail"] == null) ||
+                        (parametersIn["rfmt"] == null) ||
+                        (parametersIn["contid"] == null))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Missing parameter: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Bad hash: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            if (parametersIn["contid"] != null)
+                            {
+                                if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                    nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // *** TEMP - For testing purposes
+                            int nMobileUserId = 0;
+                            if (strToken.Length < 10)
+                            {
+                                nMobileUserId = Convert.ToInt32(strToken);
+                            }
+                            else
+                            {
+                                // Try to obtain user from token
+                                // Send contract Id as 0 so that it uses the global users connection
+                                nMobileUserId = GetUserFromToken(strToken, 0);
+
+                                if (nMobileUserId <= 0)
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Could not obtain user from token: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                    return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                }
+                                else
+                                    Logger_AddLogMessage(string.Format("QueryUserReportXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                                // Determine if token is valid
+                                TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                                if (tokenResult != TokenValidationResult.Passed)
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Token not valid: xmlIn= {0}", xmlIn), LoggerSeverities.Error);
+                                    return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
+                                }
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get parking data for assigned plates
+                            string strContractList = ConfigurationManager.AppSettings["ContractList"].ToString();
+                            if (strContractList.Length == 0)
+                                strContractList = "0," + parametersIn["contid"].ToString();
+                            if (!GetUserOperationReportData(parametersIn, DATE_FORMAT_RANGE, out operationList, strContractList))
+                            {
+                                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Could not obtain operation data: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                return iRes;
+                            }
+
+                            if (operationList.Count >= 0)
+                            {
+                                parametersReport["mui"] = parametersIn["mui"];
+                                parametersReport["d1"] = parametersIn["d1"];
+                                parametersReport["d2"] = parametersIn["d2"];
+                                parametersReport["oper"] = operationList;
+
+                                string strCif = "";
+                                GetCIF(out strCif, nContractId);
+                                if (strCif.Length > 0)
+                                    parametersReport["cif"] = "CIF: " + strCif;
+                                else
+                                    parametersReport["cif"] = " ";
+
+                                // Obtain user data for report
+                                // Send contract Id as 0 so that it uses the global users connection
+                                GetUserData(Convert.ToInt32(parametersReport["mui"].ToString()), out parametersUser, 0);
+
+                                // Generate report file
+                                string strFilePath = ConfigurationManager.AppSettings["ReportPath"].ToString() + ConfigurationManager.AppSettings["ReportFilePrefix"].ToString() + parametersReport["mui"] + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
+                                if (GeneratePDF(parametersReport, parametersUser, strFilePath))
+                                {
+                                    if (!SendEmail(parametersIn["mail"].ToString(), strFilePath))
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                        Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Error sending email: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                        return iRes;
+                                    }
+                                }
+                                else
+                                {
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                                    Logger_AddLogMessage(string.Format("QueryUserReportXML::Error - Error generating PDF: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                                    return iRes;
+                                }
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("QueryUserReportXML::No operations were found: xmlIn= {0}", xmlIn), LoggerSeverities.Info);
+
+                            iRes = Convert.ToInt32(ResultType.Result_OK);
+                        }
+                    }
+                }
+                else
+                {
+                    iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("QueryUserReportXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryUserReportXML::Error: xmlIn= {0}, iOut={1}", xmlIn, iRes), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return iRes;
+        }
+        */
+
         #region private new methods
 
         private string SortedListToString(SortedList lista)
@@ -4492,6 +5678,249 @@ namespace OPSWebServicesAPI.Controllers
             return nResult;
         }
 
+        private bool GetTransactionData(string strMobileUserId, int nAmount, out SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            parametersOut = null;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+            int nOrder = -1;
+
+            try
+            {
+                parametersOut = new SortedList();
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT SEQ_ORDER.NEXTVAL FROM DUAL");
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nOrder = dataReader.GetInt32(0);
+                }
+
+                if (nOrder > 0)
+                {
+                    parametersOut["or"] = nOrder.ToString();
+                    parametersOut["mu"] = ConfigurationManager.AppSettings["MerchantUrl"].ToString();
+
+                    strSQL = string.Format("INSERT INTO MOBILE_ORDERS (MO_ID, MO_MU_ID, MO_DATE, MO_HORA, MO_AMOUNT, MO_CURRENCY, MO_TERMINAL, MO_TRANSACTION_TYPE, MO_ORIGIN) VALUES ({0}, {1}, TO_CHAR(SYSDATE, 'DD/MM/YYYY'), TO_CHAR(SYSDATE, 'HH24:MI'), {2}, {3}, {4}, '{5}', {6})",
+                        nOrder.ToString(), strMobileUserId, nAmount, ConfigurationManager.AppSettings["MerchantCurrency"].ToString(), ConfigurationManager.AppSettings["MerchantTerminal"].ToString(), ConfigurationManager.AppSettings["MerchantTranstactionType"].ToString(), ConfigurationManager.AppSettings["Order.Origin"].ToString());
+                    oraCmd.CommandText = strSQL;
+
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetTransactionData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool SimulateResponse(string strOrderId, string strMobileUserId, int nAmount, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+            int nOrderId = -1;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT SEQ_OPERATIONS.NEXTVAL FROM DUAL");
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    nOrderId = dataReader.GetInt32(0);
+                }
+
+                if (nOrderId > 0)
+                {
+                    strSQL = string.Format("INSERT INTO OPERATIONS (OPE_ID, OPE_DOPE_ID, OPE_GRP_ID, OPE_UNI_ID, OPE_DPAY_ID, OPE_MOVDATE, OPE_VALUE, OPE_DART_ID, OPE_MOBI_USER_ID, OPE_DOPE_ID_VIS, OPE_OP_ONLINE, OPE_INSDATE, OPE_DPAY_ID_VIS, OPE_VALUE_VIS) VALUES ({3}, {0}, 70001, 5101, 4, SYSDATE, {1}, 4, {2}, {0}, 1, SYSDATE, 4, {1})",
+                        ConfigurationManager.AppSettings["OperationsDef.Recharge"].ToString(), nAmount.ToString(), strMobileUserId, nOrderId.ToString());
+                    oraCmd.CommandText = strSQL;
+
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                    {
+                        strSQL = string.Format("UPDATE MOBILE_USERS SET MU_FUNDS = MU_FUNDS + {0} WHERE MU_ID = {1}", nAmount.ToString(), strMobileUserId);
+                        oraCmd.CommandText = strSQL;
+
+                        if (oraCmd.ExecuteNonQuery() > 0)
+                            bResult = true;
+                    }
+                }
+
+
+                strSQL = string.Format("UPDATE MOBILE_USERS SET MU_FUNDS = MU_FUNDS + {0} WHERE MU_ID = {1}", nAmount.ToString(), strMobileUserId);
+                oraCmd.CommandText = strSQL;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("SimulateResponse::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool UpdateWebCredentials(int nMobileUserId, string strCloudId, int nOs, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("update MOBILE_USERS set mu_cloud_token = '{0}', mu_device_os = {1} WHERE MU_ID = {2}", strCloudId, nOs, nMobileUserId);
+
+                oraCmd.CommandText = strSQL;
+
+                if (oraCmd.ExecuteNonQuery() > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("UpdateWebCredentials::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
         private bool UpdateWebCredentials(int nMobileUserId, string strCloudId, int nOs, string strToken, string strVersion, int nContractId = 0)
         {
             bool bResult = false;
@@ -5068,6 +6497,774 @@ namespace OPSWebServicesAPI.Controllers
             return bResult;
         }
 
+        private bool GetUserOperationReportData(SortedList parametersIn, int nDateFormat, out SortedList operationList, string strContractList)
+        {
+            bool bResult = true;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            string strFilterList = "";
+            int nNumFilters = 0;
+            int nNumOperations = 0;
+            bool bListFinePayments = false;
+            bool bListFines = false;
+            bool bListOperations = false;
+            string strSQLSelect = "";
+            string strSQLWhere = "";
+            int nNumDays = 0;
+            bool bUseHistoricData = false;
+            string strContractName = "";
+
+            operationList = new SortedList();
+            string sConn = "";
+
+            try
+            {
+                string[] strContractListSplit = strContractList.Split(new char[] { ',' });
+
+                foreach (string strContractId in strContractListSplit)
+                {
+                    sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                    if (!strContractId.Equals("0"))
+                        sConn = ConfigurationManager.AppSettings["ConnectionString" + strContractId].ToString();
+
+                    // Get contract name
+                    GetParameter("P_SYSTEM_NAME", out strContractName, Convert.ToInt32(strContractId));
+
+                    oraConn = new OracleConnection(sConn);
+
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    // Get the operation filters
+                    if (parametersIn["ots"] != null)
+                    {
+                        SortedList filterList = (SortedList)parametersIn["ots"];
+                        foreach (DictionaryEntry item in filterList)
+                        {
+                            if (item.Value.ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.UnpaidFines"].ToString()))
+                                bListFines = true;
+                            else if (item.Value.ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString()))
+                                bListFinePayments = true;
+                            else
+                            {
+                                if (nNumFilters >= 1)
+                                    strFilterList += ", ";
+                                strFilterList += item.Value.ToString();
+                                nNumFilters++;
+                                bListOperations = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        bListFines = true;
+                        bListFinePayments = true;
+                        bListOperations = true;
+                    }
+
+                    // Determine if using historic or current tables
+                    if (nDateFormat == DATE_FORMAT_DAYS)
+                        nNumDays = Convert.ToInt32(parametersIn["d"].ToString());
+                    else
+                    {
+                        DateTime dtStartDate = DateTime.ParseExact(parametersIn["d1"].ToString(), "HHmmssddMMyy", System.Globalization.CultureInfo.InvariantCulture);
+                        DateTime dtEndDate = DateTime.ParseExact(parametersIn["d2"].ToString(), "HHmmssddMMyy", System.Globalization.CultureInfo.InvariantCulture);
+                        TimeSpan tsRangeStart = DateTime.Now - dtStartDate;
+                        TimeSpan tsRangeEnd = DateTime.Now - dtEndDate;
+                        if (tsRangeStart > tsRangeEnd)
+                            nNumDays = tsRangeStart.Days;
+                        else
+                            nNumDays = tsRangeEnd.Days;
+                    }
+                    int nNumDaysOperations = Convert.ToInt32(ConfigurationManager.AppSettings["NumDaysOperations"].ToString());
+                    if (nNumDays >= nNumDaysOperations - 1)
+                        bUseHistoricData = true;
+
+                    if (bListFines)
+                    {
+                        // Search for fines
+                        if (bUseHistoricData)
+                        {
+                            strSQLSelect = string.Format("SELECT HFIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_VEHICLEID, HFIN_GRP_ID_ZONE, GRP_DESCSHORT, HFIN_DATE, TO_CHAR( HFIN_DATE, 'YYYYMMddhh24miss') FROM FINES_HIS, FINES_DEF, GROUPS ");
+                            strSQLWhere = string.Format("WHERE HFIN_STATUSADMON = {0} AND HFIN_DFIN_ID = DFIN_ID AND DFIN_COD_ID = {1} ",
+                                ConfigurationManager.AppSettings["FineStatusAdmonDef.Pending"].ToString(), ConfigurationManager.AppSettings["FinesDefCode.Fine"].ToString());
+                            strSQLWhere += string.Format("AND HFIN_VEHICLEID IN (SELECT MUP_PLATE FROM MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
+                            if (nDateFormat == DATE_FORMAT_DAYS)
+                                strSQLWhere += string.Format("AND HFIN_DATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                            else
+                                strSQLWhere += string.Format("AND HFIN_DATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY') ", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            strSQLWhere += " AND HFIN_GRP_ID_ZONE = GRP_ID ORDER BY HFIN_DATE DESC";
+                        }
+                        else
+                        {
+                            strSQLSelect = string.Format("SELECT FIN_ID, TO_CHAR( FIN_DATE, 'dd/MM/YY hh24:mi'), FIN_VEHICLEID, FIN_GRP_ID_ZONE, GRP_DESCSHORT, FIN_DATE, TO_CHAR( FIN_DATE, 'YYYYMMddhh24miss') FROM FINES, FINES_DEF, GROUPS ");
+                            strSQLWhere = string.Format("WHERE FIN_STATUSADMON = {0} AND FIN_DFIN_ID = DFIN_ID AND DFIN_COD_ID = {1} ",
+                                ConfigurationManager.AppSettings["FineStatusAdmonDef.Pending"].ToString(), ConfigurationManager.AppSettings["FinesDefCode.Fine"].ToString());
+                            strSQLWhere += string.Format("AND FIN_VEHICLEID IN (SELECT MUP_PLATE FROM MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
+                            if (nDateFormat == DATE_FORMAT_DAYS)
+                                strSQLWhere += string.Format("AND FIN_DATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                            else
+                                strSQLWhere += string.Format("AND FIN_DATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY') ", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            strSQLWhere += " AND FIN_GRP_ID_ZONE = GRP_ID ORDER BY FIN_DATE DESC";
+                        }
+                        oraCmd.CommandText = strSQLSelect + strSQLWhere;
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.HasRows)
+                        {
+                            while (dataReader.Read())
+                            {
+                                SortedList dataList = new SortedList();
+
+                                dataList["ot"] = ConfigurationManager.AppSettings["OperationsDef.UnpaidFines"].ToString();
+                                dataList["pl"] = dataReader.GetString(2);
+                                dataList["zo"] = dataReader.GetString(4);
+                                dataList["fn"] = dataReader.GetInt32(0).ToString();
+                                dataList["fpd"] = dataReader.GetString(1);
+
+                                // check to see if it is still possible to pay
+                                int iPayAmount = 0;
+                                int iPayStatus = Convert.ToInt32(ConfigurationManager.AppSettings["FineCancellation.NotPayable"]);
+                                if (IsFinePayable(Convert.ToInt32(dataList["fn"]), out iPayAmount, out iPayStatus, Convert.ToInt32(strContractId)))
+                                    dataList["fs"] = ConfigurationManager.AppSettings["FineCancellation.Payable"].ToString();
+                                else
+                                    dataList["fs"] = iPayStatus.ToString();
+                                dataList["pa"] = iPayAmount.ToString();
+                                string strDate = dataReader.GetString(6);
+
+                                dataList["contid"] = strContractId;
+                                dataList["contname"] = strContractName;
+
+                                nNumOperations++;
+                                operationList["o" + strDate + nNumOperations.ToString("00000")] = dataList;
+                            }
+                        }
+                    }
+
+                    if (bListFinePayments)
+                    {
+                        // Search for fine payments
+                        if (bUseHistoricData)
+                        {
+                            strSQLSelect = string.Format("SELECT HOPE_ID, HOPE_DOPE_ID, HOPE_GRP_ID, HOPE_DPAY_ID, NVL(HOPE_POST_PAY,0), HOPE_VALUE_VIS, TO_CHAR( HOPE_MOVDATE, 'dd/MM/YY hh24:mi'), HOPE_FIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_STATUSADMON, GRP_DESCSHORT, HOPE_MOVDATE, HFIN_VEHICLEID, TO_CHAR( HOPE_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS, FINES_HIS, GROUPS ");
+                            strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} AND HOPE_DOPE_ID = {1} AND HOPE_FIN_ID = HFIN_ID ",
+                                parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
+                            if (nDateFormat == DATE_FORMAT_DAYS)
+                                strSQLWhere += string.Format("AND HOPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                            else
+                                strSQLWhere += string.Format("AND HOPE_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY') ", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            strSQLWhere += " AND HOPE_GRP_ID = GRP_ID ORDER BY HOPE_MOVDATE DESC";
+                        }
+                        else
+                        {
+                            strSQLSelect = string.Format("SELECT OPE_ID, OPE_DOPE_ID, OPE_GRP_ID, OPE_DPAY_ID, NVL(OPE_POST_PAY,0), OPE_VALUE_VIS, TO_CHAR( OPE_MOVDATE, 'dd/MM/YY hh24:mi'), OPE_FIN_ID, TO_CHAR( FIN_DATE, 'dd/MM/YY hh24:mi'), FIN_STATUSADMON, GRP_DESCSHORT, OPE_MOVDATE, FIN_VEHICLEID, TO_CHAR( OPE_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS, FINES, GROUPS ");
+                            strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} AND OPE_DOPE_ID = {1} AND OPE_FIN_ID = FIN_ID ",
+                                parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
+                            if (nDateFormat == DATE_FORMAT_DAYS)
+                                strSQLWhere += string.Format("AND OPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                            else
+                                strSQLWhere += string.Format("AND OPE_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY') ", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            strSQLWhere += " AND OPE_GRP_ID = GRP_ID ORDER BY OPE_MOVDATE DESC";
+                        }
+                        oraCmd.CommandText = strSQLSelect + strSQLWhere;
+
+                        if (dataReader != null)
+                        {
+                            dataReader.Close();
+                            dataReader.Dispose();
+                        }
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.HasRows)
+                        {
+                            while (dataReader.Read())
+                            {
+                                SortedList dataList = new SortedList();
+
+                                dataList["on"] = dataReader.GetInt32(0).ToString();
+                                dataList["ot"] = dataReader.GetInt32(1).ToString();
+                                dataList["zo"] = dataReader.GetString(10);
+                                dataList["pm"] = dataReader.GetInt32(3).ToString();
+                                // *** Temporary patch
+                                if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
+                                    dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
+                                dataList["pp"] = dataReader.GetInt32(4).ToString();
+                                dataList["pa"] = dataReader.GetInt32(5).ToString();
+                                if (!dataReader.IsDBNull(6))
+                                    dataList["fd"] = dataReader.GetString(6);
+                                if (!dataReader.IsDBNull(7))
+                                    dataList["fn"] = dataReader.GetInt32(7).ToString();
+                                if (!dataReader.IsDBNull(8))
+                                    dataList["fpd"] = dataReader.GetString(8);
+                                int nFineStatus = dataReader.GetInt32(9);
+                                dataList["pl"] = dataReader.GetString(12);
+                                string strDate = dataReader.GetString(13);
+
+                                dataList["contid"] = strContractId;
+                                dataList["contname"] = strContractName;
+
+                                nNumOperations++;
+                                operationList["o" + strDate + nNumOperations.ToString("00000")] = dataList;
+                            }
+                        }
+                    }
+
+                    // Search for all operations except fine payments
+                    if (bListOperations)
+                    {
+                        if (bUseHistoricData)
+                        {
+                            strSQLSelect = string.Format("SELECT HOPE_ID, HOPE_DOPE_ID, HOPE_VEHICLEID, HOPE_GRP_ID, TO_CHAR( HOPE_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( HOPE_ENDDATE, 'dd/MM/YY hh24:mi'), HOPE_DPAY_ID, NVL(HOPE_POST_PAY,0), HOPE_VALUE_VIS, TO_CHAR( HOPE_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, HOPE_MOVDATE, HOPE_RECHARGE_TYPE, HOPE_REFERENCE, TO_CHAR( HOPE_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( HOPE_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS, GROUPS ");
+                            strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                            if (nDateFormat == DATE_FORMAT_DAYS)
+                                strSQLWhere += string.Format("AND HOPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                            else
+                                strSQLWhere += string.Format("AND HOPE_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY')", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            if (nNumFilters > 0)
+                                strSQLWhere += "AND HOPE_DOPE_ID IN (" + strFilterList + ") ";
+                            else
+                                strSQLWhere += "AND HOPE_DOPE_ID <> " + ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString();
+                            strSQLWhere += " AND HOPE_GRP_ID = GRP_ID ORDER BY HOPE_MOVDATE DESC";
+                        }
+                        else
+                        {
+                            strSQLSelect = string.Format("SELECT OPE_ID, OPE_DOPE_ID, OPE_VEHICLEID, OPE_GRP_ID, TO_CHAR( OPE_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( OPE_ENDDATE, 'dd/MM/YY hh24:mi'), OPE_DPAY_ID, NVL(OPE_POST_PAY,0), OPE_VALUE_VIS, TO_CHAR( OPE_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, OPE_MOVDATE, OPE_RECHARGE_TYPE, OPE_REFERENCE, TO_CHAR( OPE_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( OPE_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS, GROUPS ");
+                            strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                            if (nDateFormat == DATE_FORMAT_DAYS)
+                                strSQLWhere += string.Format("AND OPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                            else
+                                strSQLWhere += string.Format("AND OPE_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY')", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            if (nNumFilters > 0)
+                                strSQLWhere += "AND OPE_DOPE_ID IN (" + strFilterList + ") ";
+                            else
+                                strSQLWhere += "AND OPE_DOPE_ID <> " + ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString();
+                            strSQLWhere += " AND OPE_GRP_ID = GRP_ID ORDER BY OPE_MOVDATE DESC";
+                        }
+                        oraCmd.CommandText = strSQLSelect + strSQLWhere;
+
+                        if (dataReader != null)
+                        {
+                            dataReader.Close();
+                            dataReader.Dispose();
+                        }
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.HasRows)
+                        {
+                            while (dataReader.Read())
+                            {
+                                string strDate = "";
+                                SortedList dataList = new SortedList();
+
+                                dataList["on"] = dataReader.GetInt32(0).ToString();
+                                dataList["ot"] = dataReader.GetInt32(1).ToString();
+                                if (!dataReader.IsDBNull(2))
+                                    dataList["pl"] = dataReader.GetString(2);
+                                dataList["zo"] = dataReader.GetString(10);
+                                if (!dataReader.IsDBNull(4))
+                                {
+                                    dataList["sd"] = dataReader.GetString(4);
+                                    strDate = dataReader.GetString(15);
+                                }
+                                if (!dataReader.IsDBNull(5))
+                                    dataList["ed"] = dataReader.GetString(5);
+                                dataList["pm"] = dataReader.GetInt32(6).ToString();
+                                // *** Temporary patch
+                                if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
+                                    dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
+                                dataList["pp"] = dataReader.GetInt32(7).ToString();
+                                dataList["pa"] = dataReader.GetInt32(8).ToString();
+                                if (dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Recharge"].ToString())
+                                    || dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Postpayment"].ToString())
+                                    || dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.ResidentSticker"].ToString())
+                                    || dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.ElectricRecharge"].ToString())
+                                    || dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Bycing"].ToString()))
+                                    dataList["rd"] = dataReader.GetString(9);
+                                if (dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Recharge"].ToString()))
+                                {
+                                    if (!dataReader.IsDBNull(12))
+                                        dataList["bns"] = dataReader.GetInt32(12).ToString();
+                                    // Don't show zone name for recharges
+                                    dataList["zo"] = "";
+                                }
+                                if (strDate.Length == 0)
+                                    strDate = dataReader.GetString(14);
+
+                                dataList["contid"] = strContractId;
+                                dataList["contname"] = strContractName;
+
+                                nNumOperations++;
+                                operationList["o" + strDate + nNumOperations.ToString("00000")] = dataList;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetUserOperationReportData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        bool GeneratePDF(SortedList parametersReport, SortedList parametersUser, string strFilePath)
+        {
+            bool bResult = false;
+            Document doc = new Document(PageSize.A4, 10f, 10f, 120f, 100f);
+
+            try
+            {
+                PdfWriter pdfWriter = PdfWriter.GetInstance(doc, new FileStream(strFilePath, FileMode.CreateNew));
+
+                string strUserHeaderData = parametersUser["na"].ToString() + " - " + parametersUser["fs"].ToString();
+                if (parametersUser["ss"].ToString().Length > 0)
+                    strUserHeaderData += " - " + parametersUser["ss"].ToString();
+                if (parametersUser["nif"].ToString().Length > 0)
+                    strUserHeaderData += " - " + parametersUser["nif"].ToString();
+                if (parametersUser["asn"].ToString().Length > 0)
+                    strUserHeaderData += " - " + parametersUser["asn"].ToString();
+                if (parametersUser["abn"].ToString().Length > 0)
+                    strUserHeaderData += " - " + parametersUser["abn"].ToString();
+                if (parametersUser["apc"].ToString().Length > 0)
+                    strUserHeaderData += " - " + parametersUser["apc"].ToString();
+                if (parametersUser["aci"].ToString().Length > 0)
+                    strUserHeaderData += " - " + parametersUser["aci"].ToString();
+
+                string strFooterData = " ";
+
+                pdfWriter.PageEvent = new ITextEvents(strUserHeaderData, strFooterData);
+                doc.Open();
+
+                // Blank line
+                Paragraph parBlank = new Paragraph();
+                parBlank.Add(System.Environment.NewLine);
+
+                // Title
+                Paragraph parTitle = new Paragraph();
+                parTitle.Alignment = Element.ALIGN_CENTER;
+                parTitle.Font = FontFactory.GetFont("Arial", 24);
+                parTitle.Font.SetStyle(Font.BOLD);
+                parTitle.Font.SetStyle(Font.UNDERLINE);
+                parTitle.Add(ConfigurationManager.AppSettings["ReportTitle"].ToString());
+                doc.Add(parBlank);
+                doc.Add(parTitle);
+                doc.Add(parBlank);
+
+                // Dates
+                Paragraph parDates = new Paragraph();
+                parDates.Alignment = Element.ALIGN_CENTER;
+                parDates.Font = FontFactory.GetFont("Arial", 16);
+                parDates.Font.SetStyle(Font.BOLD);
+                DateTime dtStartDate = DateTime.ParseExact(parametersReport["d1"].ToString(), "HHmmssddMMyy", System.Globalization.CultureInfo.InvariantCulture);
+                DateTime dtEndDate = DateTime.ParseExact(parametersReport["d2"].ToString(), "HHmmssddMMyy", System.Globalization.CultureInfo.InvariantCulture);
+                string strDateRange = dtStartDate.ToString("dd/MM/yyyy HH:mm") + " - " + dtEndDate.ToString("dd/MM/yyyy HH:mm");
+                parDates.Add(strDateRange);
+                doc.Add(parDates);
+                doc.Add(parBlank);
+
+                // CIF
+                Paragraph parCif = new Paragraph();
+                parCif.Alignment = Element.ALIGN_CENTER;
+                parCif.Font = FontFactory.GetFont("Arial", 12);
+                parCif.Font.SetStyle(Font.BOLD);
+                parCif.Add(parametersReport["cif"].ToString());
+                doc.Add(parCif);
+                doc.Add(parBlank);
+
+                // Table for operations
+                BaseColor colorBack = new BaseColor(171, 194, 236);
+                PdfPTable tableOper = new PdfPTable(5);
+                tableOper.TotalWidth = 500f;
+                tableOper.LockedWidth = true;
+                float[] widths = new float[] { 90f, 70f, 170f, 50f, 140f };
+                tableOper.SetWidths(widths);
+                tableOper.HorizontalAlignment = 1;
+                tableOper.SpacingBefore = 20f;
+                tableOper.SpacingAfter = 30f;
+                Paragraph pgTitle1 = new Paragraph("Operación", FontFactory.GetFont("Arial", 10));
+                //pgTitle1.Font.SetStyle(Font.UNDERLINE);
+                PdfPCell cellTitle1 = new PdfPCell(pgTitle1);
+                cellTitle1.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                cellTitle1.BorderColor = BaseColor.WHITE;
+                cellTitle1.BackgroundColor = colorBack;
+                tableOper.AddCell(cellTitle1);
+                Paragraph pgTitle2 = new Paragraph("Matrícula", FontFactory.GetFont("Arial", 10));
+                //pgTitle2.Font.SetStyle(Font.UNDERLINE);
+                PdfPCell cellTitle2 = new PdfPCell(pgTitle2);
+                cellTitle2.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                cellTitle2.BorderColor = BaseColor.WHITE;
+                cellTitle2.BackgroundColor = colorBack;
+                tableOper.AddCell(cellTitle2);
+                Paragraph pgTitle3 = new Paragraph("Fechas", FontFactory.GetFont("Arial", 10));
+                //pgTitle3.Font.SetStyle(Font.UNDERLINE);
+                PdfPCell cellTitle3 = new PdfPCell(pgTitle3);
+                cellTitle3.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                cellTitle3.BorderColor = BaseColor.WHITE;
+                cellTitle3.BackgroundColor = colorBack;
+                tableOper.AddCell(cellTitle3);
+                Paragraph pgTitle4 = new Paragraph("Importe", FontFactory.GetFont("Arial", 10));
+                //pgTitle4.Font.SetStyle(Font.UNDERLINE);
+                PdfPCell cellTitle4 = new PdfPCell(pgTitle4);
+                cellTitle4.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                cellTitle4.BorderColor = BaseColor.WHITE;
+                cellTitle4.BackgroundColor = colorBack;
+                tableOper.AddCell(cellTitle4);
+                Paragraph pgTitle5 = new Paragraph("Localidad", FontFactory.GetFont("Arial", 10));
+                //pgTitle4.Font.SetStyle(Font.UNDERLINE);
+                PdfPCell cellTitle5 = new PdfPCell(pgTitle5);
+                cellTitle5.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                cellTitle5.BorderColor = BaseColor.WHITE;
+                cellTitle5.BackgroundColor = colorBack;
+                tableOper.AddCell(cellTitle5);
+
+                // Operations
+                decimal dTotalOperations = 0;
+                decimal dTotalParkings = 0;
+                decimal dTotalExtensions = 0;
+                decimal dTotalRefunds = 0;
+                decimal dTotalFinesPaid = 0;
+                decimal dTotalFines = 0;
+                decimal dTotalRecharges = 0;
+                SortedList operationsList = (SortedList)parametersReport["oper"];
+                if (operationsList.Count > 0)
+                {
+                    foreach (DictionaryEntry item in operationsList)
+                    {
+                        SortedList operationDataList = (SortedList)item.Value;
+
+                        string strAmount = "";
+                        decimal dAmount = Convert.ToDecimal(operationDataList["pa"]) * (decimal)0.01;
+                        strAmount = dAmount.ToString();
+
+                        int nOperType = Convert.ToInt32(operationDataList["ot"]);
+                        string strOperType = "Aparcamiento";
+                        if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Parking"]))
+                        {
+                            strOperType = "Aparcamiento";
+                            dTotalParkings += dAmount;
+                        }
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Extension"]))
+                        {
+                            strOperType = "Ampliación";
+                            dTotalExtensions += dAmount;
+                        }
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Refund"]))
+                        {
+                            strOperType = "Devolución";
+                            dTotalRefunds += dAmount;
+                        }
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Payment"]))
+                        {
+                            strOperType = "Pago denuncia";
+                            dTotalFinesPaid += dAmount;
+                        }
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Recharge"]))
+                        {
+                            strOperType = "Recarga";
+                            dTotalRecharges += dAmount;
+                        }
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Postpayment"]))
+                            strOperType = "Postpago";
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.ResidentSticker"]))
+                            strOperType = "Dist. Res.";
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.ElectricRecharge"]))
+                            strOperType = "Recarga Elec.";
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Bycing"]))
+                            strOperType = "Bycing";
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.UnpaidFines"]))
+                        {
+                            strOperType = "Denuncia";
+                            dTotalFines += dAmount;
+                        }
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Recharge"])
+                            && Convert.ToInt32(operationDataList["bns"]) == 1)
+                            strOperType = "Bonificación";
+
+                        string strDate = "";
+                        if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Recharge"])
+                            || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.ResidentSticker"])
+                            || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.ElectricRecharge"])
+                            || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Bycing"]))
+                            strDate = operationDataList["rd"].ToString();
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Payment"]))
+                            strDate = operationDataList["fpd"].ToString() + " " + operationDataList["fd"].ToString();
+                        else if (nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.UnpaidFines"]))
+                            strDate = operationDataList["fpd"].ToString();
+                        else
+                            strDate = operationDataList["sd"].ToString() + " " + operationDataList["ed"].ToString();
+                        string strPlate = "";
+                        if (operationDataList["pl"] != null)
+                            strPlate = operationDataList["pl"].ToString().Replace("-<RES>", "");
+                        string strRef = "";
+                        if (operationDataList["contname"] != null)
+                        {
+                            strRef = operationDataList["contname"].ToString();
+                            if (operationDataList["zo"] != null)
+                            {
+                                if (operationDataList["zo"].ToString().Length > 0)
+                                    strRef += " - " + operationDataList["zo"].ToString();
+                            }
+                        }
+                        if (strRef.Length >= 21)
+                            strRef = strRef.Substring(0, 21);
+
+                        PdfPCell cellData1 = new PdfPCell(new Phrase(strOperType, FontFactory.GetFont("Arial", 10)));
+                        cellData1.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                        cellData1.BorderColor = BaseColor.WHITE;
+                        tableOper.AddCell(cellData1);
+                        PdfPCell cellData2 = new PdfPCell(new Phrase(strPlate, FontFactory.GetFont("Arial", 10)));
+                        cellData2.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                        cellData2.BorderColor = BaseColor.WHITE;
+                        tableOper.AddCell(cellData2);
+                        PdfPCell cellData3 = new PdfPCell(new Phrase(strDate, FontFactory.GetFont("Arial", 10)));
+                        cellData3.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                        cellData3.BorderColor = BaseColor.WHITE;
+                        tableOper.AddCell(cellData3);
+                        PdfPCell cellData4 = new PdfPCell(new Phrase(strAmount, FontFactory.GetFont("Arial", 10)));
+                        cellData4.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                        cellData4.BorderColor = BaseColor.WHITE;
+                        if ((nOperType != Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Refund"]) &&
+                            nOperType != Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Recharge"])) && dAmount > 0)
+                            cellData4.Phrase.Font.SetColor(255, 0, 0);
+                        tableOper.AddCell(cellData4);
+                        PdfPCell cellData5 = new PdfPCell(new Phrase(strRef, FontFactory.GetFont("Arial", 10)));
+                        cellData5.HorizontalAlignment = 0; //0=Left, 1=Centre, 2=Right
+                        cellData5.BorderColor = BaseColor.WHITE;
+                        tableOper.AddCell(cellData5);
+                    }
+                }
+                else
+                {
+                    PdfPCell cellData1 = new PdfPCell(new Phrase("No hay movimientos en el periodo solicitado", FontFactory.GetFont("Arial", 10)));
+                    cellData1.Colspan = 5;
+                    cellData1.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                    cellData1.BorderColor = BaseColor.WHITE;
+                    tableOper.AddCell(cellData1);
+                }
+
+                doc.Add(tableOper);
+
+                // Total amounts
+                dTotalOperations = dTotalParkings + dTotalExtensions - dTotalRefunds;
+                PdfPTable tableTotals = new PdfPTable(4);
+                tableTotals.TotalWidth = 500f;
+                tableTotals.LockedWidth = true;
+                float[] widthsTotals = new float[] { 1f, 1f, 1f, 1f };
+                tableTotals.SetWidths(widthsTotals);
+                tableTotals.HorizontalAlignment = 1;
+                tableTotals.SpacingBefore = 20f;
+                tableTotals.SpacingAfter = 30f;
+                tableTotals.KeepTogether = true;
+
+                PdfPCell cellTotal0 = new PdfPCell(new Phrase("Resumen de operaciones:", FontFactory.GetFont("Arial", 10)));
+                cellTotal0.Colspan = 4;
+                cellTotal0.HorizontalAlignment = 0; //0=Left, 1=Centre, 2=Right
+                cellTotal0.BorderColor = BaseColor.WHITE;
+                tableTotals.AddCell(cellTotal0);
+
+                PdfPCell cellTotal1 = new PdfPCell(new Phrase("Total Estacionamientos", FontFactory.GetFont("Arial", 10)));
+                cellTotal1.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal1.BorderColor = BaseColor.WHITE;
+                cellTotal1.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal1);
+                PdfPCell cellTotal2 = new PdfPCell(new Phrase("Total Ampliaciones", FontFactory.GetFont("Arial", 10)));
+                cellTotal2.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal2.BorderColor = BaseColor.WHITE;
+                cellTotal2.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal2);
+                PdfPCell cellTotal3 = new PdfPCell(new Phrase("Total Devoluciones", FontFactory.GetFont("Arial", 10)));
+                cellTotal3.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal3.BorderColor = BaseColor.WHITE;
+                cellTotal3.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal3);
+                PdfPCell cellTotal31 = new PdfPCell(new Phrase("Total Operaciones", FontFactory.GetFont("Arial", 10)));
+                cellTotal31.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal31.BorderColor = BaseColor.WHITE;
+                cellTotal31.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal31);
+
+                PdfPCell cellTotal4 = new PdfPCell(new Phrase(dTotalParkings.ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal4.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal4.BorderColor = BaseColor.WHITE;
+                cellTotal4.Phrase.Font.SetColor(255, 0, 0);
+                tableTotals.AddCell(cellTotal4);
+                PdfPCell cellTotal5 = new PdfPCell(new Phrase(dTotalExtensions.ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal5.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal5.BorderColor = BaseColor.WHITE;
+                cellTotal5.Phrase.Font.SetColor(255, 0, 0);
+                tableTotals.AddCell(cellTotal5);
+                PdfPCell cellTotal6 = new PdfPCell(new Phrase(dTotalRefunds.ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal6.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal6.BorderColor = BaseColor.WHITE;
+                tableTotals.AddCell(cellTotal6);
+                PdfPCell cellTotal61 = new PdfPCell(new Phrase(Math.Abs(dTotalOperations).ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal61.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal61.BorderColor = BaseColor.WHITE;
+                if (dTotalOperations > 0)
+                    cellTotal61.Phrase.Font.SetColor(255, 0, 0);
+                tableTotals.AddCell(cellTotal61);
+
+                PdfPCell cellTotal71 = new PdfPCell(new Phrase("Total Denuncias", FontFactory.GetFont("Arial", 10)));
+                cellTotal71.Colspan = 2;
+                cellTotal71.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal71.BorderColor = BaseColor.WHITE;
+                cellTotal71.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal71);
+                PdfPCell cellTotal72 = new PdfPCell(new Phrase("Total Denuncias Pagadas", FontFactory.GetFont("Arial", 10)));
+                cellTotal72.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal72.BorderColor = BaseColor.WHITE;
+                cellTotal72.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal72);
+                PdfPCell cellTotal7 = new PdfPCell(new Phrase("Total Recargas", FontFactory.GetFont("Arial", 10)));
+                cellTotal7.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal7.BorderColor = BaseColor.WHITE;
+                cellTotal7.BackgroundColor = colorBack;
+                tableTotals.AddCell(cellTotal7);
+
+                PdfPCell cellTotal8 = new PdfPCell(new Phrase(dTotalFines.ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal8.Colspan = 2;
+                cellTotal8.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal8.BorderColor = BaseColor.WHITE;
+                tableTotals.AddCell(cellTotal8);
+                PdfPCell cellTotal81 = new PdfPCell(new Phrase(dTotalFinesPaid.ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal81.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal81.BorderColor = BaseColor.WHITE;
+                cellTotal81.Phrase.Font.SetColor(255, 0, 0);
+                tableTotals.AddCell(cellTotal81);
+                PdfPCell cellTotal82 = new PdfPCell(new Phrase(dTotalRecharges.ToString() + " €", FontFactory.GetFont("Arial", 10)));
+                cellTotal82.HorizontalAlignment = 2; //0=Left, 1=Centre, 2=Right
+                cellTotal82.BorderColor = BaseColor.WHITE;
+                tableTotals.AddCell(cellTotal82);
+
+                doc.Add(tableTotals);
+
+                bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("SendEmail::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                doc.Close();
+            }
+
+            return bResult;
+        }
+
+        private bool GetCIF(out string strCIF, int nContractId = 0)
+        {
+            bool bResult = true;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            strCIF = "";
+
+            try
+            {
+                // Watch out - not using passed in Contract Id since this data is stored in the main DB
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT NVL(MCON_CIF, '') FROM MOBILE_CONTRACTS WHERE MCON_ID = {0}", nContractId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        strCIF = dataReader.GetString(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetCIF::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
         private bool GetParameter(string strParameter, out string strValue, int nContractId = 0)
         {
             bool bResult = true;
@@ -5426,6 +7623,40 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 Logger_AddLogMessage("SendRecoveryEmail::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+
+            return bResult;
+        }
+
+        bool SendEmail(string strDestAddress, string strFilePath)
+        {
+            bool bResult = false;
+
+            try
+            {
+                MailMessage MyMailMessage = new MailMessage();
+                MyMailMessage.From = new MailAddress(ConfigurationManager.AppSettings["SendAddress"].ToString());
+                MyMailMessage.To.Add(strDestAddress);
+                MyMailMessage.Subject = ConfigurationManager.AppSettings["EmailSubject"].ToString();
+                Attachment attachFile = new Attachment(strFilePath);
+                MyMailMessage.Attachments.Add(attachFile);
+
+                SmtpClient SMTPServer = new SmtpClient(ConfigurationManager.AppSettings["SMTPServer"].ToString());
+                SMTPServer.Port = Convert.ToInt32(ConfigurationManager.AppSettings["SMTPPort"]);
+                SMTPServer.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["EmailUser"].ToString(), ConfigurationManager.AppSettings["EmailPassword"].ToString());
+                SMTPServer.EnableSsl = true;
+
+                // Eliminate invalid remote certificate error 
+                ServicePointManager.ServerCertificateValidationCallback = delegate (object s, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors) { return true; };
+
+                SMTPServer.Send(MyMailMessage);
+
+                bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("SendEmail::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
 

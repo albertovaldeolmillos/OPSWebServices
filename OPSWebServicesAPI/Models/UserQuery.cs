@@ -13,12 +13,6 @@ namespace OPSWebServicesAPI.Models
     public class UserQuery
     {
         /// <summary>
-        /// (*) Contract ID
-        /// </summary>
-        [DisplayName("contid")]
-        [Required]
-        public string contractId { get; set; }
-        /// <summary>
         /// (*) Mobile user id (authorization token)
         /// </summary>
         [DisplayName("mui")]

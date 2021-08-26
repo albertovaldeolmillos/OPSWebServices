@@ -354,6 +354,21 @@ namespace OPSWebServicesAPI.Helpers
             return config;
         }
 
+        public MapperConfiguration configUserRecharge()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, UserRechargeInfo>()
+                    .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
+                    .ForMember(d => d.orderId, o => o.MapFrom(s => s["or"]))
+                    .ForMember(d => d.urlResponse, o => o.MapFrom(s => s["mu"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+        
+
 
     }
 }

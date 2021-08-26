@@ -119,5 +119,20 @@ namespace OPSWebServicesAPI.Models
     {
         public string value { get; set; }
     }
+
+    public class ResultCreditUserInfo : Result
+    {
+        public string value { get; set; }
+    }
+
+    public class ResultUserRechargeInfo : Result
+    {
+        public UserRechargeInfo value { get; set; }
+    }
+
+    public class ResultUserReportInfo : Result
+    {
+        public string value { get; set; }
+    }
     
 }

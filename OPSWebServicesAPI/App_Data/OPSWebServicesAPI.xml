@@ -841,6 +841,51 @@
             <param name="userRegister">Object UserRegister</param>
             <returns>User id</returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserCreditAPI(OPSWebServicesAPI.Models.UserQuery)">
+             <summary>
+             return user credit in euro cents
+             </summary>
+             <param name="userQuery">Object UserQuery with authorizationToken to request</param>
+             <returns>
+            >0: Credit total expressed in Euro cents 
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error.)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -20: Mobile user not found
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.RechargeUserCreditAPI(OPSWebServicesAPI.Models.UserRechargeQuery)">
+             <summary>
+             return information for user recharge credit
+             </summary>
+             <param name="userRechargeQuery">Object UserRechargeQuery with amount and user information</param>
+             <returns>
+            1: User recharge credit information
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -20: User not found.
+             </returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserReportAPI(OPSWebServicesAPI.Models.UserReportQuery)">
+             <summary>
+             return report with user operations information
+             </summary>
+             <param name="userReportQuery">Object UserReportQuery with dates and user information to request</param>
+             <returns>
+            1: saved without errors
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -20: User not found.
+             </returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.DtxToString(System.DateTime)">
             <summary>
             Pass a DateTime to a string in format (hhmmssddmmyy)
@@ -2340,14 +2385,76 @@
             class to request user query
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserQuery.contractId">
-            <summary>
-            (*) Contract ID
-            </summary>
-        </member>
         <member name="P:OPSWebServicesAPI.Models.UserQuery.authorizationToken">
             <summary>
             (*) Mobile user id (authorization token)
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserRechargeInfo">
+            <summary>
+            User recharge credit information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeInfo.result">
+             <summary>
+             Result of the method:
+            1: Data come after this tag
+            -1: Invalid authentication hash
+            -9: Generic Error (for example database or execution error)
+            -10: Invalid input parameter
+            -11: Missing input parameter
+            -12: OPS System error
+            -20: User not found.
+             </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeInfo.urlResponse">
+            <summary>
+            Notification URL for payment gateway response
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeInfo.orderId">
+            <summary>
+            Order ID
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.UserRechargeQuery">
+            <summary>
+            class to request User recharge credit
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.contractId">
+            <summary>
+            (*) id del municipio
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.cloudToken">
+            <summary>
+            (*) Cloud token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.authorizationToken">
+            <summary>
+            (*) Authentication token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.operatingSystem">
+            <summary>
+            (*) OS --> 1- Android 2- iOS 3- web
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.amount">
+            <summary>
+            (*) Amount (expressed in Euro cents)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.simulate">
+            <summary>
+            Simulate Sermepa response (0 = false, 1 = true) --- Optional and only for testing
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.authenticationHash">
+            <summary>
+            hash
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserRecover">
@@ -2505,6 +2612,41 @@
             Mobile user founds
             </summary>
         </member>
+        <member name="T:OPSWebServicesAPI.Models.UserReportQuery">
+            <summary>
+            class to request report with user operations for dates
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.contractId">
+            <summary>
+            (*) id del municipio
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.authorizationToken">
+            <summary>
+            (*) Authentication token
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.dateStart">
+            <summary>
+            (*) Report start date (Format: hh24missddMMYY)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.dateEnd">
+            <summary>
+            (*) Report end date (Format: hh24missddMMYY)
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.mail">
+            <summary>
+            (*) User email
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.reportFormat">
+            <summary>
+            (*) Report Format (1: PDF, something else?)
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.ZoneInfo">
             <summary>
             Zone information
@@ -2588,6 +2730,11 @@
         <member name="P:OPSWebServicesAPI.Models.ZoneQuery.streetno">
             <summary>
             (*) Street number
+            </summary>
+        </member>
+        <member name="T:ITextEvents">
+            <summary>
+            Summary description for ITextEvents
             </summary>
         </member>
     </members>

@@ -50,6 +50,9 @@
     <Reference Include="AutoMapper, Version=10.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoMapper.10.1.1\lib\net461\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="Jot">
       <HintPath>..\packages\Jot.Jwt.Token.Authorization.1.2\lib\net40\Jot.dll</HintPath>
     </Reference>
@@ -212,6 +215,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ConfigMapModel.cs" />
+    <Compile Include="Helpers\ITextEvents.cs" />
     <Compile Include="Models\Contract.cs" />
     <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />
@@ -245,9 +249,12 @@
     <Compile Include="Models\UserOperation.cs" />
     <Compile Include="Models\Operation.cs" />
     <Compile Include="Models\UserQuery.cs" />
+    <Compile Include="Models\UserRechargeInfo.cs" />
+    <Compile Include="Models\UserRechargeQuery.cs" />
     <Compile Include="Models\UserRecover.cs" />
     <Compile Include="Models\UserRecoverVerify.cs" />
     <Compile Include="Models\UserRegister.cs" />
+    <Compile Include="Models\UserReportQuery.cs" />
     <Compile Include="Models\ZoneInfo.cs" />
     <Compile Include="Models\ZoneQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
