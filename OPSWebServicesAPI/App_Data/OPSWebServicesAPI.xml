@@ -2232,7 +2232,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.validateConditions">
             <summary>
-            (*) Validate new conditions is necessary
+            (*) Validate new conditions is necessary. 1 - yes, 0 - no.
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserOperation">

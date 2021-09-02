@@ -403,8 +403,8 @@ namespace OPSWebServicesAPI.Controllers
 
                                 if (curLocation != null)
                                 {
-                                    parametersOut["lt"] = curLocation.Lt.ToString().Replace(",", ".");
-                                    parametersOut["lg"] = curLocation.Lg.ToString().Replace(",", ".");
+                                    parametersOut["lt"] = curLocation.Lt.ToString();//.Replace(",", ".");
+                                    parametersOut["lg"] = curLocation.Lg.ToString();//;.Replace(",", ".");
                                     parametersOut["streetname"] = parametersIn["streetname"];
                                     parametersOut["streetno"] = parametersIn["streetno"];
                                     bFoundStreetData = true;
@@ -516,8 +516,8 @@ namespace OPSWebServicesAPI.Controllers
                                         }
                                     }
 
-                                    parametersOut["lt"] = parametersIn["lt"].ToString().Replace(",", ".");
-                                    parametersOut["lg"] = parametersIn["lg"].ToString().Replace(",", ".");
+                                    parametersOut["lt"] = parametersIn["lt"].ToString();//.Replace(",", ".");
+                                    parametersOut["lg"] = parametersIn["lg"].ToString();//.Replace(",", ".");
                                 }
                             }
 
@@ -4212,10 +4212,10 @@ namespace OPSWebServicesAPI.Controllers
                 for (int i = 1; i< numTariffs+1; i++)
                 {
                     ParkingStatusTariffInfo tar = new ParkingStatusTariffInfo();
-                    tar.tariffId = (string)listTariffs["tarid" + i];
+                    tar.tariffId = Convert.ToInt32(listTariffs["tarid" + i]);
                     tar.tariffDescription = (string)listTariffs["tardesc" + i];
-                    tar.tariffType = (string)listTariffs["tarad" + i];
-                    tar.tariffRefundable = (string)listTariffs["tarrfd" + i];
+                    tar.tariffType = Convert.ToInt32(listTariffs["tarad" + i]);
+                    tar.tariffRefundable = Convert.ToInt32(listTariffs["tarrfd" + i]);
                     lista.Add(tar);
                 }
             }
@@ -10382,11 +10382,11 @@ namespace OPSWebServicesAPI.Controllers
                     SortedList contractData = new SortedList();
                     contractData["cont_id"] = dataReader.GetInt32(0).ToString();
                     if (!dataReader.IsDBNull(1))
-                        contractData["lt"] = dataReader.GetDouble(1).ToString().Replace(",", ".");
+                        contractData["lt"] = dataReader.GetDouble(1).ToString();//.Replace(",", ".");
                     else
                         contractData["lt"] = " ";
                     if (!dataReader.IsDBNull(2))
-                        contractData["lg"] = dataReader.GetDouble(2).ToString().Replace(",", ".");
+                        contractData["lg"] = dataReader.GetDouble(2).ToString();//.Replace(",", ".");
                     else
                         contractData["lg"] = " ";
                     if (!dataReader.IsDBNull(3))

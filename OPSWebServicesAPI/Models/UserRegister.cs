@@ -38,12 +38,12 @@ namespace OPSWebServicesAPI.Models
         /// Address: Department Stair
         /// </summary>
         [DisplayName("ads")]
-        public object[] addressDepartmentStair { get; set; }
+        public string addressDepartmentStair { get; set; }
         /// <summary>
         /// Alternative Mobile Phone
         /// </summary>
         [DisplayName("amp")]
-        public object[] addressMobilePhone { get; set; }
+        public string addressMobilePhone { get; set; }
         /// <summary>
         /// Address: Postal Code
         /// </summary>
@@ -87,7 +87,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) E-Mail
         /// </summary>
@@ -127,6 +127,6 @@ namespace OPSWebServicesAPI.Models
         /// Mobile user founds
         /// </summary>
         [DisplayName("userCredit")]
-        public string userCredit { get; set; }
+        public int userCredit { get; set; }
     }
 }

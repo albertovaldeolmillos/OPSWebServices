@@ -18,7 +18,7 @@ namespace OPSWebServicesAPI.Models
         ///-30: Location not found
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// json response from google link: https://maps.googleapis.com/maps/api/place/autocomplete/json
         /// </summary>

@@ -11,12 +11,12 @@ namespace OPSWebServicesAPI.Models
         /// Time in minutes
         /// </summary>
         [DisplayName("t")]
-        public string time { get; set; }
+        public int time { get; set; }
         /// <summary>
         /// Cost in Euro Cents for t minutes
         /// </summary>
         [DisplayName("q")]
-        public string quantity { get; set; }
+        public int quantity { get; set; }
         /// <summary>
         /// datetime given by q cents
         /// </summary>

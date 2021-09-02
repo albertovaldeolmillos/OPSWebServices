@@ -23,13 +23,13 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) OS --> 1- Android 2- iOS 3- web
         /// </summary>
         [DisplayName("os")]
         [Required]
-        public string operatingSystem { get; set; }
+        public int operatingSystem { get; set; }
         /// <summary>
         /// (*) login
         /// </summary>

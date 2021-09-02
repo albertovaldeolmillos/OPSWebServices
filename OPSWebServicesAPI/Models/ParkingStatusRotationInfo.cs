@@ -11,32 +11,32 @@ namespace OPSWebServicesAPI.Models
         /// Result of the method:
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// status: 1 (UNPARKED), 2 (PARKED)
         /// </summary>
         [DisplayName("sta")]
-        public string status { get; set; }
+        public int status { get; set; }
         /// <summary>
         /// Extension is permitted in the current sector?: 1 (YES), -2 (NO YET), -3 (The plate has used the maximun amount of time/money in the sector)
         /// </summary>
         [DisplayName("ex")]
-        public string extension { get; set; }
+        public int extension { get; set; }
         /// <summary>
         /// tariff ID: 101 (ESRO non resident), 103 (ESRE non resident)
         /// </summary>
         [DisplayName("id")]
-        public string tariffId { get; set; }
+        public int tariffId { get; set; }
         /// <summary>
         /// Tariff type of current operation: 4 (ROTATION), 6 (VIPS)
         /// </summary>
         [DisplayName("ad")]
-        public string tariffType { get; set; }
+        public int tariffType { get; set; }
         /// <summary>
         /// Operation Type: 1: First parking: 2: extension
         /// </summary>
         [DisplayName("o")]
-        public string operationType { get; set; }
+        public int operationType { get; set; }
         /// <summary>
         /// Initial date of current operation (in format hh24missddMMYY) of the parking: the same as the input date if the operation is a first parking, or the date of the end of parking operations chain if the operation is an extension
         /// </summary>
@@ -51,12 +51,12 @@ namespace OPSWebServicesAPI.Models
         /// Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
         /// </summary>
         [DisplayName("aq")]
-        public string accumulatedQuantity { get; set; }
+        public int accumulatedQuantity { get; set; }
         /// <summary>
         /// Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
         /// </summary>
         [DisplayName("at")]
-        public string accumulatedTime { get; set; }
+        public int accumulatedTime { get; set; }
         /// <summary>
         /// Sector
         /// </summary>
@@ -91,12 +91,12 @@ namespace OPSWebServicesAPI.Models
         /// Longitude
         /// </summary>
         [DisplayName("lg")]
-        public string longitude { get; set; }
+        public double longitude { get; set; }
         /// <summary>
         /// Latitude
         /// </summary>
         [DisplayName("lt")]
-        public string latitude { get; set; }
+        public double latitude { get; set; }
         /// <summary>
         /// Reference of current operation. 128 characters maximum
         /// </summary>
@@ -106,7 +106,7 @@ namespace OPSWebServicesAPI.Models
         /// Refundable tariff: 0 (NO), 1 (YES)
         /// </summary>
         [DisplayName("rfd")]
-        public string refundable { get; set; }
+        public int refundable { get; set; }
         /// <summary>
         /// Operation date
         /// </summary>

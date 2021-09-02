@@ -13,7 +13,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) Plate
         /// </summary>
@@ -31,13 +31,13 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("q")]
         [Required]
-        public string quantity { get; set; }
+        public int quantity { get; set; }
         /// <summary>
         /// (*) tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
         /// </summary>
         [DisplayName("ad")]
         [Required]
-        public string tariffType { get; set; }
+        public int tariffType { get; set; }
         /// <summary>
         /// (*) Mobile user id (authorization token)
         /// </summary>
@@ -55,7 +55,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("os")]
         [Required]
-        public string operatingSystem { get; set; }
+        public int operatingSystem { get; set; }
         /// <summary>
         /// date in format hh24missddMMYY
         /// </summary>
@@ -65,17 +65,17 @@ namespace OPSWebServicesAPI.Models
         /// Time in minutes obtained paying q cents
         /// </summary>
         [DisplayName("t")]
-        public string time { get; set; }
+        public int time { get; set; }
         /// <summary>
         /// Longitude
         /// </summary>
         [DisplayName("lg")]
-        public string longitude { get; set; }
+        public double longitude { get; set; }
         /// <summary>
         /// Latitude
         /// </summary>
         [DisplayName("lt")]
-        public string latitude { get; set; }
+        public double latitude { get; set; }
         /// <summary>
         /// Reference of current operation
         /// </summary>

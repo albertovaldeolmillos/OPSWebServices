@@ -17,7 +17,7 @@ namespace OPSWebServicesAPI.Models
         /// Contract id
         /// </summary>
         [DisplayName("contid")]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// Contract name
         /// </summary>
@@ -32,22 +32,22 @@ namespace OPSWebServicesAPI.Models
         /// Operation type (1: Parking, 2: Extension, 3: Refund, 4: Fine payment, 5: Recharge, 7: Postpaid, 101: Resident payment, 102: Power recharge, 103: Bycing, 104: Unpaid fines)
         /// </summary>
         [DisplayName("ot")]
-        public string operationType { get; set; }
+        public int operationType { get; set; }
         /// <summary>
         /// Payment amount (Expressed in Euro cents)
         /// </summary>
         [DisplayName("pa")]
-        public string paymentAmount { get; set; }
+        public int paymentAmount { get; set; }
         /// <summary>
         /// Payment method (1: Chip-Card, 2: Credit Card, 3: Cash, 4: Web, 5: Phone)
         /// </summary>
         [DisplayName("pm")]
-        public string paymentMethod { get; set; }
+        public int paymentMethod { get; set; }
         /// <summary>
         /// Post-Paid (0: False, 1: True)
         /// </summary>
         [DisplayName("pp")]
-        public string postPaid { get; set; }
+        public int postPaid { get; set; }
         /// <summary>
         /// Recharge date (Format: hh24missddMMYY)
         /// </summary>
@@ -97,7 +97,7 @@ namespace OPSWebServicesAPI.Models
         /// Fine status (1: Payable, 2:Expired, 3:Not payable)
         /// </summary>
         [DisplayName("fs")]
-        public string fineStatus { get; set; }
+        public int fineStatus { get; set; }
         /// <summary>
         /// Fine street
         /// </summary>
@@ -127,7 +127,7 @@ namespace OPSWebServicesAPI.Models
         /// status: 1 (UNPARKED), 2 (PARKED)
         /// </summary>
         [DisplayName("sta")]
-        public string status { get; set; }
+        public int status { get; set; }
 
     }
  

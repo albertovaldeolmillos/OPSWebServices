@@ -20,7 +20,7 @@ namespace OPSWebServicesAPI.Models
         /// Contract ID
         /// </summary>
         [DisplayName("cont_id")]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// Description 1 (name in Spanish)
         /// </summary>
@@ -45,12 +45,12 @@ namespace OPSWebServicesAPI.Models
         /// Longitude
         /// </summary>
         [DisplayName("lg")]
-        public string longitude { get; set; }
+        public double longitude { get; set; }
         /// <summary>
         /// Latitude
         /// </summary>
         [DisplayName("lt")]
-        public string latitude { get; set; }
+        public double latitude { get; set; }
         /// <summary>
         /// Telephone
         /// </summary>
@@ -60,7 +60,7 @@ namespace OPSWebServicesAPI.Models
         /// Radius (in meters)
         /// </summary>
         [DisplayName("rad")]
-        public string radius { get; set; }
+        public int radius { get; set; }
         /// <summary>
         /// WSMobilePayment.asmx url
         /// </summary>

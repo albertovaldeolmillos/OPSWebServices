@@ -18,37 +18,37 @@ namespace OPSWebServicesAPI.Models
         ///-12: OPS System error
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
         /// </summary>
         [DisplayName("ad")]
-        public string tariffType { get; set; }
+        public int tariffType { get; set; }
         /// <summary>
         /// Operation Type: 1: First parking: 2: extension
         /// </summary>
         [DisplayName("o")]
-        public string operationType { get; set; }
+        public int operationType { get; set; }
         /// <summary>
         /// minimum amount to pay in Euro cents
         /// </summary>
         [DisplayName("q1")]
-        public string payAmountMin { get; set; }
+        public int payAmountMin { get; set; }
         /// <summary>
         /// maximum amount to pay in Euro cents
         /// </summary>
         [DisplayName("q2")]
-        public string payAmountMax { get; set; }
+        public int payAmountMax { get; set; }
         /// <summary>
         /// minimum amount of time to park in minutes
         /// </summary>
         [DisplayName("t1")]
-        public string timeAmountMin { get; set; }
+        public int timeAmountMin { get; set; }
         /// <summary>
         /// maximum amount of time to park in minutes
         /// </summary>
         [DisplayName("t2")]
-        public string timeAmountMax { get; set; }
+        public int timeAmountMax { get; set; }
         /// <summary>
         /// minimum date
         /// </summary>
@@ -68,12 +68,12 @@ namespace OPSWebServicesAPI.Models
         /// Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
         /// </summary>
         [DisplayName("aq")]
-        public string accumulatedQuantity { get; set; }
+        public int accumulatedQuantity { get; set; }
         /// <summary>
         /// Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
         /// </summary>
         [DisplayName("at")]
-        public string accumulatedTime { get; set; }
+        public int accumulatedTime { get; set; }
         /// <summary>
         /// Steps
         /// </summary>

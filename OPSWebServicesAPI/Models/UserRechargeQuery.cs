@@ -13,7 +13,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) Cloud token
         /// </summary>
@@ -31,18 +31,18 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("os")]
         [Required]
-        public string operatingSystem { get; set; }
+        public int operatingSystem { get; set; }
         /// <summary>
         /// (*) Amount (expressed in Euro cents)
         /// </summary>
         [DisplayName("am")]
         [Required]
-        public string amount { get; set; }
+        public int amount { get; set; }
         /// <summary>
         /// Simulate Sermepa response (0 = false, 1 = true) --- Optional and only for testing
         /// </summary>
         [DisplayName("sim")]
-        public string simulate { get; set; }
+        public int simulate { get; set; }
         /// <summary>
         /// hash
         /// </summary>

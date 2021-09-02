@@ -18,22 +18,22 @@ namespace OPSWebServicesAPI.Models
         ///-12: OPS System error
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
         /// </summary>
         [DisplayName("ad")]
-        public string tariffType { get; set; }
+        public int tariffType { get; set; }
         /// <summary>
         /// Tariff time in minutes for the parking operation chain after unparking (d2-d1)
         /// </summary>
         [DisplayName("t")]
-        public string tariffTime { get; set; }
+        public int tariffTime { get; set; }
         /// <summary>
         /// quantity in Euro Cents to be refunded
         /// </summary>
         [DisplayName("q")]
-        public string payAmount { get; set; }
+        public int payAmount { get; set; }
         /// <summary>
         /// Initial date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking
         /// </summary>

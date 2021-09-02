@@ -13,7 +13,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) Authentication token
         /// </summary>
@@ -43,7 +43,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("rfmt")]
         [Required]
-        public string reportFormat { get; set; }
+        public int reportFormat { get; set; }
 
     }
 }

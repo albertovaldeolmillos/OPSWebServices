@@ -18,7 +18,7 @@ namespace OPSWebServicesAPI.Models
         ///-20: User not found.
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// Notification URL for payment gateway response
         /// </summary>

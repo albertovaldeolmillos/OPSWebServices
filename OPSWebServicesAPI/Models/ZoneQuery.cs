@@ -13,19 +13,19 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) Longitude
         /// </summary>
         [DisplayName("lg")]
         [Required]
-        public string longitude { get; set; }
+        public double longitude { get; set; }
         /// <summary>
         /// (*) Latitude
         /// </summary>
         [DisplayName("lt")]
         [Required]
-        public string latitude { get; set; }
+        public double latitude { get; set; }
         /// <summary>
         /// (*) Street name
         /// </summary>

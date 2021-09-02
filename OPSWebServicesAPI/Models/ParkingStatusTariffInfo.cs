@@ -11,7 +11,7 @@ namespace OPSWebServicesAPI.Models
         /// tariff id
         /// </summary>
         [DisplayName("tarid")]
-        public string tariffId { get; set; }
+        public int tariffId { get; set; }
         /// <summary>
         /// tariff description
         /// </summary>
@@ -21,11 +21,11 @@ namespace OPSWebServicesAPI.Models
         /// Tariff type
         /// </summary>
         [DisplayName("tarad")]
-        public string tariffType { get; set; }
+        public int tariffType { get; set; }
         /// <summary>
         /// If Tariff 1 is refundable: 0 (NO), 1 (YES)
         /// </summary>
         [DisplayName("tarrfd")]
-        public string tariffRefundable { get; set; }
+        public int tariffRefundable { get; set; }
     }
 }

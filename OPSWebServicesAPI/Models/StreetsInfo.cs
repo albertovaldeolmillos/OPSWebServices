@@ -11,7 +11,7 @@ namespace OPSWebServicesAPI.Models
         /// Number of streets
         /// </summary>
         [DisplayName("st_no")]
-        public string streetsNumber { get; set; }
+        public int streetsNumber { get; set; }
         /// <summary>
         /// Current Date in format hh24missddMMYY
         /// </summary>
@@ -27,7 +27,7 @@ namespace OPSWebServicesAPI.Models
         ///-12: OPS System error
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// Streets name list
         /// </summary>

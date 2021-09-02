@@ -71,7 +71,7 @@ namespace OPSWebServicesAPI.Models
         /// Contract ID
         /// </summary>
         [DisplayName("contid")]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) E-Mail
         /// </summary>
@@ -117,7 +117,7 @@ namespace OPSWebServicesAPI.Models
         /// Operative System (1: Android, 2: iOS)
         /// </summary>
         [DisplayName("os")]
-        public string operatingSystem { get; set; }
+        public int operatingSystem { get; set; }
         /// <summary>
         /// (*) Plates
         /// </summary>
@@ -140,10 +140,10 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("v")]
         public string version { get; set; }
         /// <summary>
-        /// (*) Validate new conditions is necessary
+        /// (*) Validate new conditions is necessary. 1 - yes, 0 - no.
         /// </summary>
         [DisplayName("val")]
-        public string validateConditions { get; set; }
+        public int validateConditions { get; set; }
     }
 
 }

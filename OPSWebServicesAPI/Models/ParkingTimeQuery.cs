@@ -13,7 +13,7 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("contid")]
         [Required]
-        public string contractId { get; set; }
+        public int contractId { get; set; }
         /// <summary>
         /// (*) Plate
         /// </summary>
@@ -31,6 +31,6 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("t")]
         [Required]
-        public string time { get; set; }
+        public int time { get; set; }
     }
 }

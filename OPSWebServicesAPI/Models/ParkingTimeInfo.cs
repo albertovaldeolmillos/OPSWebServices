@@ -18,22 +18,22 @@ namespace OPSWebServicesAPI.Models
         ///-12: OPS System error
         /// </summary>
         [DisplayName("r")]
-        public string result { get; set; }
+        public int result { get; set; }
         /// <summary>
         /// tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
         /// </summary>
         [DisplayName("ad")]
-        public string tariffType { get; set; }
+        public int tariffType { get; set; }
         /// <summary>
         /// Operation Type: 1: First parking: 2: extension
         /// </summary>
         [DisplayName("o")]
-        public string operationType { get; set; }
+        public int operationType { get; set; }
         /// <summary>
         /// amount needed to arrive to the input parameter t 
         /// </summary>
         [DisplayName("q")]
-        public string payAmount { get; set; }
+        public int payAmount { get; set; }
         /// <summary>
         /// Final date of the parking
         /// </summary>
@@ -48,12 +48,12 @@ namespace OPSWebServicesAPI.Models
         /// Amount of Euro Cents accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
         /// </summary>
         [DisplayName("aq")]
-        public string accumulatedQuantity { get; set; }
+        public int accumulatedQuantity { get; set; }
         /// <summary>
         /// Amount of minutes accumulated in the current parking chain (first parking plus all the extensions) linked to the current operation
         /// </summary>
         [DisplayName("at")]
-        public string accumulatedTime { get; set; }
+        public int accumulatedTime { get; set; }
 
     }
 }

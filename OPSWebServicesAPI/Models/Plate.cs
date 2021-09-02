@@ -17,6 +17,6 @@ namespace OPSWebServicesAPI.Models
         /// status (1:Rotative, 2:Resident, 3:VIP
         /// </summary>
         [DisplayName("stp")]
-        public string status { get; set; }
+        public int status { get; set; }
     }
 }

@@ -11,12 +11,12 @@ namespace OPSWebServicesAPI.Models
         /// Longitude
         /// </summary>
         [DisplayName("lg")]
-        public string longitude { get; set; }
+        public double longitude { get; set; }
         /// <summary>
         /// Latitude
         /// </summary>
         [DisplayName("lt")]
-        public string latitude { get; set; }
+        public double latitude { get; set; }
         /// <summary>
         /// Street name
         /// </summary>
