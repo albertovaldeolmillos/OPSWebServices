@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Mail;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -22,14 +20,16 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Jot;
 using Newtonsoft.Json;
-using OPS.Comm;
-using OPS.Comm.Becs.Messages;
-using OPS.Comm.Cryptography.TripleDes;
-using OPS.Components.Data;
-using OPS.FineLib;
+//using OPS.Comm;
+//using OPS.Components.Data;
+//using OPS.Comm.Becs.Messages;
+//using OPS.Comm.Cryptography.TripleDes;
+//using OPS.Components.Data;
+//using OPS.FineLib;
 using OPSWebServicesAPI.Helpers;
 using OPSWebServicesAPI.Models;
 using Oracle.ManagedDataAccess.Client;
+using static OPSWebServicesAPI.Models.ErrorText;
 
 namespace OPSWebServicesAPI.Controllers
 {
@@ -37,6 +37,7 @@ namespace OPSWebServicesAPI.Controllers
     {
         //private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         static ILogger _logger = null;
+        static int CFineManager_C_ADMON_STATUS_PENDIENTE = 0;
         static string _MacTripleDesKey = null;
         static byte[] _normTripleDesKey = null;
         static MACTripleDES _mac3des = null;
@@ -69,47 +70,6 @@ namespace OPSWebServicesAPI.Controllers
         internal const string PARM_MAX_FREE_SPACES = "P_MAX_FREE_SPACES";
         internal const string PARM_MAX_DIST_SPACES = "P_MAX_DIST_SPACES";
 
-        public enum ResultType
-        {
-            Result_OK = 1,
-            Result_Error = 0,
-            Result_Error_InvalidAuthenticationHash = -1,
-            Result_Error_MaxTimeAlreadyUsedInPark = -2,
-            Result_Error_ReentryTimeError = -3,
-            Result_Error_Plate_Has_No_Return = -4,
-            Result_Error_FineNumberNotFound = -5,
-            Result_Error_FineNumberFoundButNotPayable = -6,
-            Result_Error_FineNumberFoundButTimeExpired = -7,
-            Result_Error_FineNumberAlreadyPayed = -8,
-            Result_Error_Generic = -9,
-            Result_Error_Invalid_Input_Parameter = -10,
-            Result_Error_Missing_Input_Parameter = -11,
-            Result_Error_OPS_Error = -12,
-            Result_Error_Operation_Already_Inserted = -13,
-            Result_Error_Quantity_To_Pay_Different_As_Calculated = -14,
-            Result_Error_Mobile_User_Not_Found = -20,
-            Result_Error_Mobile_User_Already_Registered = -21,
-            Result_Error_Mobile_User_Email_Already_Registered = -22,
-            Result_Error_Invalid_Login = -23,
-            Result_Error_ParkingStartedByDifferentUser = -24,
-            Result_Error_Not_Enough_Credit = -25,
-            Result_Error_Cloud_Id_Not_Found = -26,
-            Result_Error_App_Update_Required = -27,
-            Result_Error_No_Return_For_Minimum = -28,
-            Result_Error_User_Not_Validated = -29,
-            Result_Error_Service_Expired = -30,
-            Result_Error_Recovery_Code_Not_Found = -31,
-            Result_Error_Recovery_Code_Invalid = -32,
-            Result_Error_Recovery_Code_Expired = -33
-        }
-
-        public enum SeverityError
-        {
-            Warning = 1, //aviso a usuario
-            Exception = 2, //error no controlado
-            Critical = 3, //error de lógica
-            Low = 4 //informativo (para logs)
-        }
 
 
         protected override void Initialize(HttpControllerContext controllerContext)
@@ -5033,7 +4993,7 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 rtRes = ResultType.Result_Error_Generic;
-                Logger_AddLogMessage("FindInputParameters::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("FindInputParametersAPI::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
 
@@ -7180,7 +7140,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("SendEmail::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("GeneratePDF::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -7904,10 +7864,10 @@ namespace OPSWebServicesAPI.Controllers
                     if (iGroupId > 0)
                         GetVirtualUnit(iGroupId, ref iVirtualUnit, nContractId);
                     else
-                        Logger_AddLogMessage(string.Format("GetFineData::Error - Could not find group for fine: {0}", iFineId), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("IsFinePayable::Error - Could not find group for fine: {0}", iFineId), LoggerSeverities.Error);
                 }
                 else
-                    Logger_AddLogMessage(string.Format("GetFineData::Error obtaining group for fine: {0}", iFineId), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("IsFinePayable::Error obtaining group for fine: {0}", iFineId), LoggerSeverities.Error);
 
                 if (iVirtualUnit < 0)
                 {
@@ -7915,13 +7875,13 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         if (iVirtualUnit < 0)
                         {
-                            Logger_AddLogMessage(string.Format("GetFineData::Error - could not obtain first virtual unit"), LoggerSeverities.Error);
+                            Logger_AddLogMessage(string.Format("IsFinePayable::Error - could not obtain first virtual unit"), LoggerSeverities.Error);
                             return bResult;
                         }
                     }
                     else
                     {
-                        Logger_AddLogMessage(string.Format("GetFineData::Error obtaining first virtual unit"), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("IsFinePayable::Error obtaining first virtual unit"), LoggerSeverities.Error);
                         return bResult;
                     }
                 }
@@ -7957,7 +7917,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 else
                 {
-                    Logger_AddLogMessage(string.Format("GetFineData::Error sending M5: iRes={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("IsFinePayable::Error sending M5: iRes={0}", iRes), LoggerSeverities.Error);
                     if (parametersOut["r"].ToString().Equals(ConfigurationManager.AppSettings["M05.ErrorCodes.TypeNotPayable"].ToString()))
                         iPayStatus = Convert.ToInt32(ConfigurationManager.AppSettings["FineCancellation.NotPayable"]);
                     else if (parametersOut["r"].ToString().Equals(ConfigurationManager.AppSettings["M05.ErrorCodes.TimeExpired"].ToString()))
@@ -7969,7 +7929,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("GetFineData::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("IsFinePayable::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
 
@@ -8294,7 +8254,7 @@ namespace OPSWebServicesAPI.Controllers
                         responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
                         strDayCode = dataReader.GetString(7);//"DDAY_CODE"
 
-                        if (dataReader.GetInt32(5) != CFineManager.C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                        if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
                         {
                             responsePayed = 1;
                         }
@@ -8362,7 +8322,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("CheckMobileUserName::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("OPSMessage_M05Process::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -9965,8 +9925,10 @@ namespace OPSWebServicesAPI.Controllers
             System.Configuration.AppSettingsReader appSettings = new System.Configuration.AppSettingsReader();
             if (_logger == null)
             {
+                //Se crean 2 loggers uno para el API y otro para el OPS.Comm
                 _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
-                DatabaseFactory.Logger = _logger;
+                //Es necesario inicializar este logger para el OPS.Comm ya que lo pide en CS_M1.cs (linea 103)
+                OPS.Components.Data.DatabaseFactory.Logger = new OPS.Comm.Logger(MethodBase.GetCurrentMethod().DeclaringType); //_logger;
             }
 
             if (_MacTripleDesKey == null)

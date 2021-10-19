@@ -2,11 +2,11 @@
 using CS_OPS_TesM1;
 using Jot;
 using Newtonsoft.Json;
-using OPS.Comm;
-using OPS.Comm.Becs.Messages;
-using OPS.Components;
-using OPS.Components.Data;
-using OPS.FineLib;
+//using OPS.Comm;
+//using OPS.Comm.Becs.Messages;
+//using OPS.Components;
+//using OPS.Components.Data;
+//using OPS.FineLib;
 using OPSWebServicesAPI.Helpers;
 using OPSWebServicesAPI.Models;
 using Oracle.ManagedDataAccess.Client;
@@ -21,7 +21,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,38 +28,21 @@ using System.Web;
 using System.Web.Http;
 using System.Xml;
 using System.Xml.Linq;
+using static OPSWebServicesAPI.Models.ErrorText;
 
 namespace OPSWebServicesAPI.Controllers
 {
-    public class Loc
-    {
-        private double lt;
-        private double lg;
 
-        public double Lg
-        {
-            get { return lg; }
-            set { lg = value; }
-        }
-
-        public double Lt
-        {
-            get { return lt; }
-            set { lt = value; }
-        }
-
-        public Loc(double lt, double lg)
-        {
-            this.lt = lt;
-            this.lg = lg;
-        }
-    }
 
     public class WSMobilePaymentController : ApiController
     {
         static ILogger _logger = null;
 
-        static MessagesSession _msgSession = null;
+        //static MessagesSession _msgSession = null;
+        static int AckMessage_AckTypes_ACK_PROCESSED = 2;
+        static int NackMessage_NackTypes_NACK_ERROR_BECS = 1;
+        static int Msg07_DEF_BIN_FORMAT_EMV_TAS = 6;
+        static int CFineManager_C_ADMON_STATUS_PENDIENTE = 0;
         static string _MacTripleDesKey = null;
         static byte[] _normTripleDesKey = null;
         static MACTripleDES _mac3des = null;
@@ -75,42 +57,6 @@ namespace OPSWebServicesAPI.Controllers
         internal const string PARM_NUM_SPACES_BONUS = "P_NUM_SPACES_BONUS";
         internal const string PARM_SPACES_BONUS = "P_SPACES_BONUS";
 
-        public enum ResultType
-        {
-            Result_OK = 1,
-            Result_Error = 0,
-            Result_Error_InvalidAuthenticationHash = -1,
-            Result_Error_MaxTimeAlreadyUsedInPark = -2,
-            Result_Error_ReentryTimeError = -3,
-            Result_Error_Plate_Has_No_Return = -4,
-            Result_Error_FineNumberNotFound = -5,
-            Result_Error_FineNumberFoundButNotPayable = -6,
-            Result_Error_FineNumberFoundButTimeExpired = -7,
-            Result_Error_FineNumberAlreadyPayed = -8,
-            Result_Error_Generic = -9,
-            Result_Error_Invalid_Input_Parameter = -10,
-            Result_Error_Missing_Input_Parameter = -11,
-            Result_Error_OPS_Error = -12,
-            Result_Error_Operation_Already_Inserted = -13,
-            Result_Error_Quantity_To_Pay_Different_As_Calculated = -14,
-            Result_Error_Mobile_User_Not_Found = -20,
-            Result_Error_Invalid_Login = -23,
-            Result_Error_ParkingStartedByDifferentUser = -24,
-            Result_Error_Not_Enough_Credit = -25,
-            Result_Error_Cloud_Id_Not_Found = -26,
-            Result_Error_App_Update_Required = -27,
-            Result_Error_No_Return_For_Minimum = -28,
-            Result_Error_User_Not_Validated = -29,
-            Result_Error_Location_Not_Found = -30
-        }
-
-        public enum SeverityError
-        {
-            Warning = 1, //aviso a usuario
-            Exception = 2, //error no controlado
-            Critical = 3, //error de lógica
-            Low = 4 //informativo (para logs)
-        }
 
 
         public static ILogger Logger
@@ -8208,7 +8154,7 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 rtRes = ResultType.Result_Error_Generic;
-                Logger_AddLogMessage("FindInputParameters::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("FindInputParametersAPI::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
 
@@ -9117,7 +9063,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("FilterResults::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("AddResultsToCache::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 return false;
             }
@@ -11021,12 +10967,12 @@ namespace OPSWebServicesAPI.Controllers
                     //AckMessage.AckTypes.ACK_PROCESSED = 2
                     //NackMessage.NackTypes.NACK_ERROR_BECS = 1
                     int resultM2Out = OPSMessage_M02Process(parametersM2In, strM2In, nContractId);
-                    if (resultM2Out == (int)AckMessage.AckTypes.ACK_PROCESSED)
+                    if (resultM2Out == AckMessage_AckTypes_ACK_PROCESSED)// (int)AckMessage.AckTypes.ACK_PROCESSED
                         strM2Out = "<ap id=''>" + resultM2Out + "</ap>";
-                    if (resultM2Out == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                    if (resultM2Out == NackMessage_NackTypes_NACK_ERROR_BECS)// (int)NackMessage.NackTypes.NACK_ERROR_BECS)
                         strM2Out = "<nb id=''><error>" + resultM2Out + "</error></nb>";
 
-                    if (resultM2Out == (int)AckMessage.AckTypes.ACK_PROCESSED)//No hay error generico
+                    if (resultM2Out == AckMessage_AckTypes_ACK_PROCESSED)//(int)AckMessage.AckTypes.ACK_PROCESSED)//No hay error generico
                     //if (OPSMessage(strM2In, iVirtualUnit, out strM2Out, nContractId))
                     {
                         Logger_AddLogMessage(string.Format("SendM2::OPSMessageOut = {0}", strM2Out), LoggerSeverities.Info);
@@ -11090,12 +11036,12 @@ namespace OPSWebServicesAPI.Controllers
                     string strM4Out = null;
 
                     int resultM4Out = OPSMessage_M04Process(parametersM4In, strM4In, nContractId);
-                    if (resultM4Out == (int)AckMessage.AckTypes.ACK_PROCESSED)
+                    if (resultM4Out == AckMessage_AckTypes_ACK_PROCESSED)//(int)AckMessage.AckTypes.ACK_PROCESSED)
                         strM4Out = "<ap id=''>" + resultM4Out + "</ap>";
-                    if (resultM4Out == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                    if (resultM4Out == NackMessage_NackTypes_NACK_ERROR_BECS)// (int)NackMessage.NackTypes.NACK_ERROR_BECS)
                         strM4Out = "<nb id=''><error>" + resultM4Out + "</error></nb>";
 
-                    if (resultM4Out == (int)AckMessage.AckTypes.ACK_PROCESSED)//No hay error generico
+                    if (resultM4Out == AckMessage_AckTypes_ACK_PROCESSED)//(int)AckMessage.AckTypes.ACK_PROCESSED)//No hay error generico
                     //if (OPSMessage(strM4In, iVirtualUnit, out strM4Out, nContractId))
                     {
                         Logger_AddLogMessage(string.Format("SendM4::OPSMessageOut = {0}", strM4Out), LoggerSeverities.Info);
@@ -11287,7 +11233,7 @@ namespace OPSWebServicesAPI.Controllers
             //m_logger = DatabaseFactory.Logger;
             try
             {
-                Logger_AddLogMessage("[Msg01]:Processing Message", LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OPSMessage_M01Process]:Processing Message", LoggerSeverities.Debug);
 
                 string outxml = "";
                 int iError = ERROR_NOERROR;
@@ -11466,7 +11412,7 @@ namespace OPSWebServicesAPI.Controllers
 
                         result.Add(strRes);
 
-                        Logger_AddLogMessage("[Msg01]:Process Parsing : Result StringCollection" + result.ToString(), LoggerSeverities.Debug);
+                        Logger_AddLogMessage("[OPSMessage_M01Process]:Process Parsing : Result StringCollection" + result.ToString(), LoggerSeverities.Debug);
 
                     }
                     else
@@ -11477,7 +11423,7 @@ namespace OPSWebServicesAPI.Controllers
                         //string strResult = new AckMessage(_msgId, ret.ToString()).ToString();
                         //result.Add(strResult);
                         //Logger_AddLogMessage("[Msg01]:Process Parsing : Result" + strResult, LoggerSeverities.Debug);
-                        Logger_AddLogMessage("[Msg01]:Process Parsing : Result" + ret.ToString(), LoggerSeverities.Debug);
+                        Logger_AddLogMessage("[OPSMessage_M01Process]:Process Parsing : Result" + ret.ToString(), LoggerSeverities.Debug);
                     }
 
                 }
@@ -11489,7 +11435,7 @@ namespace OPSWebServicesAPI.Controllers
                     //string strResult = new AckMessage(_msgId, ret.ToString()).ToString();
                     //result.Add(strResult);
                     //Logger_AddLogMessage("[Msg01]:Process Parsing : Result" + strResult, LoggerSeverities.Debug);
-                    Logger_AddLogMessage("[Msg01]:Process Parsing : Result" + ret.ToString(), LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[OPSMessage_M01Process]:Process Parsing : Result" + ret.ToString(), LoggerSeverities.Debug);
                 }
                 else
                 {
@@ -11499,14 +11445,14 @@ namespace OPSWebServicesAPI.Controllers
                     //string strResult = new AckMessage(_msgId, ret.ToString()).ToString();
                     //result.Add(strResult);
                     //Logger_AddLogMessage("[Msg01]:Process Parsing : Result" + strResult, LoggerSeverities.Debug);
-                    Logger_AddLogMessage("[Msg01]:Process Parsing : Result" + ret.ToString(), LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[OPSMessage_M01Process]:Process Parsing : Result" + ret.ToString(), LoggerSeverities.Debug);
                 }
 
 
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("[Msg01]:Process:Exception " + e.Message, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OPSMessage_M01Process]:Process:Exception " + e.Message, LoggerSeverities.Debug);
             }
 
             return result;
@@ -11530,10 +11476,10 @@ namespace OPSWebServicesAPI.Controllers
             /// 0 = 0K, -1 = ERR, 1 = OPERACION YA EXISTENTE
             int nInsOperRdo = -1;
 
-            //ILogger logger = null;
+            ILogger logger = null;
             IDbTransaction tran = null;
-            //logger = DatabaseFactory.Logger;
-            Logger_AddLogMessage("[Msg02:Process]", LoggerSeverities.Debug);
+            logger = _logger;// DatabaseFactory.Logger;
+            Logger_AddLogMessage("[OPSMessage_M02Process:Process]", LoggerSeverities.Debug);
 
             CultureInfo culture = new CultureInfo("", false);
 
@@ -11556,9 +11502,9 @@ namespace OPSWebServicesAPI.Controllers
             int _time = (parametersM2In["t"] == null) ? -1 : Convert.ToInt32(parametersM2In["t"]);
             int _onlineMessage = (parametersM2In["om"] == null) ? -1 : Convert.ToInt32(parametersM2In["om"]);
             double _quantity = (parametersM2In["q"] == null) ? -1 : Convert.ToDouble(parametersM2In["q"], (IFormatProvider)culture.NumberFormat);
-            DateTime _date = (parametersM2In["d"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["d"].ToString());
-            DateTime _dateIni = (parametersM2In["d1"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["d1"].ToString());
-            DateTime _dateEnd = (parametersM2In["d2"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["d2"].ToString());            
+            DateTime _date = (parametersM2In["d"] == null) ? DateTime.MinValue : Dtx.StringToDtx(parametersM2In["d"].ToString());
+            DateTime _dateIni = (parametersM2In["d1"] == null) ? DateTime.MinValue : Dtx.StringToDtx(parametersM2In["d1"].ToString());
+            DateTime _dateEnd = (parametersM2In["d2"] == null) ? DateTime.MinValue : Dtx.StringToDtx(parametersM2In["d2"].ToString());            
             string _szCloudId = (parametersM2In["cid"] == null) ? "" : parametersM2In["cid"].ToString();
             string _vehicleId = (parametersM2In["m"] == null) ? "" : parametersM2In["m"].ToString();
 
@@ -11569,7 +11515,7 @@ namespace OPSWebServicesAPI.Controllers
             int _iSpaceId = (parametersM2In["spcid"] == null) ? -1 : Convert.ToInt32(parametersM2In["spcid"]);// 
             string _szReference = (parametersM2In["ref"] == null) ? "" : parametersM2In["ref"].ToString();//
 
-            DateTime _dtExpirDate = (parametersM2In["td"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM2In["td"].ToString());//
+            DateTime _dtExpirDate = (parametersM2In["td"] == null) ? DateTime.MinValue : Dtx.StringToDtx(parametersM2In["td"].ToString());//
             uint _ulChipCardId = (parametersM2In["chi"] == null) ? 0 : Convert.ToUInt32(parametersM2In["chi"]);//
             double _dChipCardCredit = (parametersM2In["chc"] == null) ? -1 : Convert.ToDouble(parametersM2In["chc"], (IFormatProvider)culture.NumberFormat);//
             double _quantityReal = (parametersM2In["rq"] == null) ? -1 : Convert.ToDouble(parametersM2In["rq"], (IFormatProvider)culture.NumberFormat);//
@@ -11649,7 +11595,7 @@ namespace OPSWebServicesAPI.Controllers
                         if (_groupId == -1) // If no group found that is an error...
                         {
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
 
@@ -11670,12 +11616,12 @@ namespace OPSWebServicesAPI.Controllers
                         iBinFormat = _binType;
                     }
 
-                    ILogger logger = DatabaseFactory.Logger;
-                    CmpOperationsDB cmp = new CmpOperationsDB();
+                    //ILogger logger = DatabaseFactory.Logger;
+                    //CmpOperationsDB cmp = new CmpOperationsDB();
                     //if (!Msg07.ListaNegra(logger, _szCCNumber, iBinFormat))
                     if (!Msg07ListaNegra(_szCCNumber, iBinFormat, nContractId))
                     {
-                        Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + _szCCNumber + " is NOT in blacklist", LoggerSeverities.Info);
+                        Logger_AddLogMessage("[OPSMessage_M02Process:Msg07ListaNegra:ListaNegra]: Credit Card " + _szCCNumber + " is NOT in blacklist", LoggerSeverities.Info);
                         int nNewOperationID = 0;
                         int iRealTime = -1;
                         int iQuantity = -1;
@@ -11722,7 +11668,7 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (_iPostPay == 1)
@@ -11738,7 +11684,7 @@ namespace OPSWebServicesAPI.Controllers
 
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateCOID(_coid, nNewOperationID, tran))
@@ -11746,33 +11692,35 @@ namespace OPSWebServicesAPI.Controllers
 
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
 
                             if (_iNumCoupons > 0)
                             {
-                                CmpMoneyOffCoupons cmpCoupons = new CmpMoneyOffCoupons();
+                                //CmpMoneyOffCoupons cmpCoupons = new CmpMoneyOffCoupons();
                                 for (int i = 0; i < _iNumCoupons; i++)
                                 {
-                                    if (cmpCoupons.SetCouponAsUsed(tran, _couponsId[i], _date, _vehicleId, _paytypeDefId) <= 0)
+                                    int CmpMoneyOffCouponsDB_MoneyOffCouponsStates_Used = 2;
+                                    //if (cmpCoupons.SetCouponAsUsed(tran, _couponsId[i], _date, _vehicleId, _paytypeDefId) <= 0)
+                                    if (cmpCouponsSetCouponAsUsed(tran, _couponsId[i], CmpMoneyOffCouponsDB_MoneyOffCouponsStates_Used, DateTime.MinValue, DateTime.MinValue, DateTime.MinValue, _date, DateTime.MinValue, 0, _vehicleId, _paytypeDefId) <= 0)
                                     {
                                         RollbackTrans(tran);
                                         //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                        return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                     }
                                     if (!UpdateMoneyOffDiscount(nNewOperationID, i + 1, _couponsId[i], tran))
                                     {
                                         RollbackTrans(tran);
                                         //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                        return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                     }
                                 }
                                 if (!UpdateValueVis(nNewOperationID, _quantityReal, tran))
                                 {
                                     RollbackTrans(tran);
                                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                    return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                 }
 
                             }
@@ -11781,28 +11729,28 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateReference(_szReference, nNewOperationID, tran))
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateCloudData(_mobileUserId, _szCloudId, _iOS, nNewOperationID, tran))
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             if (!UpdateSpaceInfo(_iSpaceId, nNewOperationID, tran))
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             //Creo el método CmpCreditCard para la lógica de CreditCard
@@ -11810,24 +11758,24 @@ namespace OPSWebServicesAPI.Controllers
                             //En M2 strOperInfo es _vehicleId
                             //En M4 strOperInfo es fineNumber (realmente fineId) y _szRechargeCCNumber = "" y _szRechargeCCName = ""
                             int resCreditCard = CmpCreditCard(tran, _szCCNumber, _szCCName, _unitId, nNewOperationID, _szRechargeCCNumber, _nStatus, _szRechargeCCName, _dtExpirDate, _szCCCodServ, _szCCDiscData, iBinFormat, _date, _quantity, _vehicleId);
-                            if (resCreditCard == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                            if (resCreditCard == NackMessage_NackTypes_NACK_ERROR_BECS)// (int)NackMessage.NackTypes.NACK_ERROR_BECS)
                             {
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
 
                         }
                         else if (nInsOperRdo == 1)
                         {
-                            Logger_AddLogMessage("[Msg02:Process]: Operation already exists in DB", LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[OPSMessage_M02Process:Process]: Operation already exists in DB", LoggerSeverities.Debug);
                             //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                            return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                         }
                         else
                         {
                             RollbackTrans(tran);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                     else
@@ -11836,22 +11784,22 @@ namespace OPSWebServicesAPI.Controllers
                         if (!InsertFraudMsgs(_unitId, _date, _szCCNumber, _szCCName, _dtExpirDate, _vehicleId, strM2In, tran))
                         {
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                     
 
                     CommitTrans(tran);
                     //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                    return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                 }
 
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("[Msg02:Process] EXCEPTION: " + e.ToString(), LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OPSMessage_M02Process:Process] EXCEPTION: " + e.ToString(), LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
         }
 
@@ -11878,7 +11826,7 @@ namespace OPSWebServicesAPI.Controllers
             int _paymentDefId = (parametersM4In["p"] == null) ? -1 : Convert.ToInt32(parametersM4In["p"]);
             double _quantity = (parametersM4In["q"] == null) ? -1 : Convert.ToDouble(parametersM4In["q"]);
             int _unitId = (parametersM4In["u"] == null) ? -1 : Convert.ToInt32(parametersM4In["u"]);
-            DateTime _date = (parametersM4In["d"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM4In["d"].ToString());
+            DateTime _date = (parametersM4In["d"] == null) ? DateTime.MinValue : Dtx.StringToDtx(parametersM4In["d"].ToString());
             int _mobileUserId = (parametersM4In["mui"] == null) ? -1 : Convert.ToInt32(parametersM4In["mui"]);
             string _szCloudId = (parametersM4In["cid"] == null) ? "" : parametersM4In["cid"].ToString();
             int _iOS = (parametersM4In["os"] == null) ? 0 : Convert.ToInt32(parametersM4In["os"]);
@@ -11887,7 +11835,7 @@ namespace OPSWebServicesAPI.Controllers
             int _operationId = (parametersM4In["o"] == null) ? -1 : Convert.ToInt32(parametersM4In["o"]);
             int _operType = (parametersM4In["ot"] == null) ? -1 : Convert.ToInt32(parametersM4In["ot"]);
             string _szCCNumber = (parametersM4In["tn"] == null) ? "" : parametersM4In["tn"].ToString();
-            DateTime _dtExpirDate = (parametersM4In["td"] == null) ? DateTime.MinValue : OPS.Comm.Dtx.StringToDtx(parametersM4In["td"].ToString());
+            DateTime _dtExpirDate = (parametersM4In["td"] == null) ? DateTime.MinValue : Dtx.StringToDtx(parametersM4In["td"].ToString());
             string _szCCName = (parametersM4In["tm"] == null) ? "" : parametersM4In["tm"].ToString();
             string _szCCCodServ = (parametersM4In["ts"] == null) ? "" : parametersM4In["ts"].ToString();
             string _szCCDiscData = (parametersM4In["tdd"] == null) ? "" : parametersM4In["tdd"].ToString();
@@ -11926,8 +11874,8 @@ namespace OPSWebServicesAPI.Controllers
                 Console.WriteLine("M04.cs:Proccess - Inicio del procesado del M04");
                 ILogger logger = null;
                 IDbTransaction tran = null;
-                logger = DatabaseFactory.Logger;
-                Logger_AddLogMessage("[Msg04:Process]", LoggerSeverities.Debug);
+                logger = _logger;//DatabaseFactory.Logger;
+                Logger_AddLogMessage("[OPSMessage_M04Process:Process]", LoggerSeverities.Debug);
 
                 // this._paymentDefId == OPERATIONS_BILLREADER_REFUNDRECEIPT !!!!!!!!!!!!!!!! chapuza momentanea
                 if (_operType == OPERATIONS_BILLREADER_REFUNDRECEIPT || _paymentDefId == OPERATIONS_BILLREADER_REFUNDRECEIPT)
@@ -11972,7 +11920,7 @@ namespace OPSWebServicesAPI.Controllers
                     //if (!Msg07.ListaNegra(logger, _szCCNumber, iBinFormat))
                     if (!Msg07ListaNegra(_szCCNumber, iBinFormat, nContractId))
                     {
-                        Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + _szCCNumber + " is NOT in blacklist", LoggerSeverities.Info);
+                        Logger_AddLogMessage("[OPSMessage_M04Process:Msg07ListaNegra:ListaNegra]: Credit Card " + _szCCNumber + " is NOT in blacklist", LoggerSeverities.Info);
                         // Step 1: Search for an existing fine
                         //DataTable dt = null;
                         //CmpFinesDB fdb = new CmpFinesDB();
@@ -11982,10 +11930,10 @@ namespace OPSWebServicesAPI.Controllers
                             //No puede ser: _fineNumber realmente es FIN_ID
                             if (!CmpGetFine(_fineNumber, FINES_DEF_CODES_FINE, ref vehicleId, ref model, ref manufacturer, ref colour, ref groupId, ref streetId, ref streetNumber, ref comments, ref userId, nContractId))
                             {
-                                Logger_AddLogMessage("[Msg04:Process]:ERROR ON SELECT FINE", LoggerSeverities.Debug);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                Logger_AddLogMessage("[OPSMessage_M04Process:Process]:ERROR ON SELECT FINE", LoggerSeverities.Debug);
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
-                            Logger_AddLogMessage("[Msg04:Process]: data refs calculated", LoggerSeverities.Info);
+                            Logger_AddLogMessage("[OPSMessage_M04Process:Process]: data refs calculated", LoggerSeverities.Info);
                             /*
                             string sql = "SELECT * "
                                 + "FROM FINES "
@@ -12042,7 +11990,7 @@ namespace OPSWebServicesAPI.Controllers
                         //				}
                         if (groupId == -1)
                         {
-                            Logger_AddLogMessage("[Msg04:Process]: group getted in parentsList", LoggerSeverities.Info);
+                            Logger_AddLogMessage("[OPSMessage_M04Process:Process]: group getted in parentsList", LoggerSeverities.Info);
                             // Get the physical groups tree and store it in parentsList
                             //CmpGroupsChildsDB gcdb = new CmpGroupsChildsDB();
                             //groupId = gcdb.GetFirstPhysicalParent(_unitId);
@@ -12059,7 +12007,7 @@ namespace OPSWebServicesAPI.Controllers
 						*/
 
                         // Step 3: Insert the register in the OPERATIONS table
-                        CmpOperationsDB odb = new CmpOperationsDB();
+                        //CmpOperationsDB odb = new CmpOperationsDB();
                         int nNewOperationID = 0;
 
 
@@ -12107,7 +12055,7 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
 
                             //Creo el método CmpCreditCard para la lógica de CreditCard
@@ -12115,24 +12063,24 @@ namespace OPSWebServicesAPI.Controllers
                             //En M2 strOperInfo es _vehicleId
                             //En M4 strOperInfo es fineNumber (realmente fineId) y _szRechargeCCNumber = "" y _szRechargeCCName = ""
                             int resCreditCard = CmpCreditCard(tran, _szCCNumber, _szCCName, _unitId, nNewOperationID, "", _nStatus, "", _dtExpirDate, _szCCCodServ, _szCCDiscData, iBinFormat, _date, _quantity, _fineNumber);
-                            if (resCreditCard == (int)NackMessage.NackTypes.NACK_ERROR_BECS)
+                            if (resCreditCard == NackMessage_NackTypes_NACK_ERROR_BECS)// (int)NackMessage.NackTypes.NACK_ERROR_BECS)
                             {
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
                         }
                         else if (nInsOperRdo == 1)
                         {
                             //RollbackTrans(tran);
-                            Logger_AddLogMessage("[Msg04:Process]: Operation already exists in DB", LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[OPSMessage_M04Process:Process]: Operation already exists in DB", LoggerSeverities.Debug);
                             //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                            return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                         }
                         else
                         {
-                            Logger_AddLogMessage("[Msg04:Process]: nInsOperRdo = -1", LoggerSeverities.Info);
+                            Logger_AddLogMessage("[OPSMessage_M04Process:Process]: nInsOperRdo = -1", LoggerSeverities.Info);
                             RollbackTrans(tran);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
 
                     }
@@ -12141,7 +12089,7 @@ namespace OPSWebServicesAPI.Controllers
                         if (!InsertFraudMsgs(_unitId, _date, _szCCNumber, _szCCName, _dtExpirDate, _fineNumber, "", tran))
                         {
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
 
                     }
@@ -12150,12 +12098,13 @@ namespace OPSWebServicesAPI.Controllers
                 CommitTrans(tran);
                 // Finished.
                 //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
             }
             catch (Exception)
             {
+                Logger_AddLogMessage("[OPSMessage_M04Process:Process]: Exception", LoggerSeverities.FatalError);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
         }
 
@@ -12250,7 +12199,7 @@ namespace OPSWebServicesAPI.Controllers
                         responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
                         strDayCode = dataReader.GetString(7);//"DDAY_CODE"
 
-                        if (dataReader.GetInt32(5) != CFineManager.C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                        if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
                         {
                             responsePayed = 1;
                         }
@@ -12318,7 +12267,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("CheckMobileUserName::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("OPSMessage_M05Process::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -12362,23 +12311,23 @@ namespace OPSWebServicesAPI.Controllers
         private int CmpCreditCard(IDbTransaction tran, string _szCCNumber, string _szCCName, int _unitId, int nNewOperationID, string _szRechargeCCNumber, int _nStatus, string _szRechargeCCName, DateTime _dtExpirDate,string _szCCCodServ, string _szCCDiscData, int iBinFormat, DateTime _date, double _quantity, string strOperInfo)
         {
             int STATUS_INSERT = 0;
-            OPS.Components.Data.CmpCreditCardDB cmpCreditCard = null;
-            cmpCreditCard = new OPS.Components.Data.CmpCreditCardDB();
+            //CmpCreditCardDB cmpCreditCard = null;
+            //cmpCreditCard = new CmpCreditCardDB();
 
-            if (cmpCreditCard == null)
-            {
-                RollbackTrans(tran);
+            //if (cmpCreditCard == null)
+            //{
+                //RollbackTrans(tran);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
-            }
+                //return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            //}
 
             try
             {
                 if (_szCCNumber != "")
                 {
-                    Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[CmpCreditCard:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
 
-                    CmpCreditCardsTransactionsDB cmpCreditCardsTransactionsDB = new CmpCreditCardsTransactionsDB();
+                    //CmpCreditCardsTransactionsDB cmpCreditCardsTransactionsDB = new CmpCreditCardsTransactionsDB();
                     if (_szCCNumber == "CCZ_OPERATIONID")
                     {
                         //szCCName contiene el número de transacción
@@ -12417,7 +12366,7 @@ namespace OPSWebServicesAPI.Controllers
                         {
                             RollbackTrans(tran);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
 
                         if (state == "20")
@@ -12438,14 +12387,14 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     RollbackTrans(tran);
                                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                    return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                                 }
                             }
                             else
                             {
                                 RollbackTrans(tran);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
 
                             }
                         }
@@ -12453,96 +12402,514 @@ namespace OPSWebServicesAPI.Controllers
                         {
                             RollbackTrans(tran);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
 
                         if (_szRechargeCCNumber != "")
                         {
-                            Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[CmpCreditCard:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
                             _nStatus = STATUS_INSERT;
-                            if (cmpCreditCard.Insert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
+                            if (cmpCreditCardInsert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
                             {
                                 RollbackTrans(tran);
-                                Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                                Logger_AddLogMessage("[CmpCreditCard:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
                                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                             }
                             else
                             {
-                                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                                Logger_AddLogMessage("[CmpCreditCard:Process]: RESULT OK", LoggerSeverities.Debug);
                             }
                         }
 
-                        return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                        return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                     }
-                    else if (iBinFormat == Msg07.DEF_BIN_FORMAT_EMV_TAS && _szCCNumber == "TRANSACTION_ID")
+                    else if (iBinFormat == Msg07_DEF_BIN_FORMAT_EMV_TAS && _szCCNumber == "TRANSACTION_ID")
                     {
                         int iTransId = -1;
-                        if (cmpCreditCardsTransactionsDB.InsertCommitTrans(tran, _szCCName, _date, nNewOperationID, Convert.ToInt32(_quantity), _unitId, strOperInfo, out iTransId) < 0)
+                        if (cmpCreditCardsTransactionsDBInsertCommitTrans(tran, _szCCName, _date, nNewOperationID, Convert.ToInt32(_quantity), _unitId, strOperInfo, out iTransId) < 0)
                         {
                             RollbackTrans(tran);
-                            Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[CmpCreditCard:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                         else
                         {
-                            Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                            Logger_AddLogMessage("[CmpCreditCard:Process]: RESULT OK", LoggerSeverities.Debug);
+                            return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                         }
                     }
-                    else if (iBinFormat == Msg07.DEF_BIN_FORMAT_EMV_TAS && _szCCNumber != "TRANSACTION_ID")
+                    else if (iBinFormat == Msg07_DEF_BIN_FORMAT_EMV_TAS && _szCCNumber != "TRANSACTION_ID")
                     {
                         RollbackTrans(tran);
-                        Logger_AddLogMessage("[Msg02:Process]:TRANSACTION ID IS NOT ATTACHED", LoggerSeverities.Debug);
+                        Logger_AddLogMessage("[CmpCreditCard:Process]:TRANSACTION ID IS NOT ATTACHED", LoggerSeverities.Debug);
                         //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                     }
                     else
                     {
                         _nStatus = STATUS_INSERT;
-                        if (cmpCreditCard.Insert(tran, nNewOperationID, _szCCNumber, _szCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
+                        if (cmpCreditCardInsert(tran, nNewOperationID, _szCCNumber, _szCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
                         {
                             RollbackTrans(tran);
-                            Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[CmpCreditCard:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                         else
                         {
-                            Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                            return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                            Logger_AddLogMessage("[CmpCreditCard:Process]: RESULT OK", LoggerSeverities.Debug);
+                            return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                         }
                     }
                 }
                 else if (_szRechargeCCNumber != "")
                 {
-                    Logger_AddLogMessage("[Msg02:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[CmpCreditCard:Process]: Operation WITH Card Id", LoggerSeverities.Debug);
                     _nStatus = STATUS_INSERT;
-                    if (cmpCreditCard.Insert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
+                    if (cmpCreditCardInsert(tran, nNewOperationID, _szRechargeCCNumber, _szRechargeCCName, _dtExpirDate, _nStatus, _szCCCodServ, _szCCDiscData) < 0)
                     {
                         RollbackTrans(tran);
-                        Logger_AddLogMessage("[Msg02:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
+                        Logger_AddLogMessage("[CmpCreditCard:Process]:ERROR ON INSERT", LoggerSeverities.Debug);
                         //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                        return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                        return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                     }
                     else
                     {
-                        Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
-                        return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                        Logger_AddLogMessage("[CmpCreditCard:Process]: RESULT OK", LoggerSeverities.Debug);
+                        return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                     }
                 }
                 else
                 {
-                    Logger_AddLogMessage("[Msg02:Process]: Operation WITHOUT Card Id", LoggerSeverities.Debug);
-                    return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                    Logger_AddLogMessage("[CmpCreditCard:Process]: Operation WITHOUT Card Id", LoggerSeverities.Debug);
+                    return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
                 }
             }
             catch (Exception exc)
             {
-                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[CmpCreditCard:Process]" + exc.Message, LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new register in the CREDIT_CARDS_TRANSACTIONS table.
+        /// Returns 1 = 0K, < 0 ERROR
+        /// </summary>
+        /// <param name="tran"></param>
+        /// <param name="strTransId"></param>
+        /// <param name="dtDate"></param>
+        /// <param name="nOpeId"></param>
+        /// <param name="nQuantity"></param>
+        /// <param name="nUniId"></param>
+        /// <param name="strOperInfo"></param>
+        /// <param name="nTransId"></param>
+        /// <returns></returns>
+        private int cmpCreditCardsTransactionsDBInsertCommitTrans(IDbTransaction tran, string strTransId, DateTime dtDate, int nOpeId, int nQuantity, int nUniId, string strOperInfo, out int nTransId)
+        {
+            int TRANS_COMMITTED = 40;
+            return cmpCreditCardsTransactionsDBInsert(tran, strTransId, dtDate, "", "", new DateTime(1900, 1, 1, 0, 0, 0),
+                "", "", TRANS_COMMITTED, nQuantity, nOpeId, nUniId, strOperInfo, out nTransId);
+        }
+
+        /// <summary>
+        /// Inserts a new register in the CREDIT_CARDS_TRANSACTIONS table.
+        /// Returns 1 = 0K, < 0 ERROR
+        /// </summary>
+        /// <param name="tran"></param>
+        /// <param name="strTransId"></param>
+        /// <param name="dtDate"></param>
+        /// <param name="sCCNumber"></param>
+        /// <param name="sCCName"></param>
+        /// <param name="dtExprtnDate"></param>
+        /// <param name="strCCCodServ"></param>
+        /// <param name="strCCDiscData"></param>
+        /// <param name="nState"></param>
+        /// <param name="nQuantity"></param>
+        /// <param name="nOpeId"></param>
+        /// <param name="nUniId"></param>
+        /// <param name="strOperInfo"></param>
+        /// <param name="nTransId"></param>
+        /// <returns></returns>
+        private int cmpCreditCardsTransactionsDBInsert(IDbTransaction tran, string strTransId, DateTime dtDate, string sCCNumber, string sCCName, DateTime dtExprtnDate,
+            string strCCCodServ, string strCCDiscData, int nState, int nQuantity, int nOpeId, int nUniId, string strOperInfo, out int nTransId)
+        {
+
+            int iCodServ;
+
+            if (strCCCodServ == "")
+            {
+                iCodServ = 999;
+            }
+            else
+            {
+                try
+                {
+                    iCodServ = Convert.ToInt32(strCCCodServ);
+                }
+                catch
+                {
+                    iCodServ = 999;
+                }
+            }
+
+            nTransId = -1;
+
+            //tran = null;
+            int nRdo = 1;
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[cmpCreditCardsTransactionsDBInsert:Process]: INSERT CREDIT_CARDS_TRANSACTIONS", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                //string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                //if (sConn == null)
+                //    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = (OracleConnection)tran.Connection;// new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                //tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select SEQ_CC_TRANSACTIONS.NEXTVAL FROM DUAL");
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    selCmd.CommandText = string.Format("select count(*) from CREDIT_CARDS_TRANSACTIONS where CCT_UNI_ID={0} and CCT_INS_DATE=to_date('{1}','hh24missddmmyy')", nUniId, Dtx.DtxToString(dtDate));
+                    int iNumRegs = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (iNumRegs == 0)
+                    {
+                        selCmd.CommandText = selectUE;
+                        nTransId = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                        if (nTransId > 0)
+                        {
+
+                            String updateUE = String.Format("INSERT INTO CREDIT_CARDS_TRANSACTIONS (CCT_ID, CCT_TRANS_ID, CCT_INS_DATE, CCT_OPE_ID, CCT_QUANTITY, " +
+                                "CCT_NUMBER, CCT_NAME, CCT_EXPRTN_DATE, CCT_STATE, CCT_STATE_DATE, " +
+                                "CCT_CODSERV, CCT_DISC_DATA, CCT_UNI_ID, CCT_OPER_INFO) " +
+                                " VALUES ({0},{1},{2},{3},{4},{5}," +
+                                "'{6}','{7}',{8},{9},{10}," +
+                                "{11},'{12}',{13},'{14}') ",
+                                nTransId, strTransId, dtDate, (nOpeId == -1 ? DBNull.Value : (object)nOpeId), nQuantity,
+                                (sCCNumber == "" ? DBNull.Value : (object)sCCNumber), (sCCName == "" ? DBNull.Value : (object)sCCName), (dtExprtnDate.Year == 1900 ? DBNull.Value : (object)dtExprtnDate), nState, DateTime.Now,
+                                (iCodServ == -1 ? DBNull.Value : (object)iCodServ), (strCCDiscData == "" ? DBNull.Value : (object)strCCDiscData), nUniId, (((strOperInfo == null) || (strOperInfo == "")) ? DBNull.Value : (object)strOperInfo));
+
+                            oraCmd = new OracleCommand();
+                            oraCmd.Connection = (OracleConnection)oraDBConn;
+                            oraCmd.CommandText = updateUE;
+                            oraCmd.Transaction = (OracleTransaction)tran;
+
+                            Logger_AddLogMessage("[cmpCreditCardsTransactionsDBInsert:Process]: SQL: " + updateUE, LoggerSeverities.Info);
+
+                            if (oraCmd.ExecuteNonQuery() != 1)
+                            {
+
+                                if (oraCmd != null)
+                                {
+                                    oraCmd.Dispose();
+                                    oraCmd = null;
+                                }
+
+                                if (selCmd != null)
+                                {
+                                    selCmd.Dispose();
+                                    selCmd = null;
+                                }
+
+                                //RollbackTrans(tran);
+
+                                Logger_AddLogMessage("[cmpCreditCardsTransactionsDBInsert:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                                return -1;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (oraCmd != null)
+                        {
+                            oraCmd.Dispose();
+                            oraCmd = null;
+                        }
+
+                        if (selCmd != null)
+                        {
+                            selCmd.Dispose();
+                            selCmd = null;
+                        }
+                        return 1;//OK ya existe
+                    }
+
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    //RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[cmpCreditCardsTransactionsDBInsert:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    return -1;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                //CommitTrans(tran);
+
+                Logger_AddLogMessage("[cmpCreditCardsTransactionsDBInsert:Process]: RESULT OK", LoggerSeverities.Debug);
+
+                return 1;//OK creado
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                //RollbackTrans(tran);
+
+                Logger_AddLogMessage("[cmpCreditCardsTransactionsDBInsert:Process]" + exc.Message, LoggerSeverities.Debug);
+
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new register in the CREDIT_CARDS table.
+        /// Returns 1 = 0K, < 0 ERROR
+        /// </summary>
+        /// <param name="tran"></param>
+        /// <param name="nOpeID"></param>
+        /// <param name="sCCNumber"></param>
+        /// <param name="sCCName"></param>
+        /// <param name="dtExprtnDate"></param>
+        /// <param name="nCCState"></param>
+        /// <param name="strCCCodServ"></param>
+        /// <param name="strCCDiscData"></param>
+        /// <returns></returns>
+        private int cmpCreditCardInsert(IDbTransaction tran, int nOpeID, string sCCNumber, string sCCName, DateTime dtExprtnDate,
+            int nCCState, string strCCCodServ, string strCCDiscData)
+        {
+            return cmpCreditCardInsert(tran, nOpeID, sCCNumber, sCCName, dtExprtnDate, nCCState, strCCCodServ, strCCDiscData, 0);
+        }
+
+        /// <summary>
+        /// Inserts a new register in the CREDIT_CARDS table.
+        /// Returns 1 = 0K, < 0 ERROR
+        /// </summary>
+        /// <param name="tran"></param>
+        /// <param name="nOpeID"></param>
+        /// <param name="sCCNumber"></param>
+        /// <param name="sCCName"></param>
+        /// <param name="dtExprtnDate"></param>
+        /// <param name="nCCState"></param>
+        /// <param name="strCCCodServ"></param>
+        /// <param name="strCCDiscData"></param>
+        /// <param name="iExported"></param>
+        /// <returns></returns>
+        private int cmpCreditCardInsert(IDbTransaction tran, int nOpeID, string sCCNumber, string sCCName, DateTime dtExprtnDate,
+                            int nCCState, string strCCCodServ, string strCCDiscData, int iExported)
+        {
+
+            int iCodServ;
+
+            if (strCCCodServ == "")
+            {
+                iCodServ = 999;
+            }
+            else
+            {
+                try
+                {
+                    iCodServ = Convert.ToInt32(strCCCodServ);
+                }
+                catch
+                {
+                    iCodServ = 999;
+                }
+            }
+
+            //tran = null;
+            int nRdo = 1;
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            OracleCommand selCmd = null;
+
+            try
+            {
+                Logger_AddLogMessage("[cmpCreditCardInsert:Process]: INSERT CREDIT_CARDS", LoggerSeverities.Info);
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                //						logger = DatabaseFactory.Logger;
+
+                //string sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                //if (sConn == null)
+                //    throw new Exception("No ConnectionString configuration");
+
+                oraDBConn = (OracleConnection)tran.Connection;// new OracleConnection(sConn);
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraDBConn;
+                oraCmd.Connection.Open();
+
+                //tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+
+                String selectUE = String.Format("select SEQ_CREDIT_CARDS.NEXTVAL FROM DUAL");
+
+                selCmd = new OracleCommand();
+                selCmd.Connection = (OracleConnection)oraDBConn;
+                selCmd.CommandText = selectUE;
+                selCmd.Transaction = (OracleTransaction)tran;
+
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+                    int nNewOperationsDB = Convert.ToInt32(selCmd.ExecuteScalar());
+
+                    if (nNewOperationsDB > 0)
+                    {
+                       
+                        String updateUE = String.Format("INSERT INTO CREDIT_CARDS (CC_ID, CC_INS_DATE, CC_OPE_ID, CC_NUMBER, CC_NAME, " +
+                            "CC_EXPRTN_DATE, CC_STATE, CC_CODSERV, CC_DISC_DATA, CC_4BEXPORT) " +
+                            " VALUES ({0},{1},{2},{3},'{4}','{5}'," +
+                            "{6},{7},{8},'{9}',{10}) ",
+                            nNewOperationsDB, DateTime.Now, (nOpeID == -1 ? ("NULL") : (object)nOpeID), (sCCNumber == null ? ("NULL") : (object)sCCNumber),(sCCName == null ? ("NULL") : (object)sCCName),
+                            (dtExprtnDate == DateTime.MinValue ? DBNull.Value : (object)dtExprtnDate), (nCCState == -1 ? ("NULL") : (object)nCCState), (iCodServ == -1 ? ("NULL") : (object)iCodServ), (strCCDiscData == null ? ("NULL") : (object)strCCDiscData), (iExported == -1 ? ("NULL") : (object)iExported));
+
+                        oraCmd = new OracleCommand();
+                        oraCmd.Connection = (OracleConnection)oraDBConn;
+                        oraCmd.CommandText = updateUE;
+                        oraCmd.Transaction = (OracleTransaction)tran;
+
+                        Logger_AddLogMessage("[cmpCreditCardInsert:Process]: SQL: " + updateUE, LoggerSeverities.Info);
+
+                        if (oraCmd.ExecuteNonQuery() != 1)
+                        {
+
+                            if (oraCmd != null)
+                            {
+                                oraCmd.Dispose();
+                                oraCmd = null;
+                            }
+
+                            if (selCmd != null)
+                            {
+                                selCmd.Dispose();
+                                selCmd = null;
+                            }
+
+                            //RollbackTrans(tran);
+
+                            Logger_AddLogMessage("[cmpCreditCardInsert:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+
+                            return -1;
+                        }
+                    }
+                }
+                else
+                {
+                    if (oraCmd != null)
+                    {
+                        oraCmd.Dispose();
+                        oraCmd = null;
+                    }
+
+                    if (selCmd != null)
+                    {
+                        selCmd.Dispose();
+                        selCmd = null;
+                    }
+
+                    //RollbackTrans(tran);
+
+                    Logger_AddLogMessage("[cmpCreditCardInsert:Process]: Connection not opened", LoggerSeverities.Debug);
+
+                    return -1;
+                }
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                //CommitTrans(tran);
+
+                Logger_AddLogMessage("[cmpCreditCardInsert:Process]: RESULT OK", LoggerSeverities.Debug);
+
+                return 1;
+            }
+            catch (Exception exc)
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (selCmd != null)
+                {
+                    selCmd.Dispose();
+                    selCmd = null;
+                }
+
+                //RollbackTrans(tran);
+
+                Logger_AddLogMessage("[cmpCreditCardInsert:Process]" + exc.Message, LoggerSeverities.Debug);
+
+                return -1;
             }
         }
 
@@ -12596,7 +12963,7 @@ namespace OPSWebServicesAPI.Controllers
 
             try
             {
-                Logger_AddLogMessage("[Msg02:Process]: INSERT OPERATION", LoggerSeverities.Info);
+                Logger_AddLogMessage("[CmpInsertOperation:Process]: INSERT OPERATION", LoggerSeverities.Info);
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
                 //						logger = DatabaseFactory.Logger;
@@ -12642,7 +13009,7 @@ namespace OPSWebServicesAPI.Controllers
                         oraCmd.CommandText = updateUE;
                         oraCmd.Transaction = (OracleTransaction)tran;
 
-                        Logger_AddLogMessage("[Msg02:Process]: SQL: " + updateUE, LoggerSeverities.Info);
+                        Logger_AddLogMessage("[CmpInsertOperation:Process]: SQL: " + updateUE, LoggerSeverities.Info);
 
                         if (oraCmd.ExecuteNonQuery() != 1)
                         {
@@ -12661,7 +13028,7 @@ namespace OPSWebServicesAPI.Controllers
 
                             //RollbackTrans(tran);
 
-                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[CmpInsertOperation:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
 
                             return -1;
                         }
@@ -12683,7 +13050,7 @@ namespace OPSWebServicesAPI.Controllers
 
                     //RollbackTrans(tran);
 
-                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[CmpInsertOperation:Process]: Connection not opened", LoggerSeverities.Debug);
 
                     return -1;
                 }
@@ -12703,7 +13070,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 //CommitTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                Logger_AddLogMessage("[CmpInsertOperation:Process]: RESULT OK", LoggerSeverities.Debug);
 
                 return 0;
             }
@@ -12723,7 +13090,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 //RollbackTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[CmpInsertOperation:Process]" + exc.Message, LoggerSeverities.Debug);
 
                 return -1;
             }
@@ -12795,7 +13162,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("CheckApplicationVersion::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("CmpExistsOperation::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -12912,7 +13279,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("CheckApplicationVersion::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("CmpGetFine::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -13368,7 +13735,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("CheckApplicationVersion::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("GetFirstPhysicalParent::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -13405,7 +13772,7 @@ namespace OPSWebServicesAPI.Controllers
 
             try
             {
-                Logger_AddLogMessage("[Msg02:Process]: BILLREADER_REFUNDSFINE", LoggerSeverities.Info);
+                Logger_AddLogMessage("[OperationsCmpInsertBillReaderFoundsFine:Process]: BILLREADER_REFUNDSFINE", LoggerSeverities.Info);
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
                 //						logger = DatabaseFactory.Logger;
@@ -13421,7 +13788,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
 
-                String selectUE = String.Format("select count(*) from BILLREADER_REFUNDSFINE where RBILLF_UNI_ID={0} and RBILLF_DATE=to_date('{1}','hh24missddmmyy')", iUniID, OPS.Comm.Dtx.DtxToString(dtDate));
+                String selectUE = String.Format("select count(*) from BILLREADER_REFUNDSFINE where RBILLF_UNI_ID={0} and RBILLF_DATE=to_date('{1}','hh24missddmmyy')", iUniID, Dtx.DtxToString(dtDate));
 
                 selCmd = new OracleCommand();
                 selCmd.Connection = (OracleConnection)oraDBConn;
@@ -13460,10 +13827,10 @@ namespace OPSWebServicesAPI.Controllers
 
                             RollbackTrans(tran);
 
-                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[OperationsCmpInsertBillReaderFoundsFine:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
 
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                 }
@@ -13483,10 +13850,10 @@ namespace OPSWebServicesAPI.Controllers
 
                     RollbackTrans(tran);
 
-                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[OperationsCmpInsertBillReaderFoundsFine:Process]: Connection not opened", LoggerSeverities.Debug);
 
                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                 }
 
 
@@ -13504,9 +13871,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 CommitTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsCmpInsertBillReaderFoundsFine:Process]: RESULT OK", LoggerSeverities.Debug);
                 //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
             }
             catch (Exception exc)
             {
@@ -13524,9 +13891,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 RollbackTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsCmpInsertBillReaderFoundsFine:Process]" + exc.Message, LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
         }
 
@@ -13538,7 +13905,7 @@ namespace OPSWebServicesAPI.Controllers
 
             try
             {
-                Logger_AddLogMessage("[Msg02:Process]: BILLREADER_REFUNDS", LoggerSeverities.Info);
+                Logger_AddLogMessage("[OperationsCmpInsertBillReaderFounds:Process]: BILLREADER_REFUNDS", LoggerSeverities.Info);
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
                 //						logger = DatabaseFactory.Logger;
@@ -13554,7 +13921,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
 
-                String selectUE = String.Format("select count(*) from BILLREADER_REFUNDS where RBILL_UNI_ID={0} and RBILL_DATE=to_date('{1}','hh24missddmmyy')", iUniID, OPS.Comm.Dtx.DtxToString(dtDate));
+                String selectUE = String.Format("select count(*) from BILLREADER_REFUNDS where RBILL_UNI_ID={0} and RBILL_DATE=to_date('{1}','hh24missddmmyy')", iUniID, Dtx.DtxToString(dtDate));
 
                 selCmd = new OracleCommand();
                 selCmd.Connection = (OracleConnection)oraDBConn;
@@ -13593,10 +13960,10 @@ namespace OPSWebServicesAPI.Controllers
 
                             RollbackTrans(tran);
 
-                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[OperationsCmpInsertBillReaderFounds:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
 
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                 }
@@ -13616,10 +13983,10 @@ namespace OPSWebServicesAPI.Controllers
 
                     RollbackTrans(tran);
 
-                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[OperationsCmpInsertBillReaderFounds:Process]: Connection not opened", LoggerSeverities.Debug);
 
                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                 }
 
 
@@ -13637,9 +14004,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 CommitTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsCmpInsertBillReaderFounds:Process]: RESULT OK", LoggerSeverities.Debug);
                 //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
             }
             catch (Exception exc)
             {
@@ -13657,9 +14024,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 RollbackTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsCmpInsertBillReaderFounds:Process]" + exc.Message, LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
         }
 
@@ -13671,7 +14038,7 @@ namespace OPSWebServicesAPI.Controllers
 
             try
             {
-                Logger_AddLogMessage("[Msg02:Process]: CLOCK_IN", LoggerSeverities.Info);
+                Logger_AddLogMessage("[OperationsCmpInsertClockIn:Process]: CLOCK_IN", LoggerSeverities.Info);
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
                 //						logger = DatabaseFactory.Logger;
@@ -13687,7 +14054,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
 
-                String selectUE = String.Format("select count(*) from clock_in where ci_usr_id={0} and ci_date=to_date('{1}','hh24missddmmyy')", iUserID, OPS.Comm.Dtx.DtxToString(dtDate));
+                String selectUE = String.Format("select count(*) from clock_in where ci_usr_id={0} and ci_date=to_date('{1}','hh24missddmmyy')", iUserID, Dtx.DtxToString(dtDate));
 
                 selCmd = new OracleCommand();
                 selCmd.Connection = (OracleConnection)oraDBConn;
@@ -13727,10 +14094,10 @@ namespace OPSWebServicesAPI.Controllers
 
                             RollbackTrans(tran);
 
-                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[OperationsCmpInsertClockIn:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
 
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                 }
@@ -13750,10 +14117,10 @@ namespace OPSWebServicesAPI.Controllers
 
                     RollbackTrans(tran);
 
-                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[OperationsCmpInsertClockIn:Process]: Connection not opened", LoggerSeverities.Debug);
 
                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                 }
 
 
@@ -13771,9 +14138,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 CommitTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsCmpInsertClockIn:Process]: RESULT OK", LoggerSeverities.Debug);
                 //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
             }
             catch (Exception exc)
             {
@@ -13791,9 +14158,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 RollbackTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsCmpInsertClockIn:Process]" + exc.Message, LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
         }
 
@@ -13805,7 +14172,7 @@ namespace OPSWebServicesAPI.Controllers
 
             try
             {
-                Logger_AddLogMessage("[Msg02:Process]: UP OR DOWN LOCK OPENNING", LoggerSeverities.Info);
+                Logger_AddLogMessage("[OperationsUplockOpenDownlockOpen:Process]: UP OR DOWN LOCK OPENNING", LoggerSeverities.Info);
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
                 //						logger = DatabaseFactory.Logger;
@@ -13840,7 +14207,7 @@ namespace OPSWebServicesAPI.Controllers
                             "({0},{1}, to_date('{2}','hh24missddmmyy'),{3},{4})",
                             _operationDefId,
                             _unitId,
-                            OPS.Comm.Dtx.DtxToString(_date),
+                            Dtx.DtxToString(_date),
                             _ulChipCardId,
                             _operationId);
 
@@ -13866,10 +14233,10 @@ namespace OPSWebServicesAPI.Controllers
 
                             RollbackTrans(tran);
 
-                            Logger_AddLogMessage("[Msg02:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
+                            Logger_AddLogMessage("[OperationsUplockOpenDownlockOpen:Process]: Error executing sql " + updateUE, LoggerSeverities.Debug);
 
                             //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                            return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                            return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                         }
                     }
                 }
@@ -13889,10 +14256,10 @@ namespace OPSWebServicesAPI.Controllers
 
                     RollbackTrans(tran);
 
-                    Logger_AddLogMessage("[Msg02:Process]: Connection not opened", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[OperationsUplockOpenDownlockOpen:Process]: Connection not opened", LoggerSeverities.Debug);
 
                     //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS);
-                    return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                    return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
                 }
 
 
@@ -13910,9 +14277,9 @@ namespace OPSWebServicesAPI.Controllers
 
                 CommitTrans(tran);
 
-                Logger_AddLogMessage("[Msg02:Process]: RESULT OK", LoggerSeverities.Debug);
+                Logger_AddLogMessage("[OperationsUplockOpenDownlockOpen:Process]: RESULT OK", LoggerSeverities.Debug);
                 //return ReturnAck(AckMessage.AckTypes.ACK_PROCESSED);
-                return (int)AckMessage.AckTypes.ACK_PROCESSED;
+                return AckMessage_AckTypes_ACK_PROCESSED; //(int)AckMessage.AckTypes.ACK_PROCESSED;
             }
             catch (Exception exc)
             {
@@ -13932,7 +14299,7 @@ namespace OPSWebServicesAPI.Controllers
 
                 Logger_AddLogMessage("[Msg02:Process]" + exc.Message, LoggerSeverities.Debug);
                 //return ReturnNack(NackMessage.NackTypes.NACK_ERROR_BECS); ;
-                return (int)NackMessage.NackTypes.NACK_ERROR_BECS;
+                return NackMessage_NackTypes_NACK_ERROR_BECS;// (int)NackMessage.NackTypes.NACK_ERROR_BECS;
             }
         }
 
@@ -13951,8 +14318,8 @@ namespace OPSWebServicesAPI.Controllers
                 m1Tel = "<m1 id=\"\">";
                 m1Tel += "<m>" + _vehicleId + "</m>";
                 m1Tel += "<g>" + _groupId.ToString() + "</g>";
-                m1Tel += "<d>" + OPS.Comm.Dtx.DtxToString(_dateIni) + "</d>";
-                m1Tel += "<d2>" + OPS.Comm.Dtx.DtxToString(_dateEnd) + "</d2>";
+                m1Tel += "<d>" + Dtx.DtxToString(_dateIni) + "</d>";
+                m1Tel += "<d2>" + Dtx.DtxToString(_dateEnd) + "</d2>";
                 m1Tel += "<ad>" + _articleDefId.ToString() + "</ad>";
                 m1Tel += "<u>" + _unitId.ToString() + "</u>";
                 m1Tel += "<o>1</o><rmon>0</rmon></m1>";
@@ -13965,14 +14332,14 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (pCS_M1.Exectue() != CS_M1.C_RES_OK)
                 {
-                    Logger_AddLogMessage("[Msg02]:Process Parsing " + "Error Execute", LoggerSeverities.Debug);
+                    Logger_AddLogMessage("[GetM2CompData]:Process Parsing " + "Error Execute", LoggerSeverities.Debug);
                     bRdo = false;
                     return bRdo;
                 }
 
                 string m1Res = pCS_M1.StrOutM50.ToString();
 
-                Logger_AddLogMessage("[Msg02]:Process Parsing : Result" + m1Res, LoggerSeverities.Debug);
+                Logger_AddLogMessage("[GetM2CompData]:Process Parsing : Result" + m1Res, LoggerSeverities.Debug);
 
                 XmlDocument xmlM1Res = new XmlDocument();
                 xmlM1Res.LoadXml(m1Res);
@@ -14038,7 +14405,7 @@ namespace OPSWebServicesAPI.Controllers
             {
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                logger = DatabaseFactory.Logger;
+                logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                 oraDBConn = (OracleConnection)tran.Connection;
                 if (oraDBConn.State == System.Data.ConnectionState.Open)
                 {
@@ -14051,10 +14418,10 @@ namespace OPSWebServicesAPI.Controllers
                     String strSQL = String.Format("insert into MSGS_XML_FRAUD_OPERATIONS (MXF_UNI_ID,MXF_MOVDATE,MXF_NUMBER,MXF_NAME,MXF_XPRTN_DATE,MXF_VEHICLEID,MXF_XML) values " +
                         "({0},to_date('{1}','hh24missddmmyy'),'{2}','{3}',to_date('{4}','hh24missddmmyy'),'{5}','{6}')",
                         _unitId,
-                        OPS.Comm.Dtx.DtxToString(_date),
+                        Dtx.DtxToString(_date),
                         _szCCNumber,
                         _szCCName,
-                        OPS.Comm.Dtx.DtxToString(_dtExpirDate),
+                        Dtx.DtxToString(_dtExpirDate),
                         _vehicleId,
                         xml //_root.OuterXml
                         );
@@ -14073,7 +14440,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                logger.AddLog("[Msg02:UpdateVAOCards]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                logger.AddLog("[InsertFraudMsgs]: Excepcion: " + e.Message, LoggerSeverities.Error);
                 bOK = false;
             }
             finally
@@ -14108,7 +14475,7 @@ namespace OPSWebServicesAPI.Controllers
                 {
 
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14132,7 +14499,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:UpdateVAOCards]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[UpdateVAOCards]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14153,6 +14520,64 @@ namespace OPSWebServicesAPI.Controllers
         }
 
 
+        private int cmpCouponsSetCouponAsUsed(IDbTransaction tran, uint uiId, int iState, DateTime startDate, DateTime expDate,
+                                DateTime actDate, DateTime useDate, DateTime cancelDate,
+                                uint uiCustomerId, string strUsePlate, int iDPayId)
+        {
+
+            int result = -1;
+
+            OracleConnection oraDBConn = null;
+            OracleCommand oraCmd = null;
+            ILogger logger = null;
+            try
+            {
+
+                //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
+                logger = _logger;//DatabaseFactory.Logger; //_logger;// 
+                oraDBConn = (OracleConnection)tran.Connection;
+                if (oraDBConn.State == System.Data.ConnectionState.Open)
+                {
+
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = (OracleConnection)oraDBConn;
+                    oraCmd.Transaction = (OracleTransaction)tran;
+
+                    StringBuilder sqlQuery = new StringBuilder();
+                    sqlQuery.AppendFormat(" update MONEYOFF_COUPON mc " +
+                        "set mc.COUP_STATE = {0}, mc.COUP_USE_DATE = {1}, mc.COUP_USE_VEHICLEID = {2}, mc.COUP_DPAY_ID = {3} " +
+                        "where mc.COUP_ID = {4}", iState, useDate, ((strUsePlate == null) || (strUsePlate.Length == 0)) ? DBNull.Value : (object)strUsePlate, (iDPayId == -1) ? DBNull.Value : (object)iDPayId, uiId);
+
+                    oraCmd.CommandText = sqlQuery.ToString();
+
+                    result = oraCmd.ExecuteNonQuery();
+
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                logger.AddLog("[UpdateMoneyOffDiscount]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                result = -1;
+            }
+            finally
+            {
+
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+
+            }
+
+
+            return result;
+        }
+
         bool UpdateMoneyOffDiscount(int iOperationID, int iCoupon, uint iCouponId, IDbTransaction tran)
         {
 
@@ -14168,7 +14593,7 @@ namespace OPSWebServicesAPI.Controllers
             {
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                logger = DatabaseFactory.Logger;
+                logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                 oraDBConn = (OracleConnection)tran.Connection;
                 if (oraDBConn.State == System.Data.ConnectionState.Open)
                 {
@@ -14192,7 +14617,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                logger.AddLog("[Msg02:UpdateVAOCards]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                logger.AddLog("[UpdateMoneyOffDiscount]: Excepcion: " + e.Message, LoggerSeverities.Error);
                 bOK = false;
             }
             finally
@@ -14228,7 +14653,7 @@ namespace OPSWebServicesAPI.Controllers
             {
 
                 //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                logger = DatabaseFactory.Logger;
+                logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                 oraDBConn = (OracleConnection)tran.Connection;
                 if (oraDBConn.State == System.Data.ConnectionState.Open)
                 {
@@ -14252,7 +14677,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                logger.AddLog("[Msg02:UpdateVAOCards]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                logger.AddLog("[UpdateValueVis]: Excepcion: " + e.Message, LoggerSeverities.Error);
                 bOK = false;
             }
             finally
@@ -14290,7 +14715,7 @@ namespace OPSWebServicesAPI.Controllers
                 {
 
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14314,7 +14739,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:UpdateVAOCards]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[UpdatePaymentTypeVis]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14350,7 +14775,7 @@ namespace OPSWebServicesAPI.Controllers
                 {
 
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14374,7 +14799,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:UpdateCOID]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[UpdateCOID]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14407,7 +14832,7 @@ namespace OPSWebServicesAPI.Controllers
                 try
                 {
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14428,7 +14853,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:InsertGPSPosn]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[InsertGPSPosn]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14456,7 +14881,7 @@ namespace OPSWebServicesAPI.Controllers
                 try
                 {
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14476,7 +14901,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:UpdateReference]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[UpdateReference]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14504,7 +14929,7 @@ namespace OPSWebServicesAPI.Controllers
                 try
                 {
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14539,7 +14964,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:UpdateCloudData]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[UpdateCloudData]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14567,7 +14992,7 @@ namespace OPSWebServicesAPI.Controllers
                 try
                 {
                     //Database d = OPS.Components.Data.DatabaseFactory.GetDatabase();
-                    logger = DatabaseFactory.Logger;
+                    logger = _logger;//DatabaseFactory.Logger; //_logger;// 
                     oraDBConn = (OracleConnection)tran.Connection;
                     if (oraDBConn.State == System.Data.ConnectionState.Open)
                     {
@@ -14587,7 +15012,7 @@ namespace OPSWebServicesAPI.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.AddLog("[Msg02:UpdateSpaceInfo]: Excepcion: " + e.Message, LoggerSeverities.Error);
+                    logger.AddLog("[UpdateSpaceInfo]: Excepcion: " + e.Message, LoggerSeverities.Error);
                     bOK = false;
                 }
                 finally
@@ -14777,7 +15202,7 @@ namespace OPSWebServicesAPI.Controllers
                             responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
                             strDayCode = dataReader.GetString(7);//"DDAY_CODE"
 
-                            if (dataReader.GetInt32(5) != CFineManager.C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                            if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
                             {
                                 responsePayed = 1;
                             }
@@ -14848,7 +15273,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                Logger_AddLogMessage("CheckMobileUserName::Exception", LoggerSeverities.Error);
+                Logger_AddLogMessage("CalculateInfoAboutPlateFines_M05Process::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -16859,15 +17284,17 @@ namespace OPSWebServicesAPI.Controllers
                 //OPS.Comm.Messaging.CommMain.Logger.AddLogException += new AddLogExceptionHandler(Logger_AddLogException);
                 //DatabaseFactory.Logger = _logger;
 
+                //Se crean 2 loggers uno para el API y otro para el OPS.Comm
                 _logger = new Logger(MethodBase.GetCurrentMethod().DeclaringType);
-                DatabaseFactory.Logger = _logger;
+                //Es necesario inicializar este logger para el OPS.Comm ya que lo pide en CS_M1.cs (linea 103)
+                OPS.Components.Data.DatabaseFactory.Logger = new OPS.Comm.Logger(MethodBase.GetCurrentMethod().DeclaringType); //_logger;
             }
 
 
-            if (_msgSession == null)
-            {
-                _msgSession = new MessagesSession();
-            }
+            //if (_msgSession == null)
+            //{
+            //    _msgSession = new MessagesSession();
+            //}
 
             if (_MacTripleDesKey == null)
             {

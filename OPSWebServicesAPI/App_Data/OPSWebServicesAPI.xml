@@ -698,6 +698,10 @@
             <param name="nContractId"></param>
             <returns>SortedList con la información</returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.cmpCreditCardsTransactionsDBInsertCommitTrans(System.Data.IDbTransaction,System.String,System.DateTime,System.Int32,System.Int32,System.Int32,System.String,System.Int32@)" -->
+        <!-- Badly formed XML comment ignored for member "M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.cmpCreditCardsTransactionsDBInsert(System.Data.IDbTransaction,System.String,System.DateTime,System.String,System.String,System.DateTime,System.String,System.String,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32@)" -->
+        <!-- Badly formed XML comment ignored for member "M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.cmpCreditCardInsert(System.Data.IDbTransaction,System.Int32,System.String,System.String,System.DateTime,System.Int32,System.String,System.String)" -->
+        <!-- Badly formed XML comment ignored for member "M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.cmpCreditCardInsert(System.Data.IDbTransaction,System.Int32,System.String,System.String,System.DateTime,System.Int32,System.String,System.String,System.Int32)" -->
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.CmpInsertOperation(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.DateTime,System.DateTime,System.DateTime,System.Int32,System.Double,System.String,System.Int32,System.Int32,System.Int32,System.Double,System.UInt64,System.Double,System.Int64,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32@,System.Data.IDbTransaction@,System.Int32)">
             <summary>
             Inserts a new register in the OPERATIONS table.
@@ -921,6 +925,155 @@
             <param name="nContractId"></param>
             <returns>SortedList con la información</returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Helpers.CFineManager.DtxToString(System.DateTime)">
+            <summary>
+            Pass a DateTime to a string in format (hhmmssddmmyy)
+            </summary>
+            <param name="dt">DateTime to convert</param>
+            <returns>string in OPS-dtx format</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.Dtx.StringToDtx(System.String)">
+            <summary>
+            Pass a string (format hhmmssddmmyy) to a DateTime
+            </summary>
+            <param name="s">string to convert</param>
+            <returns>DateTime with the same data as s</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.Dtx.DtxToString(System.DateTime)">
+            <summary>
+            Pass a DateTime to a string in format (hhmmssddmmyy)
+            </summary>
+            <param name="dt">DateTime to convert</param>
+            <returns>string in OPS-dtx format</returns>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.LoggerSeverities.FatalError">
+            <summary>
+            Only Fatal Error messages are logged. Is the lowest level of logging.
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.LoggerSeverities.Error">
+            <summary>
+            Error and FatalError messages will be logged
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.LoggerSeverities.Warning">
+            <summary>
+            Warning, Error and FatalError messages will be logged
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.LoggerSeverities.Info">
+            <summary>
+            Info, Warning, Error and FatalError messages will be logged
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.LoggerSeverities.Debug">
+            <summary>
+            All messages will be logged. Is the highest level of logging.
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Helpers.InternalSinkProcessOrder">
+            <summary>
+            When processing data using an IInternalSink indicates if channel is being processes in forward order
+            or in reverse order.
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.InternalSinkProcessOrder.forward">
+            <summary>
+            Channel is being processed in forward order
+            </summary>
+        </member>
+        <member name="F:OPSWebServicesAPI.Helpers.InternalSinkProcessOrder.reverse">
+            <summary>
+            Channel is being processed in reverse order
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Helpers.ISink">
+            <summary>
+            A Sink is a process that is attached to a CommChannel in order to process the data.
+            There are two types of sinks
+            	EndPointSinks that act with another client.
+            	InternalSinks that act with another sinks
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Helpers.IEndPointSink">
+            <summary>
+            An EndPointSink is located at the end (or beginning) of a channel, translating data
+            that goes into the channel (byte[]) to external data (string).
+            </summary>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.IEndPointSink.DecodifyData(System.Byte[])">
+            <summary>
+            Transforms the internal data to external representation (string)
+            </summary>
+            <param name="data">Internal data to transform</param>
+            <returns>External representation of data (as a string)</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.IEndPointSink.DecodifyData(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Transforms the part of internal data to external representation (string)
+            </summary>
+            <param name="data">Internal data to transform</param>
+            <param name="offset">Offset where data to transform starts</param>
+            <param name="len">Number of bytes to transform.</param>
+            <returns>External representation of data (as a string)</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.IEndPointSink.CodifyData(System.String)">
+            <summary>
+            Transforms external data (string) to the internal representation allowed by the channel
+            </summary>
+            <param name="data">Data to transform</param>
+            <returns>Array of bytes with the internal data.</returns>
+        </member>
+        <member name="T:OPSWebServicesAPI.Helpers.IInternalSink">
+            <summary>
+            An InternalSink is located inside the Channel, doing some process of the data.
+            It acts with the internal data (byte[]).
+            </summary>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.IInternalSink.ProcessData(System.Byte[],OPSWebServicesAPI.Helpers.InternalSinkProcessOrder)">
+            <summary>
+            Processes the data that is passing for the Channel
+            </summary>
+            <param name="data">Data to process</param>
+            <param name="order">Order which channel is processed.</param>
+            <returns>Data after process. Can be NULL if process does not modify the data</returns>
+        </member>
+        <member name="T:OPSWebServicesAPI.Helpers.EndPointSinkAdapter">
+            <summary>
+            That class is an adapter to implement IEndPointSink interface.
+            Implements all overloads, making implementation of IEndPointSink easier.
+            </summary>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.EndPointSinkAdapter.CodifyData(System.String)">
+            <summary>
+            Transforms external data (string) to the internal representation allowed by the channel
+            </summary>
+            <param name="data">Data to transform</param>
+            <returns>Array of bytes with the internal data.</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.EndPointSinkAdapter.DecodifyData(System.Byte[])">
+            <summary>
+            Decodify all data conteined in data calling IEndPointSkink::DecodifyData (data, 0, data.Length).
+            Not virtual. If you need to override that overload, don't inherit from EndPointSinkAdapter: just implement IEndPointSink
+            </summary>
+            <param name="data">Internal data to transform</param>
+            <returns>External representation of data (as a string)</returns>		
+        </member>
+        <member name="M:OPSWebServicesAPI.Helpers.EndPointSinkAdapter.DecodifyData(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Transforms the part of internal data to external representation (string)
+            </summary>
+            <param name="data">Internal data to transform</param>
+            <param name="offset">Offset where data to transform starts</param>
+            <param name="len">Number of bytes to transform.</param>
+            <returns>External representation of data (as a string)</returns>
+        </member>
+        <member name="T:OPSWebServicesAPI.Helpers.OPSTripleDesEncryptor">
+            <summary>
+            That class is an InternalSink that encrypts/decrypts data using TripleDES algorithm
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:OPSWebServicesAPI.Helpers.OPSTripleDesEncryptor.#ctor(System.Security.Cryptography.TripleDESCryptoServiceProvider)" -->
         <member name="T:OPSWebServicesAPI.Models.Contract">
             <summary>
             Contract object

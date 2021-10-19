@@ -214,8 +214,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CFineManager.cs" />
     <Compile Include="Helpers\ConfigMapModel.cs" />
+    <Compile Include="Helpers\Dtx.cs" />
     <Compile Include="Helpers\ITextEvents.cs" />
+    <Compile Include="Helpers\Loc.cs" />
+    <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\OPSTripleDesEncryptor.cs" />
     <Compile Include="Models\Contract.cs" />
     <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />

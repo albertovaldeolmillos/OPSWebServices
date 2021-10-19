@@ -43,7 +43,7 @@ namespace OPSWebServicesAPI.Models
             Result_Error_App_Update_Required = -27,
             Result_Error_No_Return_For_Minimum = -28,
             Result_Error_User_Not_Validated = -29,
-            Result_Error_Service_Expired = -30,
+            Result_Error_Location_Not_Found = -30,
             Result_Error_Recovery_Code_Not_Found = -31,
             Result_Error_Recovery_Code_Invalid = -32,
             Result_Error_Recovery_Code_Expired = -33
@@ -91,7 +91,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_App_Update_Required, "App_Update_Required" },
                 { (int)ResultType.Result_Error_No_Return_For_Minimum, "No_Return_For_Minimum" },
                 { (int)ResultType.Result_Error_User_Not_Validated, "User_Not_Validated" },
-                { (int)ResultType.Result_Error_Service_Expired, "Service_Expired" },
+                { (int)ResultType.Result_Error_Location_Not_Found, "Location_Not_Found" },
                 { (int)ResultType.Result_Error_Recovery_Code_Not_Found, "Recovery_Code_Not_Found" },
                 { (int)ResultType.Result_Error_Recovery_Code_Invalid, "Recovery_Code_Invalid" },
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
@@ -128,7 +128,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_App_Update_Required, "App_Update_Required" },
                 { (int)ResultType.Result_Error_No_Return_For_Minimum, "No_Return_For_Minimum" },
                 { (int)ResultType.Result_Error_User_Not_Validated, "User_Not_Validated" },
-                { (int)ResultType.Result_Error_Service_Expired, "Service_Expired" },
+                { (int)ResultType.Result_Error_Location_Not_Found, "Location_Not_Found" },
                 { (int)ResultType.Result_Error_Recovery_Code_Not_Found, "Recovery_Code_Not_Found" },
                 { (int)ResultType.Result_Error_Recovery_Code_Invalid, "Recovery_Code_Invalid" },
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
@@ -165,7 +165,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_App_Update_Required, "App_Update_Required" },
                 { (int)ResultType.Result_Error_No_Return_For_Minimum, "No_Return_For_Minimum" },
                 { (int)ResultType.Result_Error_User_Not_Validated, "User_Not_Validated" },
-                { (int)ResultType.Result_Error_Service_Expired, "Service_Expired" },
+                { (int)ResultType.Result_Error_Location_Not_Found, "Service_Expired" },
                 { (int)ResultType.Result_Error_Recovery_Code_Not_Found, "Recovery_Code_Not_Found" },
                 { (int)ResultType.Result_Error_Recovery_Code_Invalid, "Recovery_Code_Invalid" },
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
@@ -202,7 +202,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_App_Update_Required, "App_Update_Required" },
                 { (int)ResultType.Result_Error_No_Return_For_Minimum, "No_Return_For_Minimum" },
                 { (int)ResultType.Result_Error_User_Not_Validated, "User_Not_Validated" },
-                { (int)ResultType.Result_Error_Service_Expired, "Service_Expired" },
+                { (int)ResultType.Result_Error_Location_Not_Found, "Service_Expired" },
                 { (int)ResultType.Result_Error_Recovery_Code_Not_Found, "Recovery_Code_Not_Found" },
                 { (int)ResultType.Result_Error_Recovery_Code_Invalid, "Recovery_Code_Invalid" },
                 { (int)ResultType.Result_Error_Recovery_Code_Expired, "Recovery_Code_Expired" }
