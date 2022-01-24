@@ -141,6 +141,11 @@ namespace OPSWebServicesAPI.Controllers
             parametersIn.Add("contid", loginUser.contid);*/
 
             SortedList parametersIn = new SortedList();
+
+            string token = null;
+            TokenRequest.TryTokenRequest(Request, out token);
+            parametersIn.Add("mui", token);
+
             PropertyInfo[] properties = typeof(UserLogin).GetProperties();
             foreach (PropertyInfo property in properties)
             {
@@ -486,6 +491,19 @@ namespace OPSWebServicesAPI.Controllers
             SortedList plateList = new SortedList();
             int numPlates = 0;
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
+
             PropertyInfo[] properties = typeof(User).GetProperties();
             foreach (PropertyInfo property in properties)
             {
@@ -792,7 +810,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="userOperation">Object UserOperation</param>
         /// <returns>Returns user ooeration list or error</returns>        
-        [HttpPost]
+        [HttpGet]
         [Route("QueryUserOperationsAPI")]
         public ResultListOperationInfo QueryUserOperationsAPI([FromBody] UserOperation userOperation)
         {
@@ -801,7 +819,19 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
-            
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
+
             PropertyInfo[] properties = typeof(UserOperation).GetProperties();
             foreach (PropertyInfo property in properties)
             {
@@ -1075,11 +1105,11 @@ namespace OPSWebServicesAPI.Controllers
         /// <summary>
         /// Returns user information
         /// </summary>
-        /// <param name="userQuery">Objet UserQuery</param>
         /// <returns>Returns user data or error</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryUserAPI")]
-        public ResultUserInfo QueryUserAPI([FromBody] UserQuery userQuery)
+        //public ResultUserInfo QueryUserAPI([FromBody] UserQuery userQuery)
+        public ResultUserInfo QueryUserAPI()
         {
             //string xmlOut = "";
             int nMobileUserId = -1;
@@ -1088,15 +1118,27 @@ namespace OPSWebServicesAPI.Controllers
 
             SortedList parametersIn = new SortedList();
 
-            PropertyInfo[] properties = typeof(UserQuery).GetProperties();
-            foreach (PropertyInfo property in properties)
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
-                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
-                //string NombreAtributo = property.Name;
-                var Valor = property.GetValue(userQuery);
-                parametersIn.Add(NombreAtributo, Valor);
+                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("QueryUserAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
             }
+            parametersIn.Add("mui", token);
+
+            //PropertyInfo[] properties = typeof(UserQuery).GetProperties();
+            //foreach (PropertyInfo property in properties)
+            //{
+            //    var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+            //    string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+            //    //string NombreAtributo = property.Name;
+            //    var Valor = property.GetValue(userQuery);
+            //    parametersIn.Add(NombreAtributo, Valor);
+            //}
 
             try
             {
@@ -2149,9 +2191,10 @@ namespace OPSWebServicesAPI.Controllers
         ///-12: OPS System error
         ///-20: Mobile user not found
         /// </returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryUserCreditAPI")]
-        public ResultCreditUserInfo QueryUserCreditAPI([FromBody] UserQuery userQuery)
+        //public ResultCreditUserInfo QueryUserCreditAPI([FromBody] UserQuery userQuery)
+        public ResultCreditUserInfo QueryUserCreditAPI()
         {
             int iRes = 0;
 
@@ -2160,15 +2203,27 @@ namespace OPSWebServicesAPI.Controllers
 
             SortedList parametersIn = new SortedList();
 
-            PropertyInfo[] properties = typeof(UserQuery).GetProperties();
-            foreach (PropertyInfo property in properties)
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
-                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
-                //string NombreAtributo = property.Name;
-                var Valor = property.GetValue(userQuery);
-                parametersIn.Add(NombreAtributo, Valor);
+                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
             }
+            parametersIn.Add("mui", token);
+
+            //PropertyInfo[] properties = typeof(UserQuery).GetProperties();
+            //foreach (PropertyInfo property in properties)
+            //{
+            //    var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+            //    string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+            //    //string NombreAtributo = property.Name;
+            //    var Valor = property.GetValue(userQuery);
+            //    parametersIn.Add(NombreAtributo, Valor);
+            //}
 
             try
             {
@@ -2360,6 +2415,18 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
 
             PropertyInfo[] properties = typeof(UserRechargeQuery).GetProperties();
             foreach (PropertyInfo property in properties)
@@ -2583,7 +2650,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-12: OPS System error
         ///-20: User not found.
         /// </returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryUserReportAPI")]
         public ResultUserReportInfo QueryUserReportAPI([FromBody] UserReportQuery userReportQuery)
         {
@@ -2593,6 +2660,18 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
 
             PropertyInfo[] properties = typeof(UserReportQuery).GetProperties();
             foreach (PropertyInfo property in properties)

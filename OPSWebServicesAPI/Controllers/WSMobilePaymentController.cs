@@ -233,7 +233,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="zoneQuery">Object ZoneQuery with long-lat information or streetName-number information to request</param>
         /// <returns>zone information for query request</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryZoneAPI")]
         public ResultZoneInfo QueryZoneAPI([FromBody] ZoneQuery zoneQuery)
         {
@@ -636,7 +636,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
         /// <returns>village streets</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryStreetsAPI")]
         public ResultStreetsInfo QueryStreetsAPI([FromBody] StreetsQuery streetsQuery)
         {
@@ -784,7 +784,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="placeQuery">Object PlaceQuery with street name to request</param>
         /// <returns>place information or error</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryPlaceAPI")]
         public ResultPlaceInfo QueryPlaceAPI([FromBody] PlaceQuery placeQuery)
         {
@@ -1376,7 +1376,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
         /// <returns>parking information with money steps or error</returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryParkingOperationWithMoneyStepsAPI")]
         public ResultParkingStepsInfo QueryParkingOperationWithMoneyStepsAPI([FromBody] ParkingStepsQuery parkingStepsQuery)
         {
@@ -1659,7 +1659,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryParkingOperationForTimeAPI")]
         public ResultParkingTimeInfo QueryParkingOperationForTimeAPI([FromBody] ParkingTimeQuery parkingTimeQuery)
         {
@@ -1921,7 +1921,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryParkingOperationForMoneyAPI")]
         public ResultParkingMoneyInfo QueryParkingOperationForMoneyAPI([FromBody] ParkingMoneyQuery parkingMoneyQuery)
         {
@@ -2201,6 +2201,18 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
 
             PropertyInfo[] properties = typeof(ParkingConfirmQuery).GetProperties();
             foreach (PropertyInfo property in properties)
@@ -2709,7 +2721,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryUnParkingOperationAPI")]
         public ResultUnParkingQueryInfo QueryUnParkingOperationAPI([FromBody] UnParkingQuery unParkingQuery)
         {
@@ -3036,6 +3048,18 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
 
             PropertyInfo[] properties = typeof(UnParkingConfirmQuery).GetProperties();
             foreach (PropertyInfo property in properties)
@@ -3536,7 +3560,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-23: Invalid Login
         ///-24: User has no rights. Operation begun by another user
         /// </returns>
-        [HttpPost]
+        [HttpGet]
         [Route("QueryParkingStatusAPI")]
         public ResultParkingStatusInfo QueryParkingStatusAPI([FromBody] ParkingStatusQuery parkingStatusQuery)
         {
@@ -3549,6 +3573,18 @@ namespace OPSWebServicesAPI.Controllers
             //SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
 
             PropertyInfo[] properties = typeof(ParkingStatusQuery).GetProperties();
             foreach (PropertyInfo property in properties)
@@ -4239,6 +4275,18 @@ namespace OPSWebServicesAPI.Controllers
             SortedList parametersOut = new SortedList();
 
             SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
+                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.value = null;
+                return response;
+            }
+            parametersIn.Add("mui", token);
 
             PropertyInfo[] properties = typeof(FinePaymentConfirmQuery).GetProperties();
             foreach (PropertyInfo property in properties)

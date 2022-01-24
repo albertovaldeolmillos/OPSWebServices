@@ -49,11 +49,11 @@ namespace OPSWebServicesAPI.Models
         [Required]
         public string appVersion { get; set; }
         /// <summary>
-        /// (*) Authentication token
+        /// Authentication token
         /// </summary>
-        [DisplayName("mui")]
-        [Required]
-        public string authorizationToken { get; set; }
+        //[DisplayName("mui")]
+        //[Required]
+        //public string authorizationToken { get; set; }
         /// <summary>
         /// hash
         /// </summary>

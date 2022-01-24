@@ -17,9 +17,9 @@ namespace OPSWebServicesAPI.Models
         /// <summary>
         /// (*) Authentication token
         /// </summary>
-        [DisplayName("mui")]
-        [Required]
-        public string authorizationToken { get; set; }
+        //[DisplayName("mui")]
+        //[Required]
+        //public string authorizationToken { get; set; }
         /// <summary>
         /// (*) Report start date (Format: hh24missddMMYY)
         /// </summary>

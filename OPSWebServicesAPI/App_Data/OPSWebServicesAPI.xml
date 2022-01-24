@@ -810,11 +810,10 @@
             <param name="userOperation">Object UserOperation</param>
             <returns>Returns user ooeration list or error</returns>        
         </member>
-        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserAPI(OPSWebServicesAPI.Models.UserQuery)">
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserAPI">
             <summary>
             Returns user information
             </summary>
-            <param name="userQuery">Objet UserQuery</param>
             <returns>Returns user data or error</returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.RecoverPasswordAPI(OPSWebServicesAPI.Models.UserRecover)">
@@ -845,7 +844,7 @@
             <param name="userRegister">Object UserRegister</param>
             <returns>User id</returns>
         </member>
-        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserCreditAPI(OPSWebServicesAPI.Models.UserQuery)">
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.QueryUserCreditAPI">
              <summary>
              return user credit in euro cents
              </summary>
@@ -1271,11 +1270,6 @@
             (*) Cloud token
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.authorizationToken">
-            <summary>
-            (*) Mobile user id (authorization token)
-            </summary>
-        </member>
         <member name="P:OPSWebServicesAPI.Models.FinePaymentConfirmQuery.operatingSystem">
             <summary>
             (*) Operating system: 1 (Android), 2 (iOS)
@@ -1309,11 +1303,6 @@
         <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.tariffType">
             <summary>
             (*) tariff type to apply: For example: 4 (ROTATION), 5 (RESIDENTS), 6 VIPS
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.authorizationToken">
-            <summary>
-            (*) Mobile user id (authorization token)
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingConfirmQuery.cloudToken">
@@ -1471,11 +1460,6 @@
         <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.plate">
             <summary>
             (*) Plate
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.authorizationToken">
-            <summary>
-            (*) Mobile user id (authorization token)
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingStatusQuery.date">
@@ -2046,11 +2030,6 @@
             (*) Amount refunded in Euro Cents
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.authorizationToken">
-            <summary>
-            (*) Mobile user id (authorization token)
-            </summary>
-        </member>
         <member name="P:OPSWebServicesAPI.Models.UnParkingConfirmQuery.cloudToken">
             <summary>
             (*) Cloud token
@@ -2193,11 +2172,6 @@
             (*) Version OS
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserLogin.authorizationToken">
-            <summary>
-            (*) Authentication token
-            </summary>
-        </member>
         <member name="P:OPSWebServicesAPI.Models.UserLogin.authenticationHash">
             <summary>
             hash
@@ -2338,11 +2312,6 @@
             (*) Main Mobile Phone
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.User.authorizationToken">
-            <summary>
-            (*) Mobile user Id (authorization token)
-            </summary>
-        </member>
         <member name="P:OPSWebServicesAPI.Models.User.names">
             <summary>
             (*) Names
@@ -2406,11 +2375,6 @@
         <member name="P:OPSWebServicesAPI.Models.UserOperation.contractId">
             <summary>
             (*) Contract ID
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UserOperation.authorizationToken">
-            <summary>
-            (*) Mobile user id (authorization token)
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.Operation.bonus">
@@ -2538,11 +2502,6 @@
             class to request user query
             </summary>
         </member>
-        <member name="P:OPSWebServicesAPI.Models.UserQuery.authorizationToken">
-            <summary>
-            (*) Mobile user id (authorization token)
-            </summary>
-        </member>
         <member name="T:OPSWebServicesAPI.Models.UserRechargeInfo">
             <summary>
             User recharge credit information
@@ -2583,11 +2542,6 @@
         <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.cloudToken">
             <summary>
             (*) Cloud token
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.authorizationToken">
-            <summary>
-            (*) Authentication token
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.operatingSystem">
@@ -2773,11 +2727,6 @@
         <member name="P:OPSWebServicesAPI.Models.UserReportQuery.contractId">
             <summary>
             (*) id del municipio
-            </summary>
-        </member>
-        <member name="P:OPSWebServicesAPI.Models.UserReportQuery.authorizationToken">
-            <summary>
-            (*) Authentication token
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserReportQuery.dateStart">

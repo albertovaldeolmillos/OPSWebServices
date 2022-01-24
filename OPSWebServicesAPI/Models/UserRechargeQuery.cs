@@ -23,9 +23,9 @@ namespace OPSWebServicesAPI.Models
         /// <summary>
         /// (*) Authentication token
         /// </summary>
-        [DisplayName("mui")]
-        [Required]
-        public string authorizationToken { get; set; }
+        //[DisplayName("mui")]
+        //[Required]
+        //public string authorizationToken { get; set; }
         /// <summary>
         /// (*) OS --> 1- Android 2- iOS 3- web
         /// </summary>

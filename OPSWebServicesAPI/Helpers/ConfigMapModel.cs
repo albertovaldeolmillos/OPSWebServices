@@ -61,7 +61,7 @@ namespace OPSWebServicesAPI.Helpers
                     .ForMember(d => d.email, o => o.MapFrom(s => s["em"]))
                     .ForMember(d => d.firstSurname, o => o.MapFrom(s => s["fs"]))
                     .ForMember(d => d.mainMobilePhone, o => o.MapFrom(s => s["mmp"]))
-                    .ForMember(d => d.authorizationToken, o => o.MapFrom(s => s["mui"]))
+                    //.ForMember(d => d.authorizationToken, o => o.MapFrom(s => s["mui"]))
                     .ForMember(d => d.names, o => o.MapFrom(s => s["na"]))
                     .ForMember(d => d.nif, o => o.MapFrom(s => s["nif"]))
                     .ForMember(d => d.operatingSystem, o => o.MapFrom(s => s["os"]))

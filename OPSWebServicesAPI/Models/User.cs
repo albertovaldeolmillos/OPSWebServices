@@ -93,9 +93,9 @@ namespace OPSWebServicesAPI.Models
         /// <summary>
         /// (*) Mobile user Id (authorization token)
         /// </summary>
-        [DisplayName("mui")]
-        [Required]
-        public string authorizationToken { get; set; }
+        //[DisplayName("mui")]
+        //[Required]
+        //public string authorizationToken { get; set; }
         /// <summary>
         /// (*) Names
         /// </summary>

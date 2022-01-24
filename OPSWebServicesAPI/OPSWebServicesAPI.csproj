@@ -221,6 +221,7 @@
     <Compile Include="Helpers\Loc.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\OPSTripleDesEncryptor.cs" />
+    <Compile Include="Helpers\TokenRequest.cs" />
     <Compile Include="Models\Contract.cs" />
     <Compile Include="Models\ContractsInfo.cs" />
     <Compile Include="Models\Error.cs" />
