@@ -233,7 +233,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="zoneQuery">Object ZoneQuery with long-lat information or streetName-number information to request</param>
         /// <returns>zone information for query request</returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryZoneAPI")]
         public ResultZoneInfo QueryZoneAPI([FromBody] ZoneQuery zoneQuery)
         {
@@ -636,7 +636,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
         /// <returns>village streets</returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryStreetsAPI")]
         public ResultStreetsInfo QueryStreetsAPI([FromBody] StreetsQuery streetsQuery)
         {
@@ -784,7 +784,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="placeQuery">Object PlaceQuery with street name to request</param>
         /// <returns>place information or error</returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryPlaceAPI")]
         public ResultPlaceInfo QueryPlaceAPI([FromBody] PlaceQuery placeQuery)
         {
@@ -1068,7 +1068,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryParkingOperationWithTimeStepsAPI")]
         public ResultParkingStepsInfo QueryParkingOperationWithTimeStepsAPI([FromBody] ParkingStepsQuery parkingStepsQuery)
         {
@@ -1376,7 +1376,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="parkingStepsQuery">Object ParkingStepsQuery with sector and plate to request</param>
         /// <returns>parking information with money steps or error</returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryParkingOperationWithMoneyStepsAPI")]
         public ResultParkingStepsInfo QueryParkingOperationWithMoneyStepsAPI([FromBody] ParkingStepsQuery parkingStepsQuery)
         {
@@ -1659,7 +1659,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryParkingOperationForTimeAPI")]
         public ResultParkingTimeInfo QueryParkingOperationForTimeAPI([FromBody] ParkingTimeQuery parkingTimeQuery)
         {
@@ -1921,7 +1921,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryParkingOperationForMoneyAPI")]
         public ResultParkingMoneyInfo QueryParkingOperationForMoneyAPI([FromBody] ParkingMoneyQuery parkingMoneyQuery)
         {
@@ -2721,7 +2721,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         /// </returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryUnParkingOperationAPI")]
         public ResultUnParkingQueryInfo QueryUnParkingOperationAPI([FromBody] UnParkingQuery unParkingQuery)
         {
@@ -3560,7 +3560,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-23: Invalid Login
         ///-24: User has no rights. Operation begun by another user
         /// </returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryParkingStatusAPI")]
         public ResultParkingStatusInfo QueryParkingStatusAPI([FromBody] ParkingStatusQuery parkingStatusQuery)
         {

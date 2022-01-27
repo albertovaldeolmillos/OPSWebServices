@@ -810,7 +810,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="userOperation">Object UserOperation</param>
         /// <returns>Returns user ooeration list or error</returns>        
-        [HttpGet]
+        [HttpPost]
         [Route("QueryUserOperationsAPI")]
         public ResultListOperationInfo QueryUserOperationsAPI([FromBody] UserOperation userOperation)
         {
@@ -2650,7 +2650,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-12: OPS System error
         ///-20: User not found.
         /// </returns>
-        [HttpGet]
+        [HttpPost]
         [Route("QueryUserReportAPI")]
         public ResultUserReportInfo QueryUserReportAPI([FromBody] UserReportQuery userReportQuery)
         {
