@@ -13,13 +13,13 @@ namespace OPSWebServicesAPI.Models
     public class UserRecover
     {
         /// <summary>
-        /// (*) Contract ID
+        /// Contract ID
         /// </summary>
         [DisplayName("contid")]
         [Required]
         public int contractId { get; set; }
         /// <summary>
-        /// (*) User name
+        /// User name
         /// </summary>
         [DisplayName("un")]
         [Required]

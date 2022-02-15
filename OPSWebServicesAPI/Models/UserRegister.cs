@@ -60,7 +60,7 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("asn")]
         public string addressStreetName { get; set; }
         /// <summary>
-        /// (*) Username
+        /// Username
         /// </summary>
         [DisplayName("un")]
         [Required]
@@ -72,7 +72,7 @@ namespace OPSWebServicesAPI.Models
         [Required]
         public string password { get; set; }
         /// <summary>
-        /// (*) First Surname
+        /// First Surname
         /// </summary>
         [DisplayName("fs")]
         [Required]
@@ -95,13 +95,13 @@ namespace OPSWebServicesAPI.Models
         [Required]
         public string email { get; set; }
         /// <summary>
-        /// (*) Main Mobile Phone
+        /// Main Mobile Phone
         /// </summary>
         [DisplayName("mmp")]
         [Required]
         public string mainMobilePhone { get; set; }
         /// <summary>
-        /// (*) Names
+        /// Names
         /// </summary>
         [DisplayName("na")]
         [Required]
@@ -112,7 +112,7 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("nif")]
         public string nif { get; set; }
         /// <summary>
-        /// (*) Notifications
+        /// Notifications
         /// </summary>
         [DisplayName("notifications")]
         [Required]

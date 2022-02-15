@@ -1217,7 +1217,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.Error.type">
             <summary>
-            tipo de error
+            tipo de error: 1. (Warning) --> aviso a usuario  2. (Exception) --> error no controlado  3. (Critical) --> error de lógica  4. (Low) --> informativo (para logs)
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.Error.message_EN">
@@ -2114,12 +2114,12 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserChangePassword.contractId">
             <summary>
-            (*) Contract ID
+            Contract ID
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserChangePassword.userName">
             <summary>
-            (*) User name
+            User name
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserChangePassword.email">
@@ -2324,7 +2324,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.notifications">
             <summary>
-            (*) Notifications
+            Notifications
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.operatingSystem">
@@ -2571,12 +2571,12 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRecover.contractId">
             <summary>
-            (*) Contract ID
+            Contract ID
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRecover.userName">
             <summary>
-            (*) User name
+            User name
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRecover.email">
@@ -2661,7 +2661,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.userName">
             <summary>
-            (*) Username
+            Username
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.password">
@@ -2671,7 +2671,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.firstSurname">
             <summary>
-            (*) First Surname
+            First Surname
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.secondSurname">
@@ -2691,12 +2691,12 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.mainMobilePhone">
             <summary>
-            (*) Main Mobile Phone
+            Main Mobile Phone
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.names">
             <summary>
-            (*) Names
+            Names
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.nif">
@@ -2706,7 +2706,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.notifications">
             <summary>
-            (*) Notifications
+            Notifications
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.UserRegister.plates">

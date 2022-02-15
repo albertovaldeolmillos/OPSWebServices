@@ -108,7 +108,7 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("nif")]
         public string nif { get; set; }
         /// <summary>
-        /// (*) Notifications
+        /// Notifications
         /// </summary>
         [DisplayName("notifications")]
         [Required]

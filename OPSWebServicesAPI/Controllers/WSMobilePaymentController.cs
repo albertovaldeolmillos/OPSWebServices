@@ -182,7 +182,7 @@ namespace OPSWebServicesAPI.Controllers
             contInfo.contractlist = lista.ToArray();
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = contInfo;
             return response;//strToken;
         }
@@ -280,13 +280,21 @@ namespace OPSWebServicesAPI.Controllers
                     if ((parametersIn["lt"] == null || (parametersIn["lt"] != null && parametersIn["lt"].ToString().Length == 0)) &&
                         (parametersIn["lg"] == null || (parametersIn["lg"] != null && parametersIn["lg"].ToString().Length == 0)) &&
                         (parametersIn["streetname"] == null || (parametersIn["streetname"] != null && parametersIn["streetname"].ToString().Length == 0)) &&
-                        (parametersIn["streetno"] == null || (parametersIn["streetno"] != null && parametersIn["streetno"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                        (parametersIn["streetno"] == null || (parametersIn["streetno"] != null && parametersIn["streetno"].ToString().Length == 0)))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("QueryZoneAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Missing_Input_Parameter"), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("QueryZoneAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryZoneAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Missing_Input_Parameter_ContractId"), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -585,7 +593,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ZoneInfo zoneInfo = new ZoneInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -674,7 +682,7 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryStreetsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -728,7 +736,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             SortedList listStreets = (SortedList)parametersOut["streetlist"];
             List<string> streetsNamelist = new List<string>();
@@ -819,14 +827,21 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["streetname"] == null || (parametersIn["streetname"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["streetname"] == null || (parametersIn["streetname"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("QueryPlaceAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Missing_Input_Parameter"), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("QueryPlaceAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Missing_Input_Parameter_StreetName"), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_StreetName, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("QueryPlaceAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Missing_Input_Parameter_ContractId"), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        response.value = null; 
                         return response;
                     }
                     else
@@ -985,7 +1000,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             PlaceInfo placeInfo = new PlaceInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -1102,15 +1117,30 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-
-                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
-                        (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Group, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1285,7 +1315,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ParkingStepsInfo parkingStepsInfo = new ParkingStepsInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -1410,15 +1440,30 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-
-                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
-                        (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Group, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1582,7 +1627,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ParkingStepsInfo parkingStepsInfo = new ParkingStepsInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -1693,16 +1738,39 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-
-                    if ((parametersIn["p"] == null) ||
-                        (parametersIn["g"] == null) ||
-                        (parametersIn["t"] == null) ||
-                        (parametersIn["contid"] == null))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryParkingOperationForTimeAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationForTimeAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Group, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["t"] == null || (parametersIn["t"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationForTimeAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_TimeInMinutes, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationForTimeAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1855,7 +1923,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ParkingTimeInfo parkingTimeInfo = new ParkingTimeInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -1954,17 +2022,37 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-
-                    if ((parametersIn["p"] == null) ||
-                        (parametersIn["g"] == null) ||
-                        (parametersIn["q"] == null) ||
-                        (parametersIn["contid"] == null))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryParkingOperationForMoneyAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationForMoneyAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Group, (int)SeverityError.Critical);
+                        response.value = null; 
+                        return response;
+                    }
+                    else if (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationForMoneyAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents, (int)SeverityError.Critical);
+                        response.value = null; 
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("QueryParkingOperationForMoneyAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        response.value = null; 
                         return response;
                     }
                     else
@@ -2116,7 +2204,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ParkingMoneyInfo parkingMoneyInfo = new ParkingMoneyInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -2205,12 +2293,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -2238,19 +2339,75 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["p"] == null) || (parametersIn["p"].ToString().Length == 0) ||
-                        (parametersIn["g"] == null) || (parametersIn["g"].ToString() == "0") ||
-                        (parametersIn["ad"] == null) || (parametersIn["ad"].ToString() == "0") ||
-                        (parametersIn["q"] == null) || (parametersIn["q"].ToString() == "0") ||
-                        (parametersIn["mui"] == null) || (parametersIn["mui"].ToString() == "0") ||
-                        (parametersIn["cid"] == null) || (parametersIn["cid"].ToString() == "0") ||
-                        (parametersIn["os"] == null) || (parametersIn["os"].ToString() == "0") ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
-                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Plate);
                         Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["g"] == null || (parametersIn["g"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Group);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Group, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["ad"] == null || (parametersIn["ad"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_TariffType);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_TariffType, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_CloudToken);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId);
+                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2315,7 +2472,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2667,7 +2824,7 @@ namespace OPSWebServicesAPI.Controllers
 
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = iRes + "";
             return response;
         }
@@ -2754,14 +2911,21 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) 
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        response.value = null; 
                         return response;
                     }
                     else
@@ -2973,7 +3137,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             UnParkingQueryInfo unparkingQueryInfo = new UnParkingQueryInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -3052,12 +3216,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -3085,17 +3262,57 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
-                        (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0)) ||
-                        (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
-                        (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0)) ||
-                        (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
-                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Plate);
                         Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_CloudToken);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId);
+                        Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3160,7 +3377,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -3442,7 +3659,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = iRes + "";
             return response;
 
@@ -3577,12 +3794,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    int iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -3620,17 +3850,37 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0)) ||
-                        (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["p"] == null || (parametersIn["p"].ToString().Length == 0))
                     {
-                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
-                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Plate).ToString();
+                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Plate).ToString();
                         xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
                         Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - missing input parameter: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Plate, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0))
+                    {
+                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken).ToString();
+                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken).ToString();
+                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - missing input parameter: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; 
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId).ToString();
+                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId).ToString();
+                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - missing input parameter: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        response.value = null; 
                         return response;
                     }
                     else
@@ -3702,7 +3952,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -4168,7 +4418,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ParkingStatusInfo parkingStatusInfo = new ParkingStatusInfo();
             ParkingStatusRotationInfo parkingStatusRotationInfo = new ParkingStatusRotationInfo();
@@ -4279,12 +4529,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -4312,17 +4575,57 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["f"] == null || (parametersIn["f"].ToString().Length == 0)) ||
-                        (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0)) ||
-                        (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
-                        (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0)) ||
-                        (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["f"] == null || (parametersIn["f"].ToString().Length == 0))
                     {
-                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Fine);
                         Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Fine, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["q"] == null || (parametersIn["q"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_QuantityInCents, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_CloudToken);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId);
+                        Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -4387,7 +4690,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -4590,7 +4893,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = iRes + "";
             return response;
 

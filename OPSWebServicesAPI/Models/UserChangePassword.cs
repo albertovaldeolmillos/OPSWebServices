@@ -13,13 +13,13 @@ namespace OPSWebServicesAPI.Models
     public class UserChangePassword
     {
         /// <summary>
-        /// (*) Contract ID
+        /// Contract ID
         /// </summary>
         [DisplayName("contid")]
         [Required]
         public int contractId { get; set; }
         /// <summary>
-        /// (*) User name
+        /// User name
         /// </summary>
         [DisplayName("un")]
         [Required]

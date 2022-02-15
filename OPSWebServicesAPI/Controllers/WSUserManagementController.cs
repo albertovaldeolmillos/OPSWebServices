@@ -167,17 +167,45 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if (((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) && 
-                        (parametersIn["pw"] == null || (parametersIn["pw"] != null && parametersIn["pw"].ToString().Length == 0)) && 
-                        (parametersIn["mui"] == null) || (parametersIn["mui"] != null && parametersIn["mui"].ToString().Length == 0)) ||
-                        (parametersIn["cid"] == null) || (parametersIn["cid"].ToString().Length == 0) ||
-                        (parametersIn["os"] == null) || (parametersIn["os"].ToString().Length == 0) ||
-                        (parametersIn["v"] == null) || (parametersIn["v"].ToString().Length == 0) ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if ((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
+                        (parametersIn["pw"] == null || (parametersIn["pw"] != null && parametersIn["pw"].ToString().Length == 0)) &&
+                        (parametersIn["mui"] == null) || (parametersIn["mui"] != null && parametersIn["mui"].ToString().Length == 0))
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    }
+                    else if ((parametersIn["cid"] == null) || (parametersIn["cid"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    }
+                    else if ((parametersIn["os"] == null) || (parametersIn["os"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    }
+                    else if ((parametersIn["v"] == null) || (parametersIn["v"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Version, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    }
+                    else if ((parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
@@ -313,7 +341,7 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
@@ -358,7 +386,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = strToken;
             return response;//strToken;
         }
@@ -495,12 +523,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    int iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -529,6 +570,11 @@ namespace OPSWebServicesAPI.Controllers
                         parametersIn.Add(NombreAtributoNot, propertyNot.GetValue(user.notifications));
                     }
                 }
+                else if (NombreAtributo == "notifications" && user.notifications == null)
+                {
+                    parametersIn.Add("ba", 1); parametersIn.Add("fn", 1); parametersIn.Add("re", 1); parametersIn.Add("unp", 1);
+                    parametersIn.Add("q_ba", 300); parametersIn.Add("t_unp", 10);
+                }
                 else 
                 {
                     var Valor = property.GetValue(user);
@@ -550,24 +596,66 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
-                        (parametersIn["em"] == null) || (parametersIn["em"].ToString().Length == 0) ||
-                        (parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0) ||
-                        (parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0) ||
-                        (parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0) ||
-                        (parametersIn["val"] == null) || (parametersIn["val"].ToString().Length == 0) ||
-                        (parametersIn["plates"] == null) || 
-                        (parametersIn["fn"] == null) || (parametersIn["fn"].ToString().Length == 0) ||
-                        (parametersIn["unp"] == null) || (parametersIn["unp"].ToString().Length == 0) ||
-                        (parametersIn["t_unp"] == null) || (parametersIn["t_unp"].ToString().Length == 0) ||
-                        (parametersIn["re"] == null) || (parametersIn["re"].ToString().Length == 0) ||
-                        (parametersIn["ba"] == null) || (parametersIn["ba"].ToString().Length == 0) ||
-                        (parametersIn["q_ba"] == null) || (parametersIn["q_ba"].ToString().Length == 0))
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["em"] == null) || (parametersIn["em"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Email, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_FirstSurname, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Name, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_MainMobilePhone, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["val"] == null) || (parametersIn["val"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ValidateConditions, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["plates"] == null))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -635,7 +723,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -734,7 +822,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = nMobileUserId.ToString();
             return response;//nMobileUserId;
             //return xmlOut;
@@ -823,12 +911,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    int iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -870,14 +971,30 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0) ||
-                        (parametersIn["d"] == null) || (parametersIn["d"].ToString() == "0") ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null;
+                        return response;
+                    }
+                    else if ((parametersIn["d"] == null) || (parametersIn["d"].ToString() == "0"))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Date, (int)SeverityError.Critical);
+                        response.value = null;
+                        return response;
+                    }
+                    else if ((parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null;
                         return response;
                     }
@@ -952,7 +1069,7 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     //return xmlOut;
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                     response.value = null;
                                     return response;
                                 }
@@ -1012,7 +1129,7 @@ namespace OPSWebServicesAPI.Controllers
 
             //return xmlOut;
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             List<Operation> lista = new List<Operation>();
             SortedList listOps = (SortedList)parametersOut["lst"];
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -1121,12 +1238,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("QueryUserAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("QueryUserAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    int iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -1159,7 +1289,7 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1227,7 +1357,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -1296,7 +1426,7 @@ namespace OPSWebServicesAPI.Controllers
 
             //return xmlOut;
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             ConfigMapModel configMapModel = new ConfigMapModel();
             var configUser = configMapModel.configUser();
@@ -1387,17 +1517,25 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if (((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
-                        (parametersIn["email"] == null) || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if ((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
+                        (parametersIn["email"] == null || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)))
                     {
                         //iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
+                    //else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    //{
+                    //    //iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                    //    Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
                     else
                     {
                         bool bHashOk = false;
@@ -1518,7 +1656,7 @@ namespace OPSWebServicesAPI.Controllers
 
             //return iRes;
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = Convert.ToInt32(ResultType.Result_OK).ToString();
             return response;
         }
@@ -1588,18 +1726,34 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if (((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
-                        (parametersIn["email"] == null) || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)) ||
-                        (parametersIn["recode"] == null) || (parametersIn["recode"].ToString().Length == 0) ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if ((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
+                        (parametersIn["email"] == null || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0))) 
                     {
-                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_UserName_Email);
                         Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Missing parameter: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
+                    else if ((parametersIn["recode"] == null) || (parametersIn["recode"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Recode);
+                        Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Missing parameter: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Recode, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    //else if ((parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    //{
+                    //    iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId);
+                    //    Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Missing parameter: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
                     else
                     {
                         bool bHashOk = false;
@@ -1706,7 +1860,7 @@ namespace OPSWebServicesAPI.Controllers
 
             //return iRes;
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = Convert.ToInt32(ResultType.Result_OK).ToString();
             return response;
         }
@@ -1776,19 +1930,43 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if (((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
-                        (parametersIn["email"] == null) || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)) ||
-                        (parametersIn["pw"] == null)  || (parametersIn["pw"].ToString().Length == 0) ||
-                        (parametersIn["recode"] == null) || (parametersIn["recode"].ToString().Length == 0) ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if ((parametersIn["un"] == null || (parametersIn["un"] != null && parametersIn["un"].ToString().Length == 0)) &&
+                        (parametersIn["email"] == null || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)))
                     {
                         Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
+                    else if ((parametersIn["pw"] == null) || (parametersIn["pw"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Password, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if ((parametersIn["recode"] == null) || (parametersIn["recode"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Recode, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    //else if ((parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    //{
+                    //    Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                    //    //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
                     else
                     {
                         bool bHashOk = false;
@@ -1914,7 +2092,7 @@ namespace OPSWebServicesAPI.Controllers
 
             //return strToken;
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = strToken;
             return response;
         }
@@ -2020,6 +2198,11 @@ namespace OPSWebServicesAPI.Controllers
                         parametersIn.Add(NombreAtributoNot, propertyNot.GetValue(userRegister.notifications));
                     }
                 }
+                else if (NombreAtributo == "notifications" && userRegister.notifications == null)
+                {
+                    parametersIn.Add("ba", 1); parametersIn.Add("fn", 1); parametersIn.Add("re", 1); parametersIn.Add("unp", 1);
+                    parametersIn.Add("q_ba", 300); parametersIn.Add("t_unp", 10);
+                }
                 else
                 {
                     var Valor = property.GetValue(userRegister);
@@ -2039,30 +2222,74 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["un"] == null) || (parametersIn["un"].ToString().Length == 0) ||
-                        (parametersIn["pw"] == null) || (parametersIn["pw"].ToString().Length == 0) ||
-                        (parametersIn["em"] == null) || (parametersIn["em"].ToString().Length == 0) ||
-                        (parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0) ||
-                        (parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0) ||
-                        (parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0) ||
-                        (parametersIn["plates"] == null) ||
-                        (parametersIn["fn"] == null) || (parametersIn["fn"].ToString().Length == 0) ||
-                        (parametersIn["unp"] == null) || (parametersIn["unp"].ToString().Length == 0) ||
-                        (parametersIn["t_unp"] == null) || (parametersIn["t_unp"].ToString().Length == 0) ||
-                        (parametersIn["re"] == null) || (parametersIn["re"].ToString().Length == 0) ||
-                        (parametersIn["ba"] == null) || (parametersIn["ba"].ToString().Length == 0) ||
-                        (parametersIn["q_ba"] == null) || (parametersIn["q_ba"].ToString().Length == 0) ||
-                        (parametersIn["contid"] == null) || (parametersIn["contid"].ToString().Length == 0))
+                    if ((parametersIn["em"] == null) || (parametersIn["em"].ToString().Length == 0))
                     {
                         Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return (int)ResultType.Result_Error_Missing_Input_Parameter;
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Email, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    //else if ((parametersIn["un"] == null) || (parametersIn["un"].ToString().Length == 0))
+                    //{
+                        //Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        ////return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        //response.isSuccess = false;
+                        //response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName, (int)SeverityError.Critical);
+                        //response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        //return response;
+                    //}
+                    else if ((parametersIn["pw"] == null) || (parametersIn["pw"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        //return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Password, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    //else if ((parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0))
+                    //{
+                        //Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        ////return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        //response.isSuccess = false;
+                        //response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_FirstSurname, (int)SeverityError.Critical);
+                        //response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        //return response;
+                    //}
+                    //else if ((parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0))
+                    //{
+                        //Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        ////return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        //response.isSuccess = false;
+                        //response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Name, (int)SeverityError.Critical);
+                        //response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        //return response;
+                    //}
+                    //else if ((parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0))
+                    //{
+                        //Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        ////return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        //response.isSuccess = false;
+                        //response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_MainMobilePhone, (int)SeverityError.Critical);
+                        //response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        //return response;
+                    //}
+                    else if ((parametersIn["plates"] == null))
+                    {
+                        Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        //return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
                     else
                     {
+                        if ((parametersIn["un"] == null) || (parametersIn["un"].ToString().Length == 0))
+                            parametersIn["un"] = parametersIn["em"];
+
                         bool bHashOk = false;
 
                         if (_useHash.Equals("true"))
@@ -2123,6 +2350,9 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 Logger_AddLogMessage(string.Format("RegisterUserAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
 
+                                if (parametersIn["na"] == null) parametersIn["na"] = parametersIn["em"];
+                                if (parametersIn["fs"] == null) parametersIn["fs"] = "";
+
                                 SendConfEmail(strToken, parametersIn["na"].ToString(), parametersIn["fs"].ToString(), parametersIn["em"].ToString());
                             }
                             else
@@ -2153,7 +2383,7 @@ namespace OPSWebServicesAPI.Controllers
 
             //return nMobileUserId;
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = nMobileUserId +"";
             return response;
         }
@@ -2206,12 +2436,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -2239,10 +2482,10 @@ namespace OPSWebServicesAPI.Controllers
                 {
                     if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0))
                     {
-                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
                         Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2308,7 +2551,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2354,7 +2597,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = iRes + "";
             return response;
 
@@ -2419,12 +2662,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                int iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    int iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -2451,16 +2707,48 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
-                        (parametersIn["am"] == null || (parametersIn["am"].ToString().Length == 0)) ||
-                        (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0)) ||
-                        (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["am"] == null || (parametersIn["am"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AmountInCents, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["os"] == null || (parametersIn["os"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2528,7 +2816,7 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2593,7 +2881,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
             UserRechargeInfo userRechargeInfo = new UserRechargeInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -2664,12 +2952,25 @@ namespace OPSWebServicesAPI.Controllers
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
-                iRes = Convert.ToInt32(ResultType.Result_Error_User_Not_Validated);
-                Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: No Bearer Token, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
                 response.value = null;
                 return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    response.value = null;
+                    return response;
+                }
             }
             parametersIn.Add("mui", token);
 
@@ -2698,17 +2999,57 @@ namespace OPSWebServicesAPI.Controllers
 
                 if (rt == ResultType.Result_OK)
                 {
-                    if ((parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0)) ||
-                        (parametersIn["d1"] == null || (parametersIn["d1"].ToString().Length == 0)) ||
-                        (parametersIn["d2"] == null || (parametersIn["d2"].ToString().Length == 0)) ||
-                        (parametersIn["mail"] == null || (parametersIn["mail"].ToString().Length == 0)) ||
-                        (parametersIn["rfmt"] == null || (parametersIn["rfmt"].ToString().Length == 0)) ||
-                        (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0)))
+                    if (parametersIn["mui"] == null || (parametersIn["mui"].ToString().Length == 0))
                     {
-                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter, (int)SeverityError.Critical);
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["d1"] == null || (parametersIn["d1"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_DateStart);
+                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_DateStart, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["d2"] == null || (parametersIn["d2"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_DateEnd);
+                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_DateEnd, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["mail"] == null || (parametersIn["mail"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Email);
+                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Email, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["rfmt"] == null || (parametersIn["rfmt"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ReportFormat);
+                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ReportFormat, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId);
+                        Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2781,7 +3122,7 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;
                                 }
@@ -2878,7 +3219,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             response.isSuccess = true;
-            response.error = new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
+            response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
             response.value = iRes + "";
             return response;
 
@@ -9135,19 +9476,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                     throw new Exception("Oracle connection is not open");
 
-                string strSQL1 = " insert into MOBILE_USERS (mu_name, mu_surname1, mu_email, mu_mobile_telephone, mu_login, mu_password, mu_activate_account, mu_addr_country, mu_fine_notify, mu_unpark_notify, mu_unpark_notify_time, mu_recharge_notify, mu_balance_notify, mu_balance_notify_amount";
-                string strSQL2 = " ) VALUES( INITCAP('" + parametersIn["na"].ToString().Replace('\'', ',') + "'),INITCAP('" + parametersIn["fs"].ToString().Replace('\'', ',') + "'),'" + parametersIn["em"].ToString() + "','";
-                strSQL2 += parametersIn["mmp"].ToString() + "', '" + parametersIn["un"].ToString().Replace('\'', ',') + "', '" + parametersIn["pw"].ToString().Replace('\'', ',') + "', " + ConfigurationManager.AppSettings["ActivateAccount.No"].ToString() + ", '";
+                string strSQL1 = " insert into MOBILE_USERS (mu_email, mu_login, mu_password, mu_activate_account, mu_addr_country, mu_fine_notify, mu_unpark_notify, mu_unpark_notify_time, mu_recharge_notify, mu_balance_notify, mu_balance_notify_amount";
+                string strSQL2 = " ) VALUES( '" + parametersIn["em"].ToString() + "',";
+                strSQL2 += "'" + parametersIn["un"].ToString().Replace('\'', ',') + "', '" + parametersIn["pw"].ToString().Replace('\'', ',') + "', " + ConfigurationManager.AppSettings["ActivateAccount.No"].ToString() + ", '";
                 strSQL2 += ConfigurationManager.AppSettings["AddressCountry.Spain"].ToString() + "'," + parametersIn["fn"].ToString() + ", " + parametersIn["unp"].ToString() + ", " + parametersIn["t_unp"].ToString() + ", " + parametersIn["re"].ToString() + ", " + parametersIn["ba"].ToString() + ", " + parametersIn["q_ba"].ToString();
                 if (parametersIn["nif"] != null)
                 {
                     strSQL1 += " , mu_dni";
                     strSQL2 += ", UPPER('" + parametersIn["nif"].ToString() + "')";
                 }
+                if (parametersIn["na"] != null)
+                {
+                    strSQL1 += " , mu_name";
+                    strSQL2 += ", INITCAP('" + parametersIn["na"].ToString().Replace('\'', ',') + "')";
+                }
+                if (parametersIn["fs"] != null)
+                {
+                    strSQL1 += " , mu_surname1";
+                    strSQL2 += ", INITCAP('" + parametersIn["fs"].ToString().Replace('\'', ',') + "')";
+                }
                 if (parametersIn["ss"] != null)
                 {
                     strSQL1 += " , mu_surname2";
                     strSQL2 += ", INITCAP('" + parametersIn["ss"].ToString().Replace('\'', ',') + "')";
+                }
+                if (parametersIn["mmp"] != null)
+                {
+                    strSQL1 += " , mu_mobile_telephone";
+                    strSQL2 += ", '" + parametersIn["mmp"].ToString() + "'";
                 }
                 if (parametersIn["amp"] != null)
                 {
