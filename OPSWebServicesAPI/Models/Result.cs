@@ -45,6 +45,11 @@ namespace OPSWebServicesAPI.Models
         public StreetsInfo value { get; set; }
     }
 
+    public class ResultSectorsInfo : Result
+    {
+        public SectorsInfo value { get; set; }
+    }
+
     public class ResultZoneInfo : Result
     {
         public ZoneInfo value { get; set; }

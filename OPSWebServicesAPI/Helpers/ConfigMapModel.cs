@@ -167,6 +167,19 @@ namespace OPSWebServicesAPI.Helpers
             return config;
         }
 
+        public MapperConfiguration configSectors()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, SectorsInfo>()
+                    .ForMember(d => d.sectorsNumber, o => o.MapFrom(s => s["sectorsNumber"]))
+                    .ForMember(d => d.sectorlist, o => o.MapFrom(s => s["sectorlist"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
         public MapperConfiguration configPlace()
         {
             var config = new MapperConfiguration(cfg => {

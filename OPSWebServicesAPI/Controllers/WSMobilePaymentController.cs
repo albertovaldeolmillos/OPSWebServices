@@ -4900,6 +4900,133 @@ namespace OPSWebServicesAPI.Controllers
             //return iRes;
         }
 
+        /// <summary>
+        /// return village sectors information
+        /// </summary>
+        /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
+        /// <returns>village streets</returns>
+        [HttpPost]
+        [Route("QuerySectorsAPI")]
+        public ResultSectorsInfo QuerySectorsAPI([FromBody] SectorsQuery sectorsQuery)
+        {
+            //string xmlOut = "";
+
+            ResultSectorsInfo response = new ResultSectorsInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(SectorsQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(sectorsQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                //SortedList parametersOut = new SortedList();
+                SortedList sectorsList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QuerySectorsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        // Determine contract ID if any
+                        int nContractId = 0;
+                        if (parametersIn["contid"] != null)
+                        {
+                            if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                        }
+
+                        // Get contracts information
+                        if (!GetSectorsData(ref sectorsList, nContractId))
+                        {
+                            //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                            Logger_AddLogMessage(string.Format("QuerySectorsAPI::Error - Could not obtain streets data: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                            //return xmlOut;
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            return response;
+                        }
+
+                        if (sectorsList.Count > 0)
+                            parametersOut["sectorlist"] = sectorsList;
+                        else
+                        {
+                            sectorsList = new SortedList();
+                            sectorsList["sector1"] = "";
+                            parametersOut["sectorlist"] = sectorsList;
+                        }
+
+                        parametersOut["sectorsNumber"] = sectorsList.Count.ToString();
+                        //parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                        //xmlOut = GenerateXMLOuput(parametersOut);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QuerySectorsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = null;
+
+            SortedList listSectors = (SortedList)parametersOut["sectorlist"];
+            List<SectorInfo> sectorsNamelist = new List<SectorInfo>();
+            int numSectors = 1;
+            if (listSectors != null) foreach (System.Collections.DictionaryEntry st in listSectors)
+                {
+                    SectorInfo si = new SectorInfo();
+                    //si = (SectorInfo)st.Value;
+                    //sectorsNamelist.Add(si);
+                    if (((SortedList)(st.Value))["zoneId"] != null) si.zoneId = Convert.ToInt32(((SortedList)(st.Value))["zoneId"]);
+                    if (((SortedList)(st.Value))["zone"] != null) si.zone = (string)((SortedList)(st.Value))["zone"];
+                    if (((SortedList)(st.Value))["zoneColor"] != null) si.zoneColor = (string)((SortedList)(st.Value))["zoneColor"];
+                    if (((SortedList)(st.Value))["sectorId"] != null) si.sectorId = Convert.ToInt32(((SortedList)(st.Value))["sectorId"]);
+                    if (((SortedList)(st.Value))["sector"] != null) si.sector = (string)((SortedList)(st.Value))["sector"];
+                    if (((SortedList)(st.Value))["sectorColor"] != null) si.sectorColor = (string)((SortedList)(st.Value))["sectorColor"];
+                    sectorsNamelist.Add(si);
+                }
+            parametersOut["sectorlist"] = sectorsNamelist.ToArray();
+
+            SectorsInfo sectorsInfo = new SectorsInfo();
+            ConfigMapModel configMapModel = new ConfigMapModel();
+            var config = configMapModel.configSectors();
+            IMapper iMapper = config.CreateMapper();
+            sectorsInfo = iMapper.Map<SortedList, SectorsInfo>((SortedList)parametersOut);
+            response.value = sectorsInfo;
+            return response;
+
+            //return xmlOut;
+        }
+
         /*
          * The parameters of method QueryContractsXML are:
 
@@ -17616,6 +17743,98 @@ namespace OPSWebServicesAPI.Controllers
                 }
 
 
+            }
+
+            return bResult;
+        }
+
+        /// <summary>
+        /// return sectors information or error
+        /// </summary>
+        /// <param name="parametersOut"></param>
+        /// <param name="nContractId"></param>
+        /// <returns></returns>
+        private bool GetSectorsData(ref SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+            parametersOut = new SortedList();
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = "select aa.zoneid,aa.zone,aa.zonecolor,aa.sectorid,g.grp_descshort as sector,g.grp_colour as sectorColor " +
+                    "from (select cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor from groups_childs gc inner join groups gr on gr.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa, groups g " +
+                    "where g.grp_id = aa.sectorid and g.grp_dgrp_id = 2 and g.grp_deleted = 0 and g.grp_typetree = 1 order by aa.zoneid, aa.sectorid";
+                oraCmd.CommandText = strSQL;
+
+                int nIndex = 1;
+                dataReader = oraCmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    SortedList sectorData = new SortedList();
+                    sectorData["zoneId"] = dataReader.GetInt32(0).ToString();
+                    sectorData["zone"] = dataReader.GetString(1);
+                    sectorData["zoneColor"] = dataReader.GetString(2);
+                    sectorData["sectorId"] = dataReader.GetInt32(3).ToString();
+                    sectorData["sector"] = dataReader.GetString(4);
+                    sectorData["sectorColor"] = dataReader.GetString(5);
+                    parametersOut["sector" + nIndex] = sectorData;
+                    nIndex++;
+                }
+
+                if (parametersOut.Count > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetGroupParent::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
             }
 
             return bResult;

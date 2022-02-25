@@ -654,6 +654,13 @@
             -25: User does not have enough credit
              </returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QuerySectorsAPI(OPSWebServicesAPI.Models.SectorsQuery)">
+            <summary>
+            return village sectors information
+            </summary>
+            <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
+            <returns>village streets</returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M01Process(System.Collections.SortedList,System.String,System.Int32)">
             <summary>
             Metodo para sustituir el proceso de pedir la información del Process de M01 vía servicio asmx (mirar Process de M01)
@@ -788,6 +795,14 @@
             </summary>
             <param name="dt">DateTime to convert</param>
             <returns>string in OPS-dtx format</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.GetSectorsData(System.Collections.SortedList@,System.Int32)">
+            <summary>
+            return sectors information or error
+            </summary>
+            <param name="parametersOut"></param>
+            <param name="nContractId"></param>
+            <returns></returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.UserLogin)">
             <summary>
@@ -1947,6 +1962,66 @@
         <member name="P:OPSWebServicesAPI.Models.PlaceQuery.streetno">
             <summary>
             Street number
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.SectorInfo">
+            <summary>
+            Sector information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorInfo.zoneId">
+            <summary>
+            zone identification number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorInfo.zone">
+            <summary>
+            zone name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorInfo.zoneColor">
+            <summary>
+            zone color
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorInfo.sectorId">
+            <summary>
+            sector identification number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorInfo.sector">
+            <summary>
+            sector name
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorInfo.sectorColor">
+            <summary>
+            sector color
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.SectorsInfo">
+            <summary>
+            Sectors information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsInfo.sectorsNumber">
+            <summary>
+            Number of sectors
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsInfo.sectorlist">
+            <summary>
+            Sector list
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.SectorsQuery">
+            <summary>
+            class to request sectors
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsQuery.contractId">
+            <summary>
+            (*) Contract ID
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.Step">

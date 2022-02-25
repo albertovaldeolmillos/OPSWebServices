@@ -239,6 +239,9 @@
     <Compile Include="Models\ParkingTimeQuery.cs" />
     <Compile Include="Models\PlaceInfo.cs" />
     <Compile Include="Models\PlaceQuery.cs" />
+    <Compile Include="Models\SectorInfo.cs" />
+    <Compile Include="Models\SectorsInfo.cs" />
+    <Compile Include="Models\SectorsQuery.cs" />
     <Compile Include="Models\Step.cs" />
     <Compile Include="Models\StreetsInfo.cs" />
     <Compile Include="Models\StreetsQuery.cs" />

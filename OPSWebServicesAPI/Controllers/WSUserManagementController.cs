@@ -2965,7 +2965,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     response.error = new Error(iRes, (int)SeverityError.Critical);
                     response.value = null;
@@ -7971,9 +7971,9 @@ namespace OPSWebServicesAPI.Controllers
                 string emailSubject = "Recuperación de contraseña";
                 string emailHead = "<p>Estimad@ Sr./Sra.:</p>";
                 string strExpPeriod = ConfigurationManager.AppSettings["RecoveryCodeExpTime"].ToString();
-                string emailBody = "<p>Su solicitud ha sido procesada con éxito. Para reestablecerla debe introducir la nueva contraseña que se le ha generado aleatoriamente en el cuadro de recuperación de la aplicación. "
-                    + "Una vez introducida, accederá automáticamente a la aplicación, desde la cual le recomendamos cambiar la contraseña proporcionada en este email.</p>";
-                string emailCode = "<p> Contraseña de recuperación: <b>" + strRecoveryCode + "</b></p>";
+                string emailBody = "<p>Su solicitud ha sido procesada con éxito y se ha generado el siguiente código de recuperación: ";
+                string emailCode = "<b>" + strRecoveryCode + "</b></p>" + 
+                    "<p>En la aplicación debe utilizar este código en el siguiente paso del proceso. Introduzca el código junto con la nueva contraseña y accederá automáticamente a la aplicación.</p>";
                 string emailFeet = "<p>Si tiene alguna duda o consulta, puede contactar el soporte técnico de ArinPark en: <a href=\"soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
                 string bodyMessage = emailHead +
                                      emailBody +
