@@ -17786,7 +17786,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                     throw new Exception("Oracle connection is not open");
 
-                string strSQL = "select aa.zoneid,aa.zone,aa.zonecolor,aa.sectorid,g.grp_descshort as sector,g.grp_colour as sectorColor " +
+                string strSQL = "select aa.zoneid,aa.zone,aa.zonecolor,aa.sectorid,g.grp_descshort as sector, g.grp_colour as sectorColor " +
                     "from (select cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor from groups_childs gc inner join groups gr on gr.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa, groups g " +
                     "where g.grp_id = aa.sectorid and g.grp_dgrp_id = 2 and g.grp_deleted = 0 and g.grp_typetree = 1 order by aa.zoneid, aa.sectorid";
                 oraCmd.CommandText = strSQL;
@@ -17798,10 +17798,10 @@ namespace OPSWebServicesAPI.Controllers
                     SortedList sectorData = new SortedList();
                     sectorData["zoneId"] = dataReader.GetInt32(0).ToString();
                     sectorData["zone"] = dataReader.GetString(1);
-                    sectorData["zoneColor"] = dataReader.GetString(2);
+                    sectorData["zoneColor"] = (dataReader.IsDBNull(2)) ? "" : dataReader.GetString(2);
                     sectorData["sectorId"] = dataReader.GetInt32(3).ToString();
                     sectorData["sector"] = dataReader.GetString(4);
-                    sectorData["sectorColor"] = dataReader.GetString(5);
+                    sectorData["sectorColor"] = (dataReader.IsDBNull(5)) ? "" : dataReader.GetString(5);
                     parametersOut["sector" + nIndex] = sectorData;
                     nIndex++;
                 }

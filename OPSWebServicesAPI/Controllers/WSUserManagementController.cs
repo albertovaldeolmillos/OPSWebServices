@@ -650,15 +650,15 @@ namespace OPSWebServicesAPI.Controllers
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
-                    else if ((parametersIn["plates"] == null))
-                    {
-                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                        response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, (int)SeverityError.Critical);
-                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
-                        return response;
-                    }
+                    //else if ((parametersIn["plates"] == null))
+                    //{
+                    //    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                    //    Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
                     else
                     {
                         bool bHashOk = false;
@@ -9708,12 +9708,12 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.ExecuteNonQuery() > 0)
                     nMobileUserId = Convert.ToInt32(parametersIn["mui"]);
 
-                string strSQL = string.Format("UPDATE MOBILE_USERS_PLATES SET MUP_VALID = 0, MUP_DELETED = 1 WHERE MUP_MU_ID = {0}", nMobileUserId);
-                oraCmd.CommandText = strSQL;
-                oraCmd.ExecuteNonQuery();
-
                 if (parametersIn["plates"] != null)
                 {
+                    string strSQL = string.Format("UPDATE MOBILE_USERS_PLATES SET MUP_VALID = 0, MUP_DELETED = 1 WHERE MUP_MU_ID = {0}", nMobileUserId);
+                    oraCmd.CommandText = strSQL;
+                    oraCmd.ExecuteNonQuery();
+
                     SortedList PlateList = (SortedList)parametersIn["plates"];
                     foreach (string sPlate in PlateList.Values)
                     {
