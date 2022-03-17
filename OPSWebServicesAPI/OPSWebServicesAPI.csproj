@@ -240,9 +240,12 @@
     <Compile Include="Models\PlaceInfo.cs" />
     <Compile Include="Models\PlaceQuery.cs" />
     <Compile Include="Models\SectorInfo.cs" />
+    <Compile Include="Models\SectorsAreasPoint.cs" />
     <Compile Include="Models\SectorsInfo.cs" />
     <Compile Include="Models\SectorsQuery.cs" />
     <Compile Include="Models\Step.cs" />
+    <Compile Include="Models\StreetFullInfo.cs" />
+    <Compile Include="Models\StreetsFullInfo.cs" />
     <Compile Include="Models\StreetsInfo.cs" />
     <Compile Include="Models\StreetsQuery.cs" />
     <Compile Include="Models\UnParkingConfirmQuery.cs" />

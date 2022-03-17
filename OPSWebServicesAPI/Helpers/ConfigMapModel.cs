@@ -180,6 +180,19 @@ namespace OPSWebServicesAPI.Helpers
             return config;
         }
 
+        public MapperConfiguration configStreetsFull()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<SortedList, StreetsFullInfo>()
+                    .ForMember(d => d.streetsFullNumber, o => o.MapFrom(s => s["streetsFullNumber"]))
+                    .ForMember(d => d.streetsFulllist, o => o.MapFrom(s => s["streetsFulllist"]))
+                    ;
+                cfg.AllowNullCollections = true;
+                cfg.AllowNullDestinationValues = true;
+            });
+            return config;
+        }
+
         public MapperConfiguration configPlace()
         {
             var config = new MapperConfiguration(cfg => {
@@ -374,6 +387,7 @@ namespace OPSWebServicesAPI.Helpers
                     .ForMember(d => d.result, o => o.MapFrom(s => s["r"]))
                     .ForMember(d => d.orderId, o => o.MapFrom(s => s["or"]))
                     .ForMember(d => d.urlResponse, o => o.MapFrom(s => s["mu"]))
+                    .ForMember(d => d.urlPayTpv, o => o.MapFrom(s => s["up"]))
                     ;
                 cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;

@@ -48,5 +48,11 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("ah")]
         public string authenticationHash { get; set; }
+        /// <summary>
+        /// (*) tipo de operación: 1: tarjeta nueva, 109: tarjeta anterior
+        /// </summary>
+        [DisplayName("op")]
+        [Required]
+        public int operation { get; set; }
     }
 }

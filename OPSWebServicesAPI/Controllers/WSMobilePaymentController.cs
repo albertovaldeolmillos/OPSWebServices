@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CS_OPS_TesM1;
 using Jot;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 //using OPS.Comm;
 //using OPS.Comm.Becs.Messages;
@@ -1178,6 +1179,12 @@ namespace OPSWebServicesAPI.Controllers
                                     nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
                             }
 
+                            if (MessagesExceptionForParking(nContractId, Convert.ToInt32(parametersIn["g"]), out response))
+                            {
+                                Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error - Message Exception: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                return response;
+                            }                 
+
                             int iVirtualUnit = -1;
                             if (GetVirtualUnit(Convert.ToInt32(parametersIn["g"]), ref iVirtualUnit, nContractId))
                             {
@@ -1499,6 +1506,12 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 if (parametersIn["contid"].ToString().Trim().Length > 0)
                                     nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                            }
+
+                            if (MessagesExceptionForParking(nContractId, Convert.ToInt32(parametersIn["g"]), out response))
+                            {
+                                Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error - Message Exception: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                return response;
                             }
 
                             int iVirtualUnit = -1;
@@ -4903,13 +4916,14 @@ namespace OPSWebServicesAPI.Controllers
         /// <summary>
         /// return village sectors information
         /// </summary>
-        /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
+        /// <param name="sectorsQuery">Object SectorsQuery with ContractId to request</param>
         /// <returns>village streets</returns>
         [HttpPost]
         [Route("QuerySectorsAPI")]
         public ResultSectorsInfo QuerySectorsAPI([FromBody] SectorsQuery sectorsQuery)
         {
             //string xmlOut = "";
+            int nContractId = 0;
 
             ResultSectorsInfo response = new ResultSectorsInfo();
             SortedList parametersOut = new SortedList();
@@ -4931,6 +4945,7 @@ namespace OPSWebServicesAPI.Controllers
                 //SortedList parametersIn = null;
                 //SortedList parametersOut = new SortedList();
                 SortedList sectorsList = null;
+                SortedList streetsFullList = null;
                 string strHash = "";
                 string strHashString = "";
 
@@ -4950,7 +4965,7 @@ namespace OPSWebServicesAPI.Controllers
                     else
                     {
                         // Determine contract ID if any
-                        int nContractId = 0;
+                        
                         if (parametersIn["contid"] != null)
                         {
                             if (parametersIn["contid"].ToString().Trim().Length > 0)
@@ -4958,10 +4973,10 @@ namespace OPSWebServicesAPI.Controllers
                         }
 
                         // Get contracts information
-                        if (!GetSectorsData(ref sectorsList, nContractId))
+                        if (!GetStreetsFullData(ref streetsFullList, nContractId))
                         {
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
-                            Logger_AddLogMessage(string.Format("QuerySectorsAPI::Error - Could not obtain streets data: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                            Logger_AddLogMessage(string.Format("QuerySectorsAPI::Error - Could not obtain streets and sectors data: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                             //return xmlOut;
                             response.isSuccess = false;
                             response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
@@ -4969,16 +4984,16 @@ namespace OPSWebServicesAPI.Controllers
                             return response;
                         }
 
-                        if (sectorsList.Count > 0)
-                            parametersOut["sectorlist"] = sectorsList;
+                        if (streetsFullList.Count > 0) 
+                            parametersOut["streetsFullList"] = streetsFullList;
                         else
                         {
-                            sectorsList = new SortedList();
-                            sectorsList["sector1"] = "";
-                            parametersOut["sectorlist"] = sectorsList;
+                            streetsFullList = new SortedList();
+                            streetsFullList["street1"] = "";
+                            parametersOut["streetsFullList"] = streetsFullList;
                         }
 
-                        parametersOut["sectorsNumber"] = sectorsList.Count.ToString();
+                        parametersOut["streetsNumber"] = streetsFullList.Count.ToString();
                         //parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
                         //xmlOut = GenerateXMLOuput(parametersOut);
                     }
@@ -4998,23 +5013,71 @@ namespace OPSWebServicesAPI.Controllers
             response.isSuccess = true;
             response.error = null;
 
-            SortedList listSectors = (SortedList)parametersOut["sectorlist"];
+            SortedList listStreetsFull = (SortedList)parametersOut["streetsFullList"];
+
+            int streetId = 0;
+            int sectorId = 0;
+            int zoneId = 0;
+            bool existSector = false;
+            bool existsStreet = false;
+            if (parametersIn["streetId"] != null && parametersIn["streetId"].ToString() != "0")
+                streetId = Convert.ToInt32(parametersIn["streetId"]);
+            if (parametersIn["lt"] != null && parametersIn["lt"].ToString() != "0"
+                && parametersIn["lg"] != null && parametersIn["lg"].ToString().ToString() != "0")
+            {
+                streetId =-1;
+                Loc loc = new Loc(Convert.ToDouble(parametersIn["lt"]), Convert.ToDouble(parametersIn["lg"]));
+                existSector = IsLocationInAnySectorDB(loc, nContractId, out sectorId, out zoneId);
+            }
             List<SectorInfo> sectorsNamelist = new List<SectorInfo>();
-            int numSectors = 1;
-            if (listSectors != null) foreach (System.Collections.DictionaryEntry st in listSectors)
+            if (listStreetsFull != null) foreach (System.Collections.DictionaryEntry st in listStreetsFull)
                 {
-                    SectorInfo si = new SectorInfo();
-                    //si = (SectorInfo)st.Value;
-                    //sectorsNamelist.Add(si);
-                    if (((SortedList)(st.Value))["zoneId"] != null) si.zoneId = Convert.ToInt32(((SortedList)(st.Value))["zoneId"]);
-                    if (((SortedList)(st.Value))["zone"] != null) si.zone = (string)((SortedList)(st.Value))["zone"];
-                    if (((SortedList)(st.Value))["zoneColor"] != null) si.zoneColor = (string)((SortedList)(st.Value))["zoneColor"];
-                    if (((SortedList)(st.Value))["sectorId"] != null) si.sectorId = Convert.ToInt32(((SortedList)(st.Value))["sectorId"]);
-                    if (((SortedList)(st.Value))["sector"] != null) si.sector = (string)((SortedList)(st.Value))["sector"];
-                    if (((SortedList)(st.Value))["sectorColor"] != null) si.sectorColor = (string)((SortedList)(st.Value))["sectorColor"];
-                    sectorsNamelist.Add(si);
+                    int streetIdAct = Convert.ToInt32(((SortedList)(st.Value))["streetId"]);
+                    int sectorIdAct = Convert.ToInt32(((SortedList)(st.Value))["sectorId"]);
+                    if (streetId == 0 || streetId == streetIdAct || sectorId == sectorIdAct)
+                    {
+                        existsStreet = true;
+                        SectorInfo si = new SectorInfo();
+                        //si = (SectorInfo)st.Value;
+                        //sectorsNamelist.Add(si);
+                        if (((SortedList)(st.Value))["zoneId"] != null) si.zoneId = Convert.ToInt32(((SortedList)(st.Value))["zoneId"]);
+                        if (((SortedList)(st.Value))["zone"] != null) si.zone = (string)((SortedList)(st.Value))["zone"];
+                        if (((SortedList)(st.Value))["zoneColor"] != null) si.zoneColor = (string)((SortedList)(st.Value))["zoneColor"];
+                        if (((SortedList)(st.Value))["sectorId"] != null) si.sectorId = Convert.ToInt32(((SortedList)(st.Value))["sectorId"]);
+                        if (((SortedList)(st.Value))["sector"] != null) si.sector = (string)((SortedList)(st.Value))["sector"];
+                        if (((SortedList)(st.Value))["sectorColor"] != null) si.sectorColor = (string)((SortedList)(st.Value))["sectorColor"];
+                        sectorsNamelist.Add(si);
+                    }
                 }
+            if (!existsStreet)
+            {
+                if (existSector)
+                {
+                    string strSectorName = "";
+                    string strSectorColor = "";
+                    if (GetGroupName(sectorId, out strSectorName, out strSectorColor, nContractId))
+                    {
+                        if (GetGroupParent(sectorId, ref zoneId, nContractId))
+                        {
+                            SectorInfo si = new SectorInfo();
+                            si.sectorId = sectorId; si.sector = strSectorName; si.sectorColor = strSectorColor;
+                            si.zoneId = zoneId; si.zone = ""; si.zoneColor = "";
+                            sectorsNamelist.Add(si);
+                        }
+                    }            
+                }
+                else
+                {
+                    Logger_AddLogMessage(string.Format("QuerySectorsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Street_Or_Sector_Not_Found"), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Street_Or_Sector_Not_Found, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+            }
+            sectorsNamelist = sectorsNamelist.DistinctBy(p => new { p.zoneId, p.zone,p.zoneColor,p.sectorId,p.sector,p.sectorColor }).ToList();
             parametersOut["sectorlist"] = sectorsNamelist.ToArray();
+            parametersOut["sectorsNumber"] = sectorsNamelist.Count;
 
             SectorsInfo sectorsInfo = new SectorsInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
@@ -5022,6 +5085,133 @@ namespace OPSWebServicesAPI.Controllers
             IMapper iMapper = config.CreateMapper();
             sectorsInfo = iMapper.Map<SortedList, SectorsInfo>((SortedList)parametersOut);
             response.value = sectorsInfo;
+            return response;
+
+            //return xmlOut;
+        }
+
+
+        /// <summary>
+        /// return village streets information
+        /// </summary>
+        /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
+        /// <returns>village streets</returns>
+        [HttpPost]
+        [Route("QueryStreetsFullAPI")]
+        public ResultStreetsFullInfo QueryStreetsFullAPI([FromBody] StreetsQuery streetsQuery)
+        {
+            //string xmlOut = "";
+
+            ResultStreetsFullInfo response = new ResultStreetsFullInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            PropertyInfo[] properties = typeof(StreetsQuery).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var attribute = property.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
+                string NombreAtributo = (attribute == null) ? property.Name : attribute.DisplayName;
+                //string NombreAtributo = property.Name;
+                var Valor = property.GetValue(streetsQuery);
+                parametersIn.Add(NombreAtributo, Valor);
+            }
+
+            try
+            {
+                //SortedList parametersIn = null;
+                //SortedList parametersOut = new SortedList();
+                SortedList sectorsList = null;
+                SortedList streetsFullList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if (parametersIn["contid"] == null || (parametersIn["contid"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("QueryStreetsFullAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        // Determine contract ID if any
+                        int nContractId = 0;
+                        if (parametersIn["contid"] != null)
+                        {
+                            if (parametersIn["contid"].ToString().Trim().Length > 0)
+                                nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
+                        }
+
+                        // Get contracts information
+                        if (!GetStreetsFullData(ref streetsFullList, nContractId))
+                        {
+                            //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                            Logger_AddLogMessage(string.Format("QueryStreetsFullAPI::Error - Could not obtain streets full data: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                            //return xmlOut;
+                            response.isSuccess = false;
+                            response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            return response;
+                        }
+
+                        if (streetsFullList.Count > 0)
+                            parametersOut["streetsFullList"] = streetsFullList;
+                        else
+                        {
+                            streetsFullList = new SortedList();
+                            streetsFullList["street1"] = "";
+                            parametersOut["streetsFullList"] = streetsFullList;
+                        }
+
+                        parametersOut["streetsFullNumber"] = streetsFullList.Count.ToString();
+                        //parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                        //xmlOut = GenerateXMLOuput(parametersOut);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("QueryStreetsFullAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            response.isSuccess = true;
+            response.error = null;
+
+            SortedList listStreetsFull = (SortedList)parametersOut["streetsFullList"];
+
+            List<StreetFullInfo> streetsFullNamelist = new List<StreetFullInfo>();
+            if (listStreetsFull != null) foreach (System.Collections.DictionaryEntry st in listStreetsFull)
+                {
+                    StreetFullInfo si = new StreetFullInfo();
+                    //si = (SectorInfo)st.Value;
+                    //sectorsNamelist.Add(si);
+                    if (((SortedList)(st.Value))["streetId"] != null) si.streetId = Convert.ToInt32(((SortedList)(st.Value))["streetId"]);
+                    if (((SortedList)(st.Value))["street"] != null) si.street = (string)((SortedList)(st.Value))["street"];
+                    streetsFullNamelist.Add(si);
+                }
+            streetsFullNamelist = streetsFullNamelist.DistinctBy(p => new { p.streetId, p.street }).ToList();
+            parametersOut["streetsFulllist"] = streetsFullNamelist.ToArray();
+            parametersOut["streetsFullNumber"] = streetsFullNamelist.Count;
+
+            StreetsFullInfo streetsFullInfo = new StreetsFullInfo();
+            ConfigMapModel configMapModel = new ConfigMapModel();
+            var config = configMapModel.configStreetsFull();
+            IMapper iMapper = config.CreateMapper();
+            streetsFullInfo = iMapper.Map<SortedList, StreetsFullInfo>((SortedList)parametersOut);
+            response.value = streetsFullInfo;
             return response;
 
             //return xmlOut;
@@ -8883,6 +9073,268 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             return c;
+        }
+
+        private bool MessagesExceptionForParking(int nContractId, int idSector, out ResultParkingStepsInfo response)
+        {
+            bool existsException = false;
+            response = new ResultParkingStepsInfo();
+            Calendar myCal = CultureInfo.InvariantCulture.Calendar;
+            DateTime today = DateTime.Now;
+            int mes = myCal.GetMonth(today);
+            int diaDelMes = myCal.GetDayOfMonth(today);
+            DayOfWeek diaDeSemana = myCal.GetDayOfWeek(today);
+            int hora = myCal.GetHour(today);
+            int minuto = myCal.GetMinute(today);
+
+            //Deba
+            if (nContractId == 79 && idSector == 60006)
+            {
+                if (mes >= 5 && mes <= 9)
+                {
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, (int)SeverityError.Warning);
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            if (nContractId == 79 && idSector == 60005)
+            {
+                if (mes >= 6 && mes <= 9)
+                {
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, (int)SeverityError.Warning);
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            if (nContractId == 79 && (idSector == 60003 || idSector == 60004))
+            {
+                if ((mes >= 6 && mes <= 9) || (mes == 5 && diaDeSemana == DayOfWeek.Saturday) || (mes == 5 && diaDeSemana == DayOfWeek.Sunday) || (mes == 5 && diaDelMes == 1))
+                {
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, (int)SeverityError.Warning);
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            //Hondarribia
+            if (nContractId == 10 && idSector == 60001)
+            {
+                if ((mes >= 6 && mes <= 8) || (mes == 9 && (diaDelMes >= 1 && diaDelMes <= 15)))
+                {
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, (int)SeverityError.Warning);
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            //Mutriku
+            if (nContractId == 81 && idSector == 60001)
+            {
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, (int)SeverityError.Warning);
+                response.value = null;
+                existsException = true;
+            }
+            //Arrasate
+            if (nContractId == 61 && (idSector == 60105 || idSector == 60205 || idSector == 60305 || idSector == 61105 || idSector == 61205 || idSector == 63105 || idSector == 63215))
+            {
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, (int)SeverityError.Warning);
+                response.value = null;
+                existsException = true;
+            }
+            //Tolosa
+            if (nContractId == 5 && idSector == 60018)
+            {
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 18 || (hora == 18 && minuto > 30 ))) ||
+                    (diaDeSemana >= DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                    (diaDeSemana >= DayOfWeek.Sunday))
+                {
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, (int)SeverityError.Warning);
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            if (nContractId == 5 && (idSector == 60006 || idSector == 60010 || idSector == 60012 || idSector == 60017))
+            {
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, (int)SeverityError.Warning);
+                response.value = null;
+                existsException = true;
+            }
+            //Zarautz
+            if (nContractId == 3 && (idSector == 21004 || idSector == 22004))
+            {
+                response.isSuccess = false;
+                response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, (int)SeverityError.Warning);
+                response.value = null;
+                existsException = true;
+            }
+            if (nContractId == 3 && (idSector == 22002 || idSector == 22003))
+            {
+                if (mes >= 6 && mes <= 9)
+                {
+                    response.isSuccess = false;
+                    response.error = new Error((int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, (int)SeverityError.Warning);
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+
+            return existsException; 
+        }
+
+        /// <summary>
+        /// Comprueba si la localización pasada como parámetro está en algún área de algún sector del municipio pasado como argumento
+        /// </summary>
+        /// <param name="curLocation">localización gps</param>
+        /// <param name="nContractId">id del municipio</param>
+        /// <param name="nSectorId">id del sector</param>
+        /// <param name="nZoneId">id de la zona (padre del sector)</param>
+        /// <returns></returns>
+        private bool IsLocationInAnySector (Loc curLocation, int nContractId, out int nSectorId, out int nZoneId)
+        {
+            bool bFoundZone = false;
+            nSectorId = 0;
+            nZoneId = 0;
+            // Use the GPS coordinates to try and find the group/sector
+            if (curLocation != null)
+            {
+                // Obtain GPS zone information
+                string strContractPrefix = "";
+                if (nContractId > 0)
+                    strContractPrefix = "cont" + nContractId.ToString() + ".";
+                List<Loc> areaList = new List<Loc>();
+                int nNumZones = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "NumZones"].ToString());
+                int nZoneIndex = 0;
+                
+                while (++nZoneIndex <= nNumZones && !bFoundZone)
+                {
+                    int nZoneAreas = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".NumAreas"].ToString());
+                    for (int nAreaIndex = 1; nAreaIndex <= nZoneAreas; nAreaIndex++)
+                    {
+                        areaList.Clear();
+                        int nAreaNumPoints = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".Area" + nAreaIndex.ToString() + ".NumPoints"].ToString());
+                        for (int nPointIndex = 1; nPointIndex <= nAreaNumPoints; nPointIndex++)
+                        {
+                            string strAreaPoints = ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".Area" + nAreaIndex.ToString() + ".P" + nPointIndex.ToString()].ToString();
+                            string[] strPoints = strAreaPoints.Split(new char[] { ':' });
+                            areaList.Add(new Loc(Convert.ToDouble(strPoints[0]), Convert.ToDouble(strPoints[1])));
+                        }
+
+                        if (areaList.Count > 0)
+                        {
+                            bFoundZone = IsPointInPolygon(areaList, curLocation);
+                            if (bFoundZone)
+                            {
+                                nSectorId = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".Id"].ToString());
+                                nZoneId = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".GroupId"].ToString());
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return bFoundZone;
+        }
+
+        private bool IsLocationInAnySectorDB(Loc curLocation, int nContractId, out int nSectorId, out int nZoneId)
+        {
+            bool bFoundZone = false;
+            nSectorId = 0;
+            nZoneId = 0;
+            // Use the GPS coordinates to try and find the group/sector
+            if (curLocation != null)
+            {
+                // Obtain GPS zone information from database 
+                SortedList sectorsAreas = new SortedList();
+                GetSectorsAreasData(ref sectorsAreas, nContractId);
+                List<SectorsAreasPoint> sectorsAreasPointList = new List<SectorsAreasPoint>();
+                foreach (System.Collections.DictionaryEntry st in sectorsAreas)
+                {
+                    SectorsAreasPoint sectorsAreasPoint = new SectorsAreasPoint();
+                    if (((SortedList)(st.Value))["mga_id"] != null) sectorsAreasPoint.mga_id = Convert.ToInt32(((SortedList)(st.Value))["mga_id"]);
+                    if (((SortedList)(st.Value))["mga_zone_id"] != null) sectorsAreasPoint.mga_zone_id = Convert.ToInt32(((SortedList)(st.Value))["mga_zone_id"]);
+                    if (((SortedList)(st.Value))["mga_sector_id"] != null) sectorsAreasPoint.mga_sector_id = Convert.ToInt32(((SortedList)(st.Value))["mga_sector_id"]);
+                    if (((SortedList)(st.Value))["mga_area_id"] != null) sectorsAreasPoint.mga_area_id = Convert.ToInt32(((SortedList)(st.Value))["mga_area_id"]);
+                    if (((SortedList)(st.Value))["mga_point_number"] != null) sectorsAreasPoint.mga_point_number = Convert.ToInt32(((SortedList)(st.Value))["mga_point_number"]);
+                    if (((SortedList)(st.Value))["mga_coordinates"] != null) sectorsAreasPoint.mga_coordinates = (string)((SortedList)(st.Value))["mga_coordinates"];
+                    sectorsAreasPointList.Add(sectorsAreasPoint);
+                }
+                //List<int> zones = sectorsAreasPointList.Select(p =>  p.mga_zone_id ).Distinct().ToList();
+
+                List<Loc> areaList = new List<Loc>();
+                List<int> sectors = sectorsAreasPointList.Select(p => p.mga_sector_id).Distinct().ToList();
+                foreach (int sector in sectors)
+                {          
+                    List<int> areasSector = sectorsAreasPointList.Where(p => p.mga_sector_id == sector).Select(a => a.mga_area_id).Distinct().ToList();
+                    foreach (int area in areasSector)
+                    {
+                        areaList.Clear();
+                        List<SectorsAreasPoint> puntosSector = sectorsAreasPointList.Where(p => p.mga_sector_id == sector && p.mga_area_id == area).ToList();
+                        foreach (SectorsAreasPoint punto in puntosSector)
+                        {
+                            string[] strPoints = punto.mga_coordinates.Split(new char[] { ',' });
+                            areaList.Add(new Loc(double.Parse(strPoints[0], CultureInfo.InvariantCulture), double.Parse(strPoints[1], CultureInfo.InvariantCulture)));
+                        }
+                        if (areaList.Count > 0)
+                        {
+                            bFoundZone = IsPointInPolygon(areaList, curLocation);
+                            if (bFoundZone)
+                            {
+                                nSectorId = sector;
+                                nZoneId = puntosSector[0].mga_zone_id;
+                                break;
+                            }
+                        }
+                    }
+                    if (bFoundZone) break;
+                }
+                //List<SectorsAreasPoint> caso1 = sectorsAreasPointList.Where(p => p.mga_sector_id == 60103).ToList();
+                //List<int> areasCaso1 = sectorsAreasPointList.Where(p => p.mga_sector_id == 60103).Select(a => a.mga_area_id).Distinct().ToList();
+                //foreach (int area in areasCaso1)
+                //{
+                //    List<SectorsAreasPoint> puntosSector = sectorsAreasPointList.Where(p => p.mga_sector_id == 60103 && p.mga_area_id == area).ToList();
+                //}
+
+                string strContractPrefix = "";
+                //if (nContractId > 0)
+                //    strContractPrefix = "cont" + nContractId.ToString() + ".";
+                //List<Loc> areaList = new List<Loc>();
+                //int nNumZones = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "NumZones"].ToString());
+                //int nZoneIndex = 0;
+
+                //while (++nZoneIndex <= nNumZones && !bFoundZone)
+                //{
+                //    int nZoneAreas = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".NumAreas"].ToString());
+                //    for (int nAreaIndex = 1; nAreaIndex <= nZoneAreas; nAreaIndex++)
+                //    {
+                //        areaList.Clear();
+                //        int nAreaNumPoints = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".Area" + nAreaIndex.ToString() + ".NumPoints"].ToString());
+                //        for (int nPointIndex = 1; nPointIndex <= nAreaNumPoints; nPointIndex++)
+                //        {
+                //            string strAreaPoints = ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".Area" + nAreaIndex.ToString() + ".P" + nPointIndex.ToString()].ToString();
+                //            string[] strPoints = strAreaPoints.Split(new char[] { ':' });
+                //            areaList.Add(new Loc(Convert.ToDouble(strPoints[0]), Convert.ToDouble(strPoints[1])));
+                //        }
+
+                //        if (areaList.Count > 0)
+                //        {
+                //            bFoundZone = IsPointInPolygon(areaList, curLocation);
+                //            if (bFoundZone)
+                //            {
+                //                nSectorId = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".Id"].ToString());
+                //                nZoneId = Convert.ToInt32(ConfigurationManager.AppSettings[strContractPrefix + "Zone" + nZoneIndex.ToString() + ".GroupId"].ToString());
+                //                break;
+                //            }
+                //        }
+                //    }
+                //}
+            }
+            return bFoundZone;
         }
 
         private Loc LocateGPSFromAddressLocal(int nLocationId, int nContractId = 0)
@@ -17812,6 +18264,191 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 Logger_AddLogMessage("GetGroupParent::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        /// <summary>
+        /// return streets information or error
+        /// </summary>
+        /// <param name="parametersOut"></param>
+        /// <param name="nContractId"></param>
+        /// <returns></returns>
+        private bool GetStreetsFullData(ref SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+            parametersOut = new SortedList();
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = "select distinct aa.zoneid, aa.zone, aa.zonecolor, gr.grp_id as sectorid, gr.grp_descshort as sector, gr.grp_colour as sectorcolor, ms.mstr_id as streetid, ms.mstr_desc as street " + 
+                    "from mobile_streets ms " +
+                    "inner join mobile_streets_stretches mss on mss.mss_mstr_id = ms.mstr_id " +
+                    "inner join groups gr on gr.grp_id = mss.mss_grp_id " +
+                    "inner join groups_childs gc on gc.cgrp_child = gr.grp_id " +
+                    "inner join (select distinct cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor " + 
+                        "from groups_childs gc " +
+                        "inner join groups g on g.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa on aa.sectorid = gr.grp_id " +
+                    "where gr.grp_dgrp_id = 2 and gr.grp_deleted = 0 and gr.grp_typetree = 1 and ms.mstr_show_gui = 1 " +
+                    "order by ms.mstr_desc, grp_id";
+                oraCmd.CommandText = strSQL;
+
+                int nIndex = 1;
+                dataReader = oraCmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    SortedList streetsData = new SortedList();
+                    streetsData["zoneId"] = dataReader.GetInt32(0).ToString();
+                    streetsData["zone"] = dataReader.GetString(1);
+                    streetsData["zoneColor"] = (dataReader.IsDBNull(2)) ? "" : dataReader.GetString(2);
+                    streetsData["sectorId"] = dataReader.GetInt32(3).ToString();
+                    streetsData["sector"] = dataReader.GetString(4);
+                    streetsData["sectorColor"] = (dataReader.IsDBNull(5)) ? "" : dataReader.GetString(5);
+                    streetsData["streetId"] = dataReader.GetInt32(6).ToString();
+                    streetsData["street"] = dataReader.GetString(7);
+                    parametersOut["street" + nIndex] = streetsData;
+                    nIndex++;
+                }
+
+                if (parametersOut.Count > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetStreetsFullData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetSectorsAreasData(ref SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+            parametersOut = new SortedList();
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = "select mga_id, mga_zone_id, mga_sector_id, mga_area_id, mga_point_number, mga_coordinates from mobile_sectors_areas msa ";
+                oraCmd.CommandText = strSQL;
+
+                int nIndex = 1;
+                dataReader = oraCmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    SortedList sectorsAreasData = new SortedList();
+                    sectorsAreasData["mga_id"] = dataReader.GetInt32(0).ToString();
+                    sectorsAreasData["mga_zone_id"] = dataReader.GetInt32(1).ToString();
+                    sectorsAreasData["mga_sector_id"] = dataReader.GetInt32(2).ToString();
+                    sectorsAreasData["mga_area_id"] = dataReader.GetInt32(3).ToString();
+                    sectorsAreasData["mga_point_number"] = dataReader.GetInt32(4).ToString();
+                    sectorsAreasData["mga_coordinates"] = dataReader.GetString(5);
+                    parametersOut["sectorsAreas" + nIndex] = sectorsAreasData;
+                    nIndex++;
+                }
+
+                if (parametersOut.Count > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetSectorsAreasData::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally

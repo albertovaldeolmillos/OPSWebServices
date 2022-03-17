@@ -29,5 +29,10 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("or")]
         public string orderId { get; set; }
+        /// <summary>
+        /// Notification URL for payment tpv
+        /// </summary>
+        [DisplayName("up")]
+        public string urlPayTpv { get; set; }
     }
 }

@@ -658,8 +658,25 @@
             <summary>
             return village sectors information
             </summary>
+            <param name="sectorsQuery">Object SectorsQuery with ContractId to request</param>
+            <returns>village streets</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryStreetsFullAPI(OPSWebServicesAPI.Models.StreetsQuery)">
+            <summary>
+            return village streets information
+            </summary>
             <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
             <returns>village streets</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.IsLocationInAnySector(OPSWebServicesAPI.Helpers.Loc,System.Int32,System.Int32@,System.Int32@)">
+            <summary>
+            Comprueba si la localización pasada como parámetro está en algún área de algún sector del municipio pasado como argumento
+            </summary>
+            <param name="curLocation">localización gps</param>
+            <param name="nContractId">id del municipio</param>
+            <param name="nSectorId">id del sector</param>
+            <param name="nZoneId">id de la zona (padre del sector)</param>
+            <returns></returns>
         </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.OPSMessage_M01Process(System.Collections.SortedList,System.String,System.Int32)">
             <summary>
@@ -804,6 +821,14 @@
             <param name="nContractId"></param>
             <returns></returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.GetStreetsFullData(System.Collections.SortedList@,System.Int32)">
+            <summary>
+            return streets information or error
+            </summary>
+            <param name="parametersOut"></param>
+            <param name="nContractId"></param>
+            <returns></returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.LoginUserAPI(OPSWebServicesAPI.Models.UserLogin)">
             <summary>
             Returns authorization token to login user or error
@@ -938,6 +963,16 @@
             <param name="fine_id"></param>
             <param name="nContractId"></param>
             <returns>SortedList con la información</returns>
+        </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.GenerateUrlPayTpv(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Calculate url for pay tpv
+            </summary>
+            <param name="nMobileUserId">user id</param>
+            <param name="idOrder">order id</param>
+            <param name="amount">amount</param>
+            <param name="operation">type operation: 1-card new, 109-card old</param>
+            <returns></returns>
         </member>
         <member name="M:OPSWebServicesAPI.Helpers.CFineManager.DtxToString(System.DateTime)">
             <summary>
@@ -1999,6 +2034,36 @@
             sector color
             </summary>
         </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsAreasPoint.mga_id">
+            <summary>
+            sector area point id
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsAreasPoint.mga_zone_id">
+            <summary>
+            sector area zone id
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsAreasPoint.mga_sector_id">
+            <summary>
+            sector area sector id
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsAreasPoint.mga_area_id">
+            <summary>
+            area number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsAreasPoint.mga_point_number">
+            <summary>
+            point number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsAreasPoint.mga_coordinates">
+            <summary>
+            sector area point coordinates
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.SectorsInfo">
             <summary>
             Sectors information
@@ -2024,6 +2089,21 @@
             (*) Contract ID
             </summary>
         </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsQuery.streetId">
+            <summary>
+            Street ID
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsQuery.longitude">
+            <summary>
+            Longitude
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.SectorsQuery.latitude">
+            <summary>
+            Latitude
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.Step">
             <summary>
             Step information
@@ -2042,6 +2122,36 @@
         <member name="P:OPSWebServicesAPI.Models.Step.datetime">
             <summary>
             datetime given by q cents
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.StreetFullInfo">
+            <summary>
+            Streets full information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetFullInfo.streetId">
+            <summary>
+            street identification number
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetFullInfo.street">
+            <summary>
+            street name
+            </summary>
+        </member>
+        <member name="T:OPSWebServicesAPI.Models.StreetsFullInfo">
+            <summary>
+            Streets information
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsFullInfo.streetsFullNumber">
+            <summary>
+            Number of streets with sector active
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.StreetsFullInfo.streetsFulllist">
+            <summary>
+            Street list
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.StreetsInfo">
@@ -2604,6 +2714,11 @@
             Order ID
             </summary>
         </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeInfo.urlPayTpv">
+            <summary>
+            Notification URL for payment tpv
+            </summary>
+        </member>
         <member name="T:OPSWebServicesAPI.Models.UserRechargeQuery">
             <summary>
             class to request User recharge credit
@@ -2637,6 +2752,11 @@
         <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.authenticationHash">
             <summary>
             hash
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UserRechargeQuery.operation">
+            <summary>
+            (*) tipo de operación: 1: tarjeta nueva, 109: tarjeta anterior
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserRecover">

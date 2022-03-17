@@ -56,6 +56,7 @@ namespace OPSWebServicesAPI.Models
             Result_Error_Invalid_Login_OnJtiValidateFailed = -235,
             Result_Error_Invalid_Login_CustomCheckFailed = -236,
             Result_Error_Invalid_Login_CreatedTimeCheckFailed = -237,
+            Result_Error_Street_Or_Sector_Not_Found = -250,
             Result_Error_No_Bearer_Token = -290,
             Result_Error_Missing_Input_Parameter_AuthorizationToken = -100,
             Result_Error_Missing_Input_Parameter_CloudToken = -101,
@@ -88,7 +89,13 @@ namespace OPSWebServicesAPI.Models
             Result_Error_Missing_Input_Parameter_No_Plates = -128,
             Result_Error_Missing_Input_Parameter_UserName_Email = -129,
             Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password = -130,
-            Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude = -131
+            Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude = -131,
+            Result_Error_Parking_Not_Allowed = -300,
+            Result_Error_Parking_Not_Allowed_Resident_Zone_24h = -301,
+            Result_Error_Parking_Not_Allowed_1_June_30_September = -302,
+            Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends = -303,
+            Result_Error_Parking_Not_Allowed_1_June_15_September = -304,
+            Result_Error_Parking_Not_Allowed_Outside_Working_Hours = -305
         }
 
         /// <summary>
@@ -145,6 +152,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Invalid_Login_OnJtiValidateFailed, "Invalid_Login_OnJtiValidateFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CustomCheckFailed, "Invalid_Login_CustomCheckFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CreatedTimeCheckFailed, "Invalid_Login_CreatedTimeCheckFailed" },
+                { (int)ResultType.Result_Error_Street_Or_Sector_Not_Found, "Street_Or_Sector_Not_Found" },
                 { (int)ResultType.Result_Error_No_Bearer_Token, "No_Bearer_Token" },
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, "Missing__Input_Parameter_AuthorizationToken"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, "Missing__Input_Parameter_CloudToken"},
@@ -177,7 +185,13 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, "Missing_Input_Parameter_No_Plates"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, "Missing_Input_Parameter_UserName_Email"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password, "Missing_Input_Parameter_AuthorizationToken_UserNme_Password"},
-                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"}
+                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed, "Parking_Not_Allowed"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, "Parking_Not_Allowed_Resident_Zone_24h"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Parking_Not_Allowed_1_June_30_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Parking_Not_Allowed_1_June_30_September_And_May_Weekends"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Parking_Not_Allowed_1_June_15_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Parking_Not_Allowed_Outside_Working_Hours"}
             };
 
         /// <summary>
@@ -223,6 +237,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Invalid_Login_OnJtiValidateFailed, "Invalid_Login_OnJtiValidateFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CustomCheckFailed, "Invalid_Login_CustomCheckFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CreatedTimeCheckFailed, "Invalid_Login_CreatedTimeCheckFailed" },
+                { (int)ResultType.Result_Error_Street_Or_Sector_Not_Found, "Street_Or_Sector_Not_Found" },
                 { (int)ResultType.Result_Error_No_Bearer_Token, "No_Bearer_Token" },
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, "Missing__Input_Parameter_AuthorizationToken"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, "Missing__Input_Parameter_CloudToken"},
@@ -255,7 +270,13 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, "Missing_Input_Parameter_No_Plates"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, "Missing_Input_Parameter_UserName_Email"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password, "Missing_Input_Parameter_AuthorizationToken_UserNme_Password"},
-                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"}
+                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed, "Parking_Not_Allowed"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, "Parking_Not_Allowed_Resident_Zone_24h"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Parking_Not_Allowed_1_June_30_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Parking_Not_Allowed_1_June_30_September_And_May_Weekends"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Parking_Not_Allowed_1_June_15_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Parking_Not_Allowed_Outside_Working_Hours"}
             };
 
         /// <summary>
@@ -301,6 +322,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Invalid_Login_OnJtiValidateFailed, "Invalid_Login_OnJtiValidateFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CustomCheckFailed, "Invalid_Login_CustomCheckFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CreatedTimeCheckFailed, "Invalid_Login_CreatedTimeCheckFailed" },
+                { (int)ResultType.Result_Error_Street_Or_Sector_Not_Found, "Street_Or_Sector_Not_Found" },
                 { (int)ResultType.Result_Error_No_Bearer_Token, "No_Bearer_Token" },
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, "Missing__Input_Parameter_AuthorizationToken"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, "Missing__Input_Parameter_CloudToken"},
@@ -333,7 +355,13 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, "Missing_Input_Parameter_No_Plates"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, "Missing_Input_Parameter_UserName_Email"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password, "Missing_Input_Parameter_AuthorizationToken_UserNme_Password"},
-                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"}
+                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed, "Parking_Not_Allowed"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, "Parking_Not_Allowed_Resident_Zone_24h"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Parking_Not_Allowed_1_June_30_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Parking_Not_Allowed_1_June_30_September_And_May_Weekends"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Parking_Not_Allowed_1_June_15_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Parking_Not_Allowed_Outside_Working_Hours"}
             };
 
         /// <summary>
@@ -379,6 +407,7 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Invalid_Login_OnJtiValidateFailed, "Invalid_Login_OnJtiValidateFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CustomCheckFailed, "Invalid_Login_CustomCheckFailed" },
                 { (int)ResultType.Result_Error_Invalid_Login_CreatedTimeCheckFailed, "Invalid_Login_CreatedTimeCheckFailed" },
+                { (int)ResultType.Result_Error_Street_Or_Sector_Not_Found, "Street_Or_Sector_Not_Found" },
                 { (int)ResultType.Result_Error_No_Bearer_Token, "No_Bearer_Token" },
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, "Missing__Input_Parameter_AuthorizationToken"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, "Missing__Input_Parameter_CloudToken"},
@@ -411,7 +440,13 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, "Missing_Input_Parameter_No_Plates"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, "Missing_Input_Parameter_UserName_Email"},
                 { (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password, "Missing_Input_Parameter_AuthorizationToken_UserNme_Password"},
-                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"}
+                { (int)ResultType.Result_Error_Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude, "Missing_Input_Parameter_StreetName_StreetNumber_Latitude_Longitude"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed, "Parking_Not_Allowed"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h, "Parking_Not_Allowed_Resident_Zone_24h"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Parking_Not_Allowed_1_June_30_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Parking_Not_Allowed_1_June_30_September_And_May_Weekends"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Parking_Not_Allowed_1_June_15_September"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Parking_Not_Allowed_Outside_Working_Hours"}
             };
     }
 

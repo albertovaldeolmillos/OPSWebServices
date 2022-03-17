@@ -2653,6 +2653,7 @@ namespace OPSWebServicesAPI.Controllers
         public ResultUserRechargeInfo RechargeUserCreditAPI([FromBody] UserRechargeQuery userRechargeQuery)
         {
             //string xmlOut = "";
+            string strUrlPayTpv = "";
 
             ResultUserRechargeInfo response = new ResultUserRechargeInfo();
             SortedList parametersOut = new SortedList();
@@ -2850,6 +2851,9 @@ namespace OPSWebServicesAPI.Controllers
 
                             parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
                             //xmlOut = GenerateXMLOuput(parametersOut);
+
+                            strUrlPayTpv = GenerateUrlPayTpv(nMobileUserId, Convert.ToInt32(parametersOut["or"]), Convert.ToInt32(parametersIn["am"]), Convert.ToInt32(parametersIn["op"]));
+                            parametersOut["up"] = strUrlPayTpv;
 
                             if (parametersIn["sim"] != null)
                             {
@@ -9752,6 +9756,169 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             return nMobileUserId;
+        }
+
+        /// <summary>
+        /// Calculate url for pay tpv
+        /// </summary>
+        /// <param name="nMobileUserId">user id</param>
+        /// <param name="idOrder">order id</param>
+        /// <param name="amount">amount</param>
+        /// <param name="operation">type operation: 1-card new, 109-card old</param>
+        /// <returns></returns>
+        private string GenerateUrlPayTpv(int nMobileUserId, int idOrder, int amount, int operation)
+        {
+            SortedList parametersOut = null;
+            string tokenUser = "";
+            string tokenId = "";
+            string merchantSignature = "";
+            string strUrl = "https://secure.paytpv.com/gateway/bnkgateway.php?";
+            string merchantCode = ConfigurationManager.AppSettings["PayTpv_MerchantMerchantCode"].ToString();
+            string merchantTerminal = ConfigurationManager.AppSettings["PayTpv_MerchantTerminal"].ToString();
+            string language = ConfigurationManager.AppSettings["PayTpv_Language"].ToString();
+            string merchatCurrency = ConfigurationManager.AppSettings["PayTpv_MerchantCurrency"].ToString();
+            strUrl = strUrl + "MERCHANT_MERCHANTCODE=" + merchantCode;
+            strUrl = strUrl + "&MERCHANT_TERMINAL=" + merchantTerminal;
+            strUrl = strUrl + "&LANGUAGE=" + language;
+            strUrl = strUrl + "&MERCHANT_ORDER=" + idOrder;
+            strUrl = strUrl + "&MERCHANT_AMOUNT=" + amount;
+            strUrl = strUrl + "&MERCHANT_CURRENCY=" + merchatCurrency;
+            strUrl = strUrl + "&OPERATION=" + operation;
+
+            if (!GetUserDataPayTpv(nMobileUserId, out parametersOut, 0))
+            {
+                return "";
+            }
+            string password = ConfigurationManager.AppSettings["PayTpv_Password"].ToString();//Decrypt(nMobileUserId, parametersOut["pw"].ToString());
+            tokenUser = parametersOut["token_user"].ToString();
+            tokenId = parametersOut["token_id"].ToString();
+
+            if (operation == 109 && tokenUser != "" && tokenId != "")
+            {
+                strUrl = strUrl + "&IDUSER=" + tokenUser;
+                strUrl = strUrl + "&TOKEN_USER=" + tokenId;
+                //¡¡¡¡¡¡CUIDADO!!!!!!!  ------------->  token_user = IDUSER y tokenId = TOKEN_USER 
+                //md5(MERCHANT_MERCHANTCODE + IDUSERr + TOKEN_USER + MERCHANT_TERMINAL + OPERATION + MERCHANT_ORDER + MERCHANT_AMOUN + MERCHANT_CURRENCY + md5(PASSWORD))
+                merchantSignature = CreateMD5(merchantCode + tokenUser + tokenId + merchantTerminal + operation + idOrder + amount + merchatCurrency + CreateMD5(password));
+            }
+            else
+            {
+                //md5(MERCHANT_MERCHANTCODE + MERCHANT_TERMINAL + OPERATION + MERCHANT_ORDER + MERCHANT_AMOUNT + MERCHANT_CURRENCY + md5(PASSWORD)) 
+                merchantSignature = CreateMD5(merchantCode + merchantTerminal + operation + idOrder + amount + merchatCurrency + CreateMD5(password));
+            }
+            
+            strUrl = strUrl + "&MERCHANT_MERCHANTSIGNATURE=" + merchantSignature.ToLower();
+            return strUrl;
+        }
+
+        public static string CreateMD5(string input)
+        {
+            // Use input string to calculate MD5 hash
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                //return Convert.ToHexString(hashBytes); // .NET 5 +
+
+                // Convert the byte array to hexadecimal string prior to .NET 5
+                StringBuilder sb = new System.Text.StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+        }
+
+        private bool GetUserDataPayTpv(int nMobileUserId, out SortedList parametersOut, int nContractId = 0)
+        {
+            bool bResult = false;
+            parametersOut = null;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                parametersOut = new SortedList();
+
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT MU_PASSWORD, NVL(MU_TOKEN_USER_ID, -1), NVL(MU_TOKEN_ID, '') FROM MOBILE_USERS WHERE MU_ID = {0}", nMobileUserId);
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    dataReader.Read();
+                    parametersOut["pw"] = dataReader.GetString(0);
+                    if (dataReader.IsDBNull(1))
+                        parametersOut["token_user"] = "";
+                    else
+                    {
+                        if (dataReader.GetInt32(1) > 0)
+                            parametersOut["token_user"] = dataReader.GetInt32(1).ToString();
+                        else
+                            parametersOut["token_user"] = "";
+                    }
+                    if (dataReader.IsDBNull(2))
+                        parametersOut["token_id"] = "";
+                    else
+                        parametersOut["token_id"] = dataReader.GetString(2);
+
+                    bResult = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetUserData::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
         }
 
         private bool GetUserData(int nMobileUserId, out SortedList parametersOut, int nContractId = 0)
