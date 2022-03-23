@@ -64,7 +64,7 @@ namespace OPSWebServicesAPI.Areas.HelpPage
                 typeof(UserRecoverVerify), typeof(UserChangePassword), typeof(UserRegister),typeof(UserRechargeQuery),typeof(UserReportQuery),
                 typeof(ZoneQuery), typeof(StreetsQuery), typeof(PlaceQuery), typeof(ParkingStepsQuery), typeof(ParkingTimeQuery), 
                 typeof(ParkingConfirmQuery), typeof(UnParkingQuery), typeof(UnParkingConfirmQuery), typeof(ParkingStatusQuery),
-                typeof(FinePaymentConfirmQuery)
+                typeof(FinePaymentConfirmQuery), typeof(SectorsQuery)
             };
 
             foreach (Type t in types)

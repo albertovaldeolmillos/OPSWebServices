@@ -494,13 +494,6 @@
             <param name="zoneQuery">Object ZoneQuery with long-lat information or streetName-number information to request</param>
             <returns>zone information for query request</returns>
         </member>
-        <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryStreetsAPI(OPSWebServicesAPI.Models.StreetsQuery)">
-            <summary>
-            return village streets
-            </summary>
-            <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
-            <returns>village streets</returns>
-        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSMobilePaymentController.QueryPlaceAPI(OPSWebServicesAPI.Models.PlaceQuery)">
             <summary>
             return information from google api link https://maps.googleapis.com/maps/api/place/autocomplete/json
@@ -2489,7 +2482,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.firstSurname">
             <summary>
-            (*) First Surname
+            First Surname
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.mainMobilePhone">
@@ -2499,7 +2492,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.names">
             <summary>
-            (*) Names
+            Names
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.User.nif">

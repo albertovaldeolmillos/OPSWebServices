@@ -614,24 +614,24 @@ namespace OPSWebServicesAPI.Controllers
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
-                    else if ((parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0))
-                    {
-                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                        response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_FirstSurname, (int)SeverityError.Critical);
-                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
-                        return response;
-                    }
-                    else if ((parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0))
-                    {
-                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                        response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Name, (int)SeverityError.Critical);
-                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
-                        return response;
-                    }
+                    //else if ((parametersIn["fs"] == null) || (parametersIn["fs"].ToString().Length == 0))
+                    //{
+                    //    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                    //    Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_FirstSurname, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
+                    //else if ((parametersIn["na"] == null) || (parametersIn["na"].ToString().Length == 0))
+                    //{
+                    //    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                    //    Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Name, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
                     else if ((parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0))
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
@@ -641,15 +641,15 @@ namespace OPSWebServicesAPI.Controllers
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
-                    else if ((parametersIn["val"] == null) || (parametersIn["val"].ToString().Length == 0))
-                    {
-                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                        response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ValidateConditions, (int)SeverityError.Critical);
-                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
-                        return response;
-                    }
+                    //else if ((parametersIn["val"] == null) || (parametersIn["val"].ToString().Length == 0))
+                    //{
+                    //    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                    //    Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                    //    response.isSuccess = false;
+                    //    response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ValidateConditions, (int)SeverityError.Critical);
+                    //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                    //    return response;
+                    //}
                     //else if ((parametersIn["plates"] == null))
                     //{
                     //    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
@@ -731,16 +731,16 @@ namespace OPSWebServicesAPI.Controllers
                             // Change parameter from token to user
                             parametersIn["mui"] = nMobileUserId.ToString();
 
-                            if (CheckMobileUserName(parametersIn["mui"].ToString(), parametersIn["un"].ToString(), nContractId) != 0)
-                            {
-                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Mobile_User_Already_Registered);
-                                Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - User name already registered: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                                //return xmlOut;
-                                response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Already_Registered, (int)SeverityError.Critical);
-                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Already_Registered).ToString();
-                                return response;
-                            }
+                            //if (CheckMobileUserName(parametersIn["mui"].ToString(), parametersIn["un"].ToString(), nContractId) != 0)
+                            //{
+                            //    //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Mobile_User_Already_Registered);
+                            //    Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - User name already registered: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                            //    //return xmlOut;
+                            //    response.isSuccess = false;
+                            //    response.error = new Error((int)ResultType.Result_Error_Mobile_User_Already_Registered, (int)SeverityError.Critical);
+                            //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Already_Registered).ToString();
+                            //    return response;
+                            //}
 
                             if (CheckMobileUserEmail(parametersIn["mui"].ToString(), parametersIn["em"].ToString(), nContractId) != 0)
                             {
@@ -9649,9 +9649,24 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                     throw new Exception("Oracle connection is not open");
 
-                string strSQL1 = string.Format("update MOBILE_USERS set mu_name = INITCAP('{0}'), mu_surname1 = INITCAP('{1}'), mu_email = '{2}', mu_mobile_telephone = '{3}', mu_login = '{4}', mu_activate_account = {5}, mu_addr_country = '{6}', mu_fine_notify = {7}, mu_unpark_notify = {8}, mu_unpark_notify_time = {9}, mu_recharge_notify = {10}, mu_balance_notify = {11}, mu_balance_notify_amount = {12}, mu_accept_cond = {13} ",
-                                parametersIn["na"].ToString().Replace('\'', ','), parametersIn["fs"].ToString().Replace('\'', ','), parametersIn["em"].ToString(), parametersIn["mmp"].ToString(), parametersIn["un"].ToString().Replace('\'', ','), ConfigurationManager.AppSettings["ActivateAccount.Yes"].ToString(), ConfigurationManager.AppSettings["AddressCountry.Spain"].ToString(),
+                parametersIn["val"] = 1;
+
+                string strSQL1 = string.Format("update MOBILE_USERS set mu_email = '{0}', mu_mobile_telephone = '{1}', mu_activate_account = {2}, mu_addr_country = '{3}', mu_fine_notify = {4}, mu_unpark_notify = {5}, mu_unpark_notify_time = {6}, mu_recharge_notify = {7}, mu_balance_notify = {8}, mu_balance_notify_amount = {9}, mu_accept_cond = {10} ",
+                                parametersIn["em"].ToString(), parametersIn["mmp"].ToString(), ConfigurationManager.AppSettings["ActivateAccount.Yes"].ToString(), ConfigurationManager.AppSettings["AddressCountry.Spain"].ToString(),
                                 parametersIn["fn"].ToString(), parametersIn["unp"].ToString(), parametersIn["t_unp"].ToString(), parametersIn["re"].ToString(), parametersIn["ba"].ToString(), parametersIn["q_ba"].ToString(), parametersIn["val"]);
+
+                if (parametersIn["na"] != null)
+                {
+                    strSQL1 += " , mu_name = INITCAP('" + parametersIn["na"].ToString().Replace('\'', ',') + "')";
+                }
+                if (parametersIn["fs"] != null)
+                {
+                    strSQL1 += " , mu_surname1 = INITCAP('" + parametersIn["fs"].ToString().Replace('\'', ',') + "')";
+                }
+                if (parametersIn["un"] != null)
+                {
+                    strSQL1 += " , mu_login = '" + parametersIn["un"].ToString().Replace('\'', ',') + "'";
+                }
 
                 if (parametersIn["pw"] != null)
                 {

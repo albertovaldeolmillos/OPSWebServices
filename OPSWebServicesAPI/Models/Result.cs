@@ -121,7 +121,8 @@ namespace OPSWebServicesAPI.Models
 
     public class ResultParkingStatusInfo : Result
     {
-        public ParkingStatusInfo value { get; set; }
+        public ParkingStatusRotationInfo value { get; set; }
+        //public ParkingStatusInfo value { get; set; }
     }
 
     public class ResultFinePaymentConfirmInfo : Result

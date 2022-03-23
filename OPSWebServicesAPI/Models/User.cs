@@ -79,7 +79,7 @@ namespace OPSWebServicesAPI.Models
         [Required]
         public string email { get; set; }
         /// <summary>
-        /// (*) First Surname
+        /// First Surname
         /// </summary>
         [DisplayName("fs")]
         [Required]
@@ -97,7 +97,7 @@ namespace OPSWebServicesAPI.Models
         //[Required]
         //public string authorizationToken { get; set; }
         /// <summary>
-        /// (*) Names
+        /// Names
         /// </summary>
         [DisplayName("na")]
         [Required]

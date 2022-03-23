@@ -645,7 +645,7 @@ namespace OPSWebServicesAPI.Controllers
         /// </summary>
         /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
         /// <returns>village streets</returns>
-        [HttpPost]
+        /*[HttpPost]
         [Route("QueryStreetsAPI")]
         public ResultStreetsInfo QueryStreetsAPI([FromBody] StreetsQuery streetsQuery)
         {
@@ -756,7 +756,7 @@ namespace OPSWebServicesAPI.Controllers
             return response;
 
             //return xmlOut;
-        }
+        }*/
 
         /*
          * 
@@ -4160,244 +4160,244 @@ namespace OPSWebServicesAPI.Controllers
                             }
 
                             // Find last operation group for resident articles
-                            strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
-                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lResOperId, nContractId))
-                            {
-                                parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting last resident operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
-                                //return xmlOut;
-                                response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
-                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                return response;
-                            }
+                            //strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            //if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lResOperId, nContractId))
+                            //{
+                            //    parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //    parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                            //    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting last resident operation: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
+                            //    //return xmlOut;
+                            //    response.isSuccess = false;
+                            //    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //    return response;
+                            //}
 
-                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::ResOperId={0}", lResOperId), LoggerSeverities.Error);
+                            //Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::ResOperId={0}", lResOperId), LoggerSeverities.Error);
 
-                            if (lResOperId < 0)
-                            {
-                                parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
-                                parametersOutRes["sta"] = UNPARKED.ToString();
-                            }
-                            else
-                            {
-                                // Check to see if previous parking operation was started by another user
-                                if (GetOperStatusData(lResOperId, out parametersOutRes, nContractId))
-                                {
-                                    // Check to see if previous parking operation was started by another user
-                                    int nPrevMobileUserId = Convert.ToInt32(parametersOutRes["mui"]);
-                                    if (nPrevMobileUserId != -1)
-                                    {
-                                        if (Convert.ToInt32(parametersIn["mui"]) != nPrevMobileUserId)
-                                            rt = ResultType.Result_Error_ParkingStartedByDifferentUser;
-                                    }
-                                }
-                                else
-                                    rt = ResultType.Result_Error_Generic;
+                            //if (lResOperId < 0)
+                            //{
+                            //    parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            //    parametersOutRes["sta"] = UNPARKED.ToString();
+                            //}
+                            //else
+                            //{
+                            //    // Check to see if previous parking operation was started by another user
+                            //    if (GetOperStatusData(lResOperId, out parametersOutRes, nContractId))
+                            //    {
+                            //        // Check to see if previous parking operation was started by another user
+                            //        int nPrevMobileUserId = Convert.ToInt32(parametersOutRes["mui"]);
+                            //        if (nPrevMobileUserId != -1)
+                            //        {
+                            //            if (Convert.ToInt32(parametersIn["mui"]) != nPrevMobileUserId)
+                            //                rt = ResultType.Result_Error_ParkingStartedByDifferentUser;
+                            //        }
+                            //    }
+                            //    else
+                            //        rt = ResultType.Result_Error_Generic;
 
-                                // Get virtual unit
-                                int iVirtualUnit = -1;
-                                if (rt == ResultType.Result_OK)
-                                {
-                                    if (GetVirtualUnit(Convert.ToInt32(parametersOutRes["g"]), ref iVirtualUnit, nContractId))
-                                    {
-                                        if (iVirtualUnit < 0)
-                                        {
-                                            rt = ResultType.Result_Error_Invalid_Input_Parameter;
-                                            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                                            response.isSuccess = false;
-                                            response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
-                                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
-                                            return response;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        rt = ResultType.Result_Error_Invalid_Input_Parameter;
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                                        response.isSuccess = false;
-                                        response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
-                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
-                                        return response;
-                                    }
-                                }
+                            //    // Get virtual unit
+                            //    int iVirtualUnit = -1;
+                            //    if (rt == ResultType.Result_OK)
+                            //    {
+                            //        if (GetVirtualUnit(Convert.ToInt32(parametersOutRes["g"]), ref iVirtualUnit, nContractId))
+                            //        {
+                            //            if (iVirtualUnit < 0)
+                            //            {
+                            //                rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                            //                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::No virtual unit found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                            //                response.isSuccess = false;
+                            //                response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                            //                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                            //                return response;
+                            //            }
+                            //        }
+                            //        else
+                            //        {
+                            //            rt = ResultType.Result_Error_Invalid_Input_Parameter;
+                            //            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting virtual unit: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                            //            response.isSuccess = false;
+                            //            response.error = new Error((int)ResultType.Result_Error_Invalid_Input_Parameter, (int)SeverityError.Critical);
+                            //            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Input_Parameter).ToString();
+                            //            return response;
+                            //        }
+                            //    }
 
-                                // Send M1 for resident
-                                if (rt == ResultType.Result_OK)
-                                {
-                                    parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
-                                    parametersIn["ad"] = parametersOutRes["ad"].ToString();
-                                    parametersIn["cdl"] = "1"; //compute date limits (and time)
-                                    parametersIn["u"] = iVirtualUnit.ToString();
-                                    parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
-                                    parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
+                            //    // Send M1 for resident
+                            //    if (rt == ResultType.Result_OK)
+                            //    {
+                            //        parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
+                            //        parametersIn["ad"] = parametersOutRes["ad"].ToString();
+                            //        parametersIn["cdl"] = "1"; //compute date limits (and time)
+                            //        parametersIn["u"] = iVirtualUnit.ToString();
+                            //        parametersIn["pt"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
+                            //        parametersIn["dll"] = ConfigurationManager.AppSettings["M1RegParamsPath" + nContractId.ToString()].ToString();
 
-                                    Hashtable parametersInMapping = new Hashtable();
+                            //        Hashtable parametersInMapping = new Hashtable();
 
-                                    parametersInMapping["p"] = "m";
-                                    parametersInMapping["d"] = "d";
-                                    parametersInMapping["g"] = "g";
-                                    parametersInMapping["o"] = "o";
-                                    parametersInMapping["ad"] = "ad";
-                                    parametersInMapping["cdl"] = "cdl";
-                                    parametersInMapping["u"] = "u";
-                                    parametersInMapping["pt"] = "pt";
-                                    parametersInMapping["dll"] = "dll";
+                            //        parametersInMapping["p"] = "m";
+                            //        parametersInMapping["d"] = "d";
+                            //        parametersInMapping["g"] = "g";
+                            //        parametersInMapping["o"] = "o";
+                            //        parametersInMapping["ad"] = "ad";
+                            //        parametersInMapping["cdl"] = "cdl";
+                            //        parametersInMapping["u"] = "u";
+                            //        parametersInMapping["pt"] = "pt";
+                            //        parametersInMapping["dll"] = "dll";
 
-                                    Hashtable parametersOutMapping = new Hashtable();
+                            //        Hashtable parametersOutMapping = new Hashtable();
 
-                                    parametersOutMapping["Aad"] = "ad";
-                                    parametersOutMapping["Aq1"] = "q1";
-                                    parametersOutMapping["Aq2"] = "q2";
-                                    parametersOutMapping["At1"] = "t1";
-                                    parametersOutMapping["At2"] = "t2";
-                                    parametersOutMapping["Ad1"] = "d1";
-                                    parametersOutMapping["Ad2"] = "d2";
-                                    parametersOutMapping["Ao"] = "o";
-                                    parametersOutMapping["Adr0"] = "di";
-                                    parametersOutMapping["Araq"] = "aq";
-                                    parametersOutMapping["Arat"] = "at";
-                                    parametersOutMapping["Ar"] = "r";
+                            //        parametersOutMapping["Aad"] = "ad";
+                            //        parametersOutMapping["Aq1"] = "q1";
+                            //        parametersOutMapping["Aq2"] = "q2";
+                            //        parametersOutMapping["At1"] = "t1";
+                            //        parametersOutMapping["At2"] = "t2";
+                            //        parametersOutMapping["Ad1"] = "d1";
+                            //        parametersOutMapping["Ad2"] = "d2";
+                            //        parametersOutMapping["Ao"] = "o";
+                            //        parametersOutMapping["Adr0"] = "di";
+                            //        parametersOutMapping["Araq"] = "aq";
+                            //        parametersOutMapping["Arat"] = "at";
+                            //        parametersOutMapping["Ar"] = "r";
 
-                                    SortedList parametersOutM1 = new SortedList();
-                                    rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
+                            //        SortedList parametersOutM1 = new SortedList();
+                            //        rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
 
-                                    if (rt == ResultType.Result_OK)
-                                    {
-                                        // Join the M1 data with the operation data
-                                        parametersOutRes.Remove("mui");
-                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
-                                        parametersOutRes["sta"] = PARKED.ToString();
-                                        parametersOutRes["ex"] = Convert.ToInt32(rt).ToString();
-                                        parametersOutRes["aq"] = parametersOutM1["aq"];
-                                        parametersOutRes["at"] = parametersOutM1["at"];
-                                    }
-                                    else if (rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark || rt == ResultType.Result_Error_ReentryTimeError)
-                                    {
-                                        // Join the M1 data with the operation data
-                                        parametersOutRes.Remove("mui");
-                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
-                                        parametersOutRes["sta"] = PARKED.ToString();
-                                        // If there is no extension, then the result is always -3
-                                        parametersOutRes["ex"] = "-3";
-                                        rt = ResultType.Result_OK;
-                                    }
+                            //        if (rt == ResultType.Result_OK)
+                            //        {
+                            //            // Join the M1 data with the operation data
+                            //            parametersOutRes.Remove("mui");
+                            //            parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            //            parametersOutRes["sta"] = PARKED.ToString();
+                            //            parametersOutRes["ex"] = Convert.ToInt32(rt).ToString();
+                            //            parametersOutRes["aq"] = parametersOutM1["aq"];
+                            //            parametersOutRes["at"] = parametersOutM1["at"];
+                            //        }
+                            //        else if (rt == ResultType.Result_Error_MaxTimeAlreadyUsedInPark || rt == ResultType.Result_Error_ReentryTimeError)
+                            //        {
+                            //            // Join the M1 data with the operation data
+                            //            parametersOutRes.Remove("mui");
+                            //            parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                            //            parametersOutRes["sta"] = PARKED.ToString();
+                            //            // If there is no extension, then the result is always -3
+                            //            parametersOutRes["ex"] = "-3";
+                            //            rt = ResultType.Result_OK;
+                            //        }
 
-                                    if (parametersOutRes["g"] != null)
-                                    {
-                                        if (parametersOutRes["g"].ToString().Trim().Length > 0)
-                                        {
-                                            GetGroupName(Convert.ToInt32(parametersOutRes["g"].ToString()), out strSectorName, out strSectorColor, nContractId);
-                                            if (strSectorName.Length > 0)
-                                                parametersOutRes["sectorname"] = strSectorName;
-                                            if (strSectorColor.Length > 0)
-                                                parametersOutRes["sectorcolor"] = strSectorColor;
+                            //        if (parametersOutRes["g"] != null)
+                            //        {
+                            //            if (parametersOutRes["g"].ToString().Trim().Length > 0)
+                            //            {
+                            //                GetGroupName(Convert.ToInt32(parametersOutRes["g"].ToString()), out strSectorName, out strSectorColor, nContractId);
+                            //                if (strSectorName.Length > 0)
+                            //                    parametersOutRes["sectorname"] = strSectorName;
+                            //                if (strSectorColor.Length > 0)
+                            //                    parametersOutRes["sectorcolor"] = strSectorColor;
 
-                                            if (GetGroupParent(Convert.ToInt32(parametersOutRes["g"].ToString()), ref nZoneId, nContractId))
-                                            {
-                                                if (nZoneId > 0)
-                                                {
-                                                    parametersOutRes["zone"] = nZoneId.ToString();
-                                                    GetGroupName(nZoneId, out strZoneName, out strZoneColor, nContractId);
-                                                    if (strZoneName.Length > 0)
-                                                        parametersOutRes["zonename"] = strZoneName;
-                                                    if (strZoneColor.Length > 0)
-                                                        parametersOutRes["zonecolor"] = strZoneColor;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                            //                if (GetGroupParent(Convert.ToInt32(parametersOutRes["g"].ToString()), ref nZoneId, nContractId))
+                            //                {
+                            //                    if (nZoneId > 0)
+                            //                    {
+                            //                        parametersOutRes["zone"] = nZoneId.ToString();
+                            //                        GetGroupName(nZoneId, out strZoneName, out strZoneColor, nContractId);
+                            //                        if (strZoneName.Length > 0)
+                            //                            parametersOutRes["zonename"] = strZoneName;
+                            //                        if (strZoneColor.Length > 0)
+                            //                            parametersOutRes["zonecolor"] = strZoneColor;
+                            //                    }
+                            //                }
+                            //            }
+                            //        }
+                            //    }
 
-                                if (rt != ResultType.Result_OK)
-                                {
-                                    if (parametersOutRes == null)
-                                        parametersOutRes = new SortedList();
-                                    else
-                                        parametersOutRes.Clear();
-                                    parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
-                                    xmlOut = GenerateXMLErrorResult(rt);
-                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - M1 returned error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
-                                    response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
-                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                    return response;
-                                }
-                            }
+                            //    if (rt != ResultType.Result_OK)
+                            //    {
+                            //        if (parametersOutRes == null)
+                            //            parametersOutRes = new SortedList();
+                            //        else
+                            //            parametersOutRes.Clear();
+                            //        parametersOutRes["r"] = Convert.ToInt32(rt).ToString();
+                            //        xmlOut = GenerateXMLErrorResult(rt);
+                            //        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - M1 returned error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
+                            //        response.isSuccess = false;
+                            //        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            //        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //        return response;
+                            //    }
+                            //}
 
                             // Determine the available tariff types to offer the user
-                            if (Convert.ToInt32(parametersOutRot["r"]) > 0 && Convert.ToInt32(parametersOutRes["r"]) > 0)
-                            {
-                                bool bIsResident = (IsResident(parametersIn["p"].ToString(), nContractId) > 0);
-                                bool bIsVip = (IsVip(parametersIn["p"].ToString(), nContractId) > 0);
-                                int nRotGroup = -1;
-                                int nResGroup = -1;
-                                int nCurGroup = -1;
-                                if (parametersOutRot["g"] != null)
-                                    nRotGroup = Convert.ToInt32(parametersOutRot["g"]);
-                                if (parametersOutRes["g"] != null)
-                                    nResGroup = Convert.ToInt32(parametersOutRes["g"]);
-                                if (parametersIn["g"] != null)
-                                    nCurGroup = Convert.ToInt32(parametersIn["g"]);
-                                if (!DetermineAvailableTariffs(nRotGroup, nResGroup, nRotExtension, nCurGroup, bIsResident, bIsVip, ref parametersOutAvtar, nContractId))
-                                {
-                                    if (parametersOutRot == null)
-                                        parametersOutRot = new SortedList();
-                                    else
-                                        parametersOutRot.Clear();
-                                    if (parametersOutRes == null)
-                                        parametersOutRes = new SortedList();
-                                    else
-                                        parametersOutRes.Clear();
-                                    parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                    parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting available tariffs: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
-                                    response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
-                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                    return response;
-                                }
-                                else
-                                {
-                                    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "avtar", parametersOutAvtar);
+                            //if (Convert.ToInt32(parametersOutRot["r"]) > 0 && Convert.ToInt32(parametersOutRes["r"]) > 0)
+                            //{
+                            //    bool bIsResident = (IsResident(parametersIn["p"].ToString(), nContractId) > 0);
+                            //    bool bIsVip = (IsVip(parametersIn["p"].ToString(), nContractId) > 0);
+                            //    int nRotGroup = -1;
+                            //    int nResGroup = -1;
+                            //    int nCurGroup = -1;
+                            //    if (parametersOutRot["g"] != null)
+                            //        nRotGroup = Convert.ToInt32(parametersOutRot["g"]);
+                            //    if (parametersOutRes["g"] != null)
+                            //        nResGroup = Convert.ToInt32(parametersOutRes["g"]);
+                            //    if (parametersIn["g"] != null)
+                            //        nCurGroup = Convert.ToInt32(parametersIn["g"]);
+                            //    if (!DetermineAvailableTariffs(nRotGroup, nResGroup, nRotExtension, nCurGroup, bIsResident, bIsVip, ref parametersOutAvtar, nContractId))
+                            //    {
+                            //        if (parametersOutRot == null)
+                            //            parametersOutRot = new SortedList();
+                            //        else
+                            //            parametersOutRot.Clear();
+                            //        if (parametersOutRes == null)
+                            //            parametersOutRes = new SortedList();
+                            //        else
+                            //            parametersOutRes.Clear();
+                            //        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                            //        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error getting available tariffs: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
+                            //        response.isSuccess = false;
+                            //        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            //        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //        return response;
+                            //    }
+                            //    else
+                            //    {
+                            //        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "avtar", parametersOutAvtar);
 
-                                    if (xmlOut.Length == 0)
-                                    {
-                                        if (parametersOutRot == null)
-                                            parametersOutRot = new SortedList();
-                                        else
-                                            parametersOutRot.Clear();
-                                        if (parametersOutRes == null)
-                                            parametersOutRes = new SortedList();
-                                        else
-                                            parametersOutRes.Clear();
-                                        parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                        parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                        xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error generating XML output: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
-                                        response.isSuccess = false;
-                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
-                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                        return response;
-                                    }
-                                    else
-                                    {
-                                        Logger_AddLogMessage(string.Format("QueryParkingStatusAPI: parametersOutRot={0}, parametersOutRes={1}, parametersOutAvtar={2}", SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Info);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
-                                Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
-                                response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
-                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                return response;
-                            }
+                            //        if (xmlOut.Length == 0)
+                            //        {
+                            //            if (parametersOutRot == null)
+                            //                parametersOutRot = new SortedList();
+                            //            else
+                            //                parametersOutRot.Clear();
+                            //            if (parametersOutRes == null)
+                            //                parametersOutRes = new SortedList();
+                            //            else
+                            //                parametersOutRes.Clear();
+                            //            parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //            parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //            xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                            //            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error generating XML output: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
+                            //            response.isSuccess = false;
+                            //            response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            //            response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //            return response;
+                            //        }
+                            //        else
+                            //        {
+                            //            Logger_AddLogMessage(string.Format("QueryParkingStatusAPI: parametersOutRot={0}, parametersOutRes={1}, parametersOutAvtar={2}", SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Info);
+                            //        }
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
+                            //    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
+                            //    response.isSuccess = false;
+                            //    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                            //    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                            //    return response;
+                            //}
                         }
                     }
                 }
@@ -4433,9 +4433,9 @@ namespace OPSWebServicesAPI.Controllers
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
-            ParkingStatusInfo parkingStatusInfo = new ParkingStatusInfo();
+            //ParkingStatusInfo parkingStatusInfo = new ParkingStatusInfo();
             ParkingStatusRotationInfo parkingStatusRotationInfo = new ParkingStatusRotationInfo();
-            ParkingStatusResidentInfo parkingStatusResidentInfo = new ParkingStatusResidentInfo();
+            //ParkingStatusResidentInfo parkingStatusResidentInfo = new ParkingStatusResidentInfo();
 
             ConfigMapModel configMapModel = new ConfigMapModel();
 
@@ -4443,33 +4443,37 @@ namespace OPSWebServicesAPI.Controllers
             IMapper iMapperRotation = configRotation.CreateMapper();
             parkingStatusRotationInfo = iMapperRotation.Map<SortedList, ParkingStatusRotationInfo>((SortedList)parametersOutRot);
 
-            var configResident = configMapModel.configParkingStatusResident();
-            IMapper iMapperResident = configResident.CreateMapper();
-            parkingStatusResidentInfo = iMapperResident.Map<SortedList, ParkingStatusResidentInfo>((SortedList)parametersOutRes);
+            //var configResident = configMapModel.configParkingStatusResident();
+            //IMapper iMapperResident = configResident.CreateMapper();
+            //parkingStatusResidentInfo = iMapperResident.Map<SortedList, ParkingStatusResidentInfo>((SortedList)parametersOutRes);
 
-            List<ParkingStatusTariffInfo> lista = new List<ParkingStatusTariffInfo>();
-            SortedList listTariffs = (SortedList)parametersOutAvtar;
-            var configTariffs = configMapModel.configParkingStatusTariffs();
-            IMapper iMapperTariffs = configTariffs.CreateMapper();
-            if (listTariffs != null && listTariffs.Count > 0)
-            {
-                int numTariffs = listTariffs.Count / 4;
-                for (int i = 1; i< numTariffs+1; i++)
-                {
-                    ParkingStatusTariffInfo tar = new ParkingStatusTariffInfo();
-                    tar.tariffId = Convert.ToInt32(listTariffs["tarid" + i]);
-                    tar.tariffDescription = (string)listTariffs["tardesc" + i];
-                    tar.tariffType = Convert.ToInt32(listTariffs["tarad" + i]);
-                    tar.tariffRefundable = Convert.ToInt32(listTariffs["tarrfd" + i]);
-                    lista.Add(tar);
-                }
-            }
+            //List<ParkingStatusTariffInfo> lista = new List<ParkingStatusTariffInfo>();
+            //SortedList listTariffs = (SortedList)parametersOutAvtar;
+            //var configTariffs = configMapModel.configParkingStatusTariffs();
+            //IMapper iMapperTariffs = configTariffs.CreateMapper();
+            //if (listTariffs != null && listTariffs.Count > 0)
+            //{
+            //    int numTariffs = listTariffs.Count / 4;
+            //    for (int i = 1; i< numTariffs+1; i++)
+            //    {
+            //        ParkingStatusTariffInfo tar = new ParkingStatusTariffInfo();
+            //        tar.tariffId = Convert.ToInt32(listTariffs["tarid" + i]);
+            //        tar.tariffDescription = (string)listTariffs["tardesc" + i];
+            //        tar.tariffType = Convert.ToInt32(listTariffs["tarad" + i]);
+            //        tar.tariffRefundable = Convert.ToInt32(listTariffs["tarrfd" + i]);
+            //        lista.Add(tar);
+            //    }
+            //}
 
-            parkingStatusInfo.parkingStatusTariffsInfo = lista.ToArray();
-            parkingStatusInfo.parkingStatusResidentInfo = parkingStatusResidentInfo;
-            parkingStatusInfo.parkingStatusRotationInfo = parkingStatusRotationInfo;
+            //parkingStatusInfo.parkingStatusTariffsInfo = lista.ToArray();
+            //parkingStatusInfo.parkingStatusResidentInfo = parkingStatusResidentInfo;
+            //parkingStatusInfo.parkingStatusRotationInfo = parkingStatusRotationInfo;
 
-            response.value = parkingStatusInfo;
+            //response.value = parkingStatusInfo;
+            if (parkingStatusRotationInfo.status == 2)
+                response.value = parkingStatusRotationInfo;
+            else
+                response.value = null;
             return response;
 
             //return xmlOut;
@@ -5019,7 +5023,7 @@ namespace OPSWebServicesAPI.Controllers
             int sectorId = 0;
             int zoneId = 0;
             bool existSector = false;
-            bool existsStreet = false;
+            bool existsStreetOrSectorActive = false;
             if (parametersIn["streetId"] != null && parametersIn["streetId"].ToString() != "0")
                 streetId = Convert.ToInt32(parametersIn["streetId"]);
             if (parametersIn["lt"] != null && parametersIn["lt"].ToString() != "0"
@@ -5036,7 +5040,7 @@ namespace OPSWebServicesAPI.Controllers
                     int sectorIdAct = Convert.ToInt32(((SortedList)(st.Value))["sectorId"]);
                     if (streetId == 0 || streetId == streetIdAct || sectorId == sectorIdAct)
                     {
-                        existsStreet = true;
+                        existsStreetOrSectorActive = true;
                         SectorInfo si = new SectorInfo();
                         //si = (SectorInfo)st.Value;
                         //sectorsNamelist.Add(si);
@@ -5049,7 +5053,7 @@ namespace OPSWebServicesAPI.Controllers
                         sectorsNamelist.Add(si);
                     }
                 }
-            if (!existsStreet)
+            if (!existsStreetOrSectorActive)
             {
                 if (existSector)
                 {
@@ -5097,7 +5101,7 @@ namespace OPSWebServicesAPI.Controllers
         /// <param name="streetsQuery">Object StreetsQuery with ContractId to request</param>
         /// <returns>village streets</returns>
         [HttpPost]
-        [Route("QueryStreetsFullAPI")]
+        [Route("QueryStreetsAPI")]
         public ResultStreetsFullInfo QueryStreetsFullAPI([FromBody] StreetsQuery streetsQuery)
         {
             //string xmlOut = "";
