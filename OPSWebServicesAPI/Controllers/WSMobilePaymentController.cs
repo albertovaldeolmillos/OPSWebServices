@@ -1290,7 +1290,7 @@ namespace OPSWebServicesAPI.Controllers
                                 //xmlOut = GenerateXMLErrorResult(rt);
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.error = new Error((int)rt, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -1304,7 +1304,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -1608,7 +1608,7 @@ namespace OPSWebServicesAPI.Controllers
                                 //xmlOut = GenerateXMLErrorResult(rt);
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.error = new Error((int)rt, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -1622,7 +1622,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error: xmlIn= {0}, xmlOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -1904,7 +1904,7 @@ namespace OPSWebServicesAPI.Controllers
                                 //xmlOut = GenerateXMLErrorResult(rt);
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationForTimeAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.error = new Error((int)rt, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -1918,7 +1918,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryParkingOperationForTimeAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -2185,7 +2185,7 @@ namespace OPSWebServicesAPI.Controllers
                                 //xmlOut = GenerateXMLErrorResult(rt);
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationForMoneyAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.error = new Error((int)rt, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -2199,7 +2199,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryParkingOperationForMoneyAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -2816,7 +2816,7 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = Convert.ToInt32(rt);
                     Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -3121,7 +3121,7 @@ namespace OPSWebServicesAPI.Controllers
                                 //xmlOut = GenerateXMLErrorResult(rt);
                                 Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.error = new Error((int)rt, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -3133,7 +3133,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -3593,7 +3593,7 @@ namespace OPSWebServicesAPI.Controllers
                                 }
                                 else
                                 {
-                                    iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
+                                    iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
                                     Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                     response.isSuccess = false;
                                     response.error = new Error((int)ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated, (int)SeverityError.Critical);
@@ -3640,7 +3640,7 @@ namespace OPSWebServicesAPI.Controllers
                                 iRes = Convert.ToInt32(rtM1);
                                 Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error M1: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                response.error = new Error((int)iRes, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -3654,7 +3654,7 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = Convert.ToInt32(rt);
                     Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -4153,7 +4153,7 @@ namespace OPSWebServicesAPI.Controllers
                                     xmlOut = GenerateXMLErrorResult(rt);
                                     Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error - M1 returned error: parametersIn= {0}, xmlOut={1}", SortedListToString(parametersIn), xmlOut), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     return response;
                                 }
@@ -4408,7 +4408,7 @@ namespace OPSWebServicesAPI.Controllers
                     xmlOut = GenerateXMLOuput("rot", parametersOutRot, "res", parametersOutRes, "", parametersOutAvtar);
                     Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error parsing input parameters: parametersIn= {0}, parametersOutRot={1}, parametersOutRes={2}, parametersOutAvtar={3}", SortedListToString(parametersIn), SortedListToString(parametersOutRot), SortedListToString(parametersOutRes), SortedListToString(parametersOutAvtar)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -4831,7 +4831,7 @@ namespace OPSWebServicesAPI.Controllers
 
                                     ResultType rtM4 = SendM4(parametersM4In, parametersM4InMapping, iVirtualUnit, nContractId);
                                     iRes = Convert.ToInt32(rtM4);
-                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI: iOut= {0}", iRes), LoggerSeverities.Info);
+                                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI: M4 iOut= {0}", iRes), LoggerSeverities.Info);
                                 }
                                 else
                                 {
@@ -4892,7 +4892,7 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = Convert.ToInt32(rt);
                     Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -4900,7 +4900,7 @@ namespace OPSWebServicesAPI.Controllers
             }
             catch (Exception e)
             {
-                iRes = iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
+                iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
                 Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
@@ -5001,6 +5001,15 @@ namespace OPSWebServicesAPI.Controllers
                         //parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
                         //xmlOut = GenerateXMLOuput(parametersOut);
                     }
+                }
+                else
+                {
+                    int iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
                 }
             }
             catch (Exception e)
@@ -5178,6 +5187,15 @@ namespace OPSWebServicesAPI.Controllers
                         //parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
                         //xmlOut = GenerateXMLOuput(parametersOut);
                     }
+                }
+                else
+                {
+                    int iRes = Convert.ToInt32(rt);
+                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
                 }
             }
             catch (Exception e)

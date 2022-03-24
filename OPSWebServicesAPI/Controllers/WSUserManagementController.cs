@@ -369,7 +369,7 @@ namespace OPSWebServicesAPI.Controllers
                 {
                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;//Convert.ToInt32(rt).ToString();
                 }
@@ -805,7 +805,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -1111,7 +1111,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null;
                     return response;
                 }
@@ -1408,7 +1408,7 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryUserAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -1638,7 +1638,7 @@ namespace OPSWebServicesAPI.Controllers
                     //iRes = Convert.ToInt32(rt);
                     Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                    response.error = new Error((int)rt, (int)SeverityError.Exception);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -2074,7 +2074,7 @@ namespace OPSWebServicesAPI.Controllers
                     Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     //return Convert.ToInt32(rt).ToString();
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -2365,7 +2365,7 @@ namespace OPSWebServicesAPI.Controllers
                     Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     //return (int)rt;
                     response.isSuccess = false;
-                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                    response.error = new Error((int)rt, (int)SeverityError.Critical);
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
