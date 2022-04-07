@@ -14142,7 +14142,7 @@ namespace OPSWebServicesAPI.Controllers
                 oraCmd.Connection = oraDBConn;
                 oraCmd.Connection.Open();
 
-                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+                tran = oraDBConn.BeginTransaction(IsolationLevel.ReadCommitted);
 
                 String selectUE = String.Format("select SEQ_OPERATIONS.NEXTVAL FROM DUAL");
 
@@ -14951,7 +14951,7 @@ namespace OPSWebServicesAPI.Controllers
                 oraCmd.Connection = oraDBConn;
                 oraCmd.Connection.Open();
 
-                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+                tran = oraDBConn.BeginTransaction(IsolationLevel.ReadCommitted);
 
                 String selectUE = String.Format("select count(*) from BILLREADER_REFUNDSFINE where RBILLF_UNI_ID={0} and RBILLF_DATE=to_date('{1}','hh24missddmmyy')", iUniID, Dtx.DtxToString(dtDate));
 
@@ -15084,7 +15084,7 @@ namespace OPSWebServicesAPI.Controllers
                 oraCmd.Connection = oraDBConn;
                 oraCmd.Connection.Open();
 
-                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+                tran = oraDBConn.BeginTransaction(IsolationLevel.ReadCommitted);
 
                 String selectUE = String.Format("select count(*) from BILLREADER_REFUNDS where RBILL_UNI_ID={0} and RBILL_DATE=to_date('{1}','hh24missddmmyy')", iUniID, Dtx.DtxToString(dtDate));
 
@@ -15217,7 +15217,7 @@ namespace OPSWebServicesAPI.Controllers
                 oraCmd.Connection = oraDBConn;
                 oraCmd.Connection.Open();
 
-                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+                tran = oraDBConn.BeginTransaction(IsolationLevel.ReadCommitted);
 
                 String selectUE = String.Format("select count(*) from clock_in where ci_usr_id={0} and ci_date=to_date('{1}','hh24missddmmyy')", iUserID, Dtx.DtxToString(dtDate));
 
@@ -15351,7 +15351,7 @@ namespace OPSWebServicesAPI.Controllers
                 oraCmd.Connection = oraDBConn;
                 oraCmd.Connection.Open();
 
-                tran = oraDBConn.BeginTransaction(IsolationLevel.Serializable);
+                tran = oraDBConn.BeginTransaction(IsolationLevel.ReadCommitted);
 
                 String selectUE = String.Format("select count(*) from USER_EVENTS where ue_uni_id={0} and ue_ope_id={1}", _unitId, _operationId);
 
