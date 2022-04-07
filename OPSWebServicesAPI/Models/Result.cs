@@ -132,7 +132,7 @@ namespace OPSWebServicesAPI.Models
 
     public class ResultCreditUserInfo : Result
     {
-        public string value { get; set; }
+        public int? value { get; set; }
     }
 
     public class ResultUserRechargeInfo : Result

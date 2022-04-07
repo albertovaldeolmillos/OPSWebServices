@@ -161,7 +161,7 @@ namespace OPSWebServicesAPI.Controllers
                 string strHash = "";
                 string strHashString = "";
 
-                Logger_AddLogMessage(string.Format("LoginUserAPI: parametersIn= {0}", parametersIn), LoggerSeverities.Info);
+                Logger_AddLogMessage(string.Format("LoginUserAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
 
                 ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
 
@@ -173,15 +173,17 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken_UserNme_Password;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
-                    else if ((parametersIn["cid"] == null) || (parametersIn["cid"].ToString().Length == 0))
+                    else if ((parametersIn["cid"] == null))
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
@@ -189,7 +191,8 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
@@ -197,7 +200,8 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Version, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Version;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
@@ -205,7 +209,8 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_ContractId;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;//Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                     }
@@ -228,7 +233,8 @@ namespace OPSWebServicesAPI.Controllers
                         {
                             Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Bad hash: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;// Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                         }
@@ -250,7 +256,8 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 Logger_AddLogMessage(string.Format("LoginUserAPI::Incorrect app version - update needed: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_App_Update_Required, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_App_Update_Required;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_App_Update_Required).ToString();
                                 return response;//Convert.ToInt32(ResultType.Result_Error_App_Update_Required).ToString();
                             }
@@ -258,7 +265,8 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not verify version: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                             }
@@ -286,7 +294,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not validate user: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Invalid_Login;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
@@ -298,7 +307,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::User not validated - needs to activate account: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_User_Not_Validated, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_User_Not_Validated;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
                                 }
@@ -310,7 +320,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not update web credentials: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Generic;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 }
@@ -327,7 +338,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Invalid_Login;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
@@ -341,7 +353,9 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = -230 - (int)tokenResult;
+                                    response.error = new Error(error, GetSeverityError(error));
+                                    //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 }
@@ -357,7 +371,8 @@ namespace OPSWebServicesAPI.Controllers
                                 {
                                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Could not update web credentials: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Generic;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 }
@@ -369,7 +384,8 @@ namespace OPSWebServicesAPI.Controllers
                 {
                     Logger_AddLogMessage(string.Format("LoginUserAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;//Convert.ToInt32(rt).ToString();
                 }
@@ -380,11 +396,13 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("LoginUserAPI::Error - {0}: parametersIn= {1}", e.Message, SortedListToString(parametersIn)), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;//Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
             }
 
+            Logger_AddLogMessage(string.Format("LoginUserAPI::OK strToken: " + strToken), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = strToken;
@@ -526,7 +544,8 @@ namespace OPSWebServicesAPI.Controllers
                 int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
@@ -536,9 +555,10 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     int iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -601,7 +621,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -610,7 +631,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Email, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Email;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -637,7 +659,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_MainMobilePhone, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_MainMobilePhone;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -679,7 +702,8 @@ namespace OPSWebServicesAPI.Controllers
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Bad hash: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -707,12 +731,13 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Invalid_Login;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
                             else
-                                Logger_AddLogMessage(string.Format("UpdateUserXML: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+                                Logger_AddLogMessage(string.Format("UpdateUserAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
 
                             // Determine if token is valid
                             TokenValidationResult tokenResult = DefaultVerification(strToken);
@@ -723,7 +748,9 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = -230 - (int)tokenResult;
+                                response.error = new Error(error, GetSeverityError(error));
+                                //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -748,7 +775,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Email already registered: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Email_Already_Registered, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Mobile_User_Email_Already_Registered;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Email_Already_Registered).ToString();
                                 return response;
                             }
@@ -761,12 +789,13 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Failed to modify user: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
 
-                            Logger_AddLogMessage(string.Format("UpdateUserAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+                            Logger_AddLogMessage(string.Format("UpdateUserAPI: updated MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
 
                             // Get user data
                             if (!GetUserData(Convert.ToInt32(parametersIn["mui"]), out parametersOut, nContractId))
@@ -775,7 +804,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Could not obtain user data: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -787,7 +817,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Could not obtain plate data: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -805,7 +836,8 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("UpdateUserAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -816,11 +848,13 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("UpdateUserAPI::Error: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
+            Logger_AddLogMessage(string.Format("UpdateUserAPI::OK nMobileUserId: " + nMobileUserId), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = nMobileUserId.ToString();
@@ -914,7 +948,8 @@ namespace OPSWebServicesAPI.Controllers
                 int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
                 Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
@@ -926,7 +961,8 @@ namespace OPSWebServicesAPI.Controllers
                     int iRes = -230 - (int)tokenResult;
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -976,7 +1012,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null;
                         return response;
                     }
@@ -985,7 +1022,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Date, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Date;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null;
                         return response;
                     }
@@ -994,7 +1032,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_ContractId;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null;
                         return response;
                     }
@@ -1018,7 +1057,8 @@ namespace OPSWebServicesAPI.Controllers
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Bad hash: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_InvalidAuthenticationHash"), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null;
                             return response;
                         }
@@ -1053,7 +1093,8 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     //return xmlOut;
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Invalid_Login;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null;
                                     return response;
                                 }
@@ -1069,7 +1110,9 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     //return xmlOut;
                                     response.isSuccess = false;
-                                    response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = -230 - (int)tokenResult;
+                                    response.error = new Error(error, GetSeverityError(error));
+                                    //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                     response.value = null;
                                     return response;
                                 }
@@ -1093,13 +1136,17 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error - Could not obtain operation data: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null;
                                 return response;
                             }
 
                             if (operationList.Count > 0)
+                            {
+                                Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::OK: parametersIn= {0}, num op. = {1}", SortedListToString(parametersIn), operationList.Count), LoggerSeverities.Info);
                                 parametersOut["lst"] = operationList;
+                            }                            
 
                             parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
                             //xmlOut = GenerateXMLOuput(parametersOut);
@@ -1111,7 +1158,8 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -1119,15 +1167,17 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
-                Logger_AddLogMessage(string.Format("QueryUserOperationsXML::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
 
             //return xmlOut;
+            Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::OK "), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             List<Operation> lista = new List<Operation>();
@@ -1241,7 +1291,8 @@ namespace OPSWebServicesAPI.Controllers
                 int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
@@ -1253,7 +1304,8 @@ namespace OPSWebServicesAPI.Controllers
                     int iRes = -230 - (int)tokenResult;
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -1289,7 +1341,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1313,7 +1366,8 @@ namespace OPSWebServicesAPI.Controllers
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Bad hash: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_InvalidAuthenticationHash"), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -1341,7 +1395,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Invalid_Login;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -1357,7 +1412,9 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = -230 - (int)tokenResult;
+                                response.error = new Error(error, GetSeverityError(error));
+                                //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -1372,7 +1429,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Could not obtain user data: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -1384,7 +1442,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error - Could not obtain plate data: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -1408,7 +1467,8 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("QueryUserAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -1419,12 +1479,14 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("QueryUserAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
             //return xmlOut;
+            Logger_AddLogMessage(string.Format("QueryUserAPI::OK nMobileUserId: " + nMobileUserId), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
@@ -1511,7 +1573,7 @@ namespace OPSWebServicesAPI.Controllers
                 string strHash = "";
                 string strHashString = "";
 
-                Logger_AddLogMessage(string.Format("RecoverPasswordAPI: parametersIn= {0}", parametersIn), LoggerSeverities.Info);
+                Logger_AddLogMessage(string.Format("RecoverPasswordAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
 
                 ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
 
@@ -1521,9 +1583,10 @@ namespace OPSWebServicesAPI.Controllers
                         (parametersIn["email"] == null || (parametersIn["email"] != null && parametersIn["email"].ToString().Length == 0)))
                     {
                         //iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter);
-                        Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Missing parameter: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                        Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1554,9 +1617,10 @@ namespace OPSWebServicesAPI.Controllers
                         if (!bHashOk)
                         {
                             //iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
-                            Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Bad hash: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                            Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Bad hash: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -1579,10 +1643,11 @@ namespace OPSWebServicesAPI.Controllers
                                 nMobileUserId = GetUserFromEmail(parametersIn["email"].ToString(), nContractId);
                             if (nMobileUserId < 0)
                             {
-                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Mobile user not found: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Mobile user not found: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Mobile_User_Not_Found;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Not_Found, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Mobile_User_Not_Found;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found).ToString();
                                 return response;
                             }
@@ -1598,7 +1663,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Could not assign recovery code {0} to user {1}", strRecoveryCode, nMobileUserId), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_OPS_Error;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_OPS_Error;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
                                 return response;
                             }
@@ -1612,7 +1678,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Could not obtain email for user {0}", nMobileUserId), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_OPS_Error;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_OPS_Error;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
                                 return response;
                             }
@@ -1622,7 +1689,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error - Could not send email to user {0} at {1}", nMobileUserId, strEmail), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_OPS_Error;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_OPS_Error, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_OPS_Error;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_OPS_Error).ToString();
                                 return response;
                             }
@@ -1636,9 +1704,10 @@ namespace OPSWebServicesAPI.Controllers
                 else
                 {
                     //iRes = Convert.ToInt32(rt);
-                    Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Exception);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -1646,15 +1715,17 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 //iRes = Convert.ToInt32(ResultType.Result_Error_Generic);
-                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", parametersIn), LoggerSeverities.Error);
+                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Error: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
             //return iRes;
+            Logger_AddLogMessage(string.Format("RecoverPasswordAPI::OK nMobileUserId: " + nMobileUserId), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = Convert.ToInt32(ResultType.Result_OK).ToString();
@@ -1732,7 +1803,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_UserName_Email);
                         Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Missing parameter: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1741,7 +1813,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Recode);
                         Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Missing parameter: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Recode, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Recode;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1774,7 +1847,8 @@ namespace OPSWebServicesAPI.Controllers
                             iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Bad hash: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -1800,7 +1874,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Mobile user not found: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Mobile_User_Not_Found;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Not_Found, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Mobile_User_Not_Found;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found).ToString();
                                 return response;
                             }
@@ -1814,7 +1889,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - No recovery password was found for user {0}", nMobileUserId), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Recovery_Code_Not_Found;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Recovery_Code_Not_Found, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Recovery_Code_Not_Found;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Not_Found).ToString();
                                 return response;
                             }
@@ -1825,7 +1901,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Received recovery code {0} does not match current recovery code {1} for user {2}", parametersIn["recode"].ToString(), strCurRecoveryCode, nMobileUserId), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Recovery_Code_Invalid;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Recovery_Code_Invalid, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Recovery_Code_Invalid;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Invalid).ToString();
                                 return response;
                             }
@@ -1836,7 +1913,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::Error - Received recovery code {0} has expired for user {1}", strCurRecoveryCode, nMobileUserId), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Recovery_Code_Expired;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Recovery_Code_Expired, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Recovery_Code_Expired;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Expired).ToString();
                                 return response;
                             }
@@ -1859,6 +1937,7 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             //return iRes;
+            Logger_AddLogMessage(string.Format("VerifyRecoveryPasswordAPI::OK nMobileUserId: " + nMobileUserId), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = Convert.ToInt32(ResultType.Result_OK).ToString();
@@ -1936,7 +2015,8 @@ namespace OPSWebServicesAPI.Controllers
                         Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_UserName_Email;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1945,7 +2025,8 @@ namespace OPSWebServicesAPI.Controllers
                         Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Password, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Password;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1954,7 +2035,8 @@ namespace OPSWebServicesAPI.Controllers
                         Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Recode, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Recode;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -1987,7 +2069,8 @@ namespace OPSWebServicesAPI.Controllers
                             Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Bad hash: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                             //return Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -2014,7 +2097,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Mobile user not found: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), "Result_Error_Mobile_User_Not_Found"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Not_Found, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Mobile_User_Not_Found;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Not_Found).ToString();
                                 return response;
                             }
@@ -2027,7 +2111,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - No recovery password was found for user {0}", nMobileUserId), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Not_Found).ToString();
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Recovery_Code_Not_Found, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Recovery_Code_Not_Found;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Not_Found).ToString();
                                 return response;
                             }
@@ -2038,7 +2123,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Received recovery code {0} does not match current recovery code {1} for user {2}", parametersIn["recode"].ToString(), strCurRecoveryCode, nMobileUserId), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Invalid).ToString();
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Recovery_Code_Invalid, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Recovery_Code_Invalid;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Invalid).ToString();
                                 return response;
                             }
@@ -2049,7 +2135,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Received recovery code {0} has expired for user {1}", strCurRecoveryCode, nMobileUserId), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Expired).ToString();
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Recovery_Code_Expired, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Recovery_Code_Expired;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Recovery_Code_Expired).ToString();
                                 return response;
                             }
@@ -2062,7 +2149,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Could not update web credentials: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -2074,7 +2162,8 @@ namespace OPSWebServicesAPI.Controllers
                     Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     //return Convert.ToInt32(rt).ToString();
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -2085,12 +2174,14 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("ChangePasswordAPI::Error - {0}: parametersIn= {1}", e.Message, SortedListToString(parametersIn)), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
             //return strToken;
+            Logger_AddLogMessage(string.Format("ChangePasswordAPI::OK strToken: " + strToken), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = strToken;
@@ -2227,7 +2318,8 @@ namespace OPSWebServicesAPI.Controllers
                         Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return (int)ResultType.Result_Error_Missing_Input_Parameter;
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Email, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Email;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2245,7 +2337,8 @@ namespace OPSWebServicesAPI.Controllers
                         Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return (int)ResultType.Result_Error_Missing_Input_Parameter;
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Password, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Password;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2267,26 +2360,29 @@ namespace OPSWebServicesAPI.Controllers
                         //response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         //return response;
                     //}
-                    //else if ((parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0))
-                    //{
-                        //Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
-                        ////return (int)ResultType.Result_Error_Missing_Input_Parameter;
-                        //response.isSuccess = false;
-                        //response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_MainMobilePhone, (int)SeverityError.Critical);
-                        //response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
-                        //return response;
-                    //}
+                    else if ((parametersIn["mmp"] == null) || (parametersIn["mmp"].ToString().Length == 0))
+                    {
+                        Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        //return (int)ResultType.Result_Error_Missing_Input_Parameter;
+                        response.isSuccess = false;
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_MainMobilePhone;
+                        response.error = new Error(error, GetSeverityError(error));
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
                     else if ((parametersIn["plates"] == null))
                     {
                         Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         //return (int)ResultType.Result_Error_Missing_Input_Parameter;
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_No_Plates;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
                     else
                     {
+                        parametersIn["em"] = ((string)(parametersIn["em"])).ToLower();
                         if ((parametersIn["un"] == null) || (parametersIn["un"].ToString().Length == 0))
                             parametersIn["un"] = parametersIn["em"];
 
@@ -2308,7 +2404,8 @@ namespace OPSWebServicesAPI.Controllers
                             Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Bad hash: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                             //return (int)ResultType.Result_Error_InvalidAuthenticationHash;
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -2329,7 +2426,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - User name already registered: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Mobile_User_Already_Registered;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Already_Registered, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Mobile_User_Already_Registered;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Already_Registered).ToString();
                                 return response;
                             }
@@ -2339,7 +2437,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Email already registered: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return (int)ResultType.Result_Error_Mobile_User_Email_Already_Registered;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Mobile_User_Email_Already_Registered, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Mobile_User_Email_Already_Registered;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Email_Already_Registered).ToString();
                                 return response;
                             }
@@ -2365,7 +2464,8 @@ namespace OPSWebServicesAPI.Controllers
                     Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Incorrect input format: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                     //return (int)rt;
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                     return response;
                 }
@@ -2376,12 +2476,14 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - {0}: parametersIn= {1}", e.Message, SortedListToString(parametersIn)), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
             //return nMobileUserId;
+            Logger_AddLogMessage(string.Format("RegisterUserAPI::OK nMobileUserId: " + nMobileUserId), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
             response.value = nMobileUserId +"";
@@ -2439,7 +2541,8 @@ namespace OPSWebServicesAPI.Controllers
                 iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
                 Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
@@ -2451,7 +2554,8 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = -230 - (int)tokenResult;
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -2485,7 +2589,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
                         Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2509,7 +2614,8 @@ namespace OPSWebServicesAPI.Controllers
                             iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Bad hash: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -2536,7 +2642,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Invalid_Login;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2551,7 +2658,9 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                 response.isSuccess = false;
-                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = -230 - (int)tokenResult;
+                                response.error = new Error(error, GetSeverityError(error));
+                                //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2567,9 +2676,14 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error - Could not obtain user credit: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                 //return iRes;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
+                            }
+                            else
+                            {
+                                Logger_AddLogMessage(string.Format("QueryUserCreditAPI::OK: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Info);
                             }
                         }
                     }
@@ -2579,7 +2693,8 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = Convert.ToInt32(rt);
                     Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(rt).ToString();
                     return response;
                 }
@@ -2591,14 +2706,16 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
+            Logger_AddLogMessage(string.Format("QueryUserCreditAPI::OK iRes: " + iRes), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
-            response.value = iRes + "";
+            response.value = iRes;
             return response;
 
             //return iRes;
@@ -2666,7 +2783,8 @@ namespace OPSWebServicesAPI.Controllers
                 int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
@@ -2678,7 +2796,8 @@ namespace OPSWebServicesAPI.Controllers
                     int iRes = -230 - (int)tokenResult;
                     Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -2713,7 +2832,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2722,16 +2842,18 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AmountInCents, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AmountInCents;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
-                    else if (parametersIn["cid"] == null || (parametersIn["cid"].ToString().Length == 0))
+                    else if (parametersIn["cid"] == null)
                     {
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_CloudToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2740,7 +2862,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_OperativeSystem;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2749,7 +2872,8 @@ namespace OPSWebServicesAPI.Controllers
                         //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
                         Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_ContractId;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -2773,7 +2897,8 @@ namespace OPSWebServicesAPI.Controllers
                             //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Bad hash: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_InvalidAuthenticationHash"), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -2801,7 +2926,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Invalid_Login;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2817,7 +2943,9 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                int error = -230 - (int)tokenResult;
+                                response.error = new Error(error, GetSeverityError(error));
+                                //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                 return response;
                             }
@@ -2832,7 +2960,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Could not obtain transaction data: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -2844,7 +2973,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error - Could not update web credentials: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                                 //return xmlOut;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -2854,6 +2984,8 @@ namespace OPSWebServicesAPI.Controllers
 
                             strUrlPayTpv = GenerateUrlPayTpv(nMobileUserId, Convert.ToInt32(parametersOut["or"]), Convert.ToInt32(parametersIn["am"]), Convert.ToInt32(parametersIn["op"]));
                             parametersOut["up"] = strUrlPayTpv;
+
+                            Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::OK: parametersIn= {0}, orderId={1}, urlPayTpv= {2}", SortedListToString(parametersIn), parametersIn["op"], strUrlPayTpv), LoggerSeverities.Info);
 
                             if (parametersIn["sim"] != null)
                             {
@@ -2868,7 +3000,8 @@ namespace OPSWebServicesAPI.Controllers
                     //xmlOut = GenerateXMLErrorResult(rt);
                     Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: parametersIn= {0}, error={1}", SortedListToString(parametersIn), rt.ToString()), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(rt).ToString();
                     return response;
                 }
@@ -2879,11 +3012,13 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: parametersIn= {0}, error={1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
+            Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::OK "), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Low);
 
@@ -2959,7 +3094,8 @@ namespace OPSWebServicesAPI.Controllers
                 iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
                 Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_No_Bearer_Token, (int)SeverityError.Critical);
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null;
                 return response;
             }
@@ -2971,7 +3107,8 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = -230 - (int)tokenResult;
                     Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error(iRes, (int)SeverityError.Critical);
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     return response;
                 }
@@ -3008,7 +3145,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3017,7 +3155,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_DateStart);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_DateStart, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_DateStart;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3026,7 +3165,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_DateEnd);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_DateEnd, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_DateEnd;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3035,7 +3175,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_Email);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_Email, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_Email;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3044,7 +3185,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ReportFormat);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ReportFormat, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_ReportFormat;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3053,7 +3195,8 @@ namespace OPSWebServicesAPI.Controllers
                         iRes = Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter_ContractId);
                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                         response.isSuccess = false;
-                        response.error = new Error((int)ResultType.Result_Error_Missing_Input_Parameter_ContractId, (int)SeverityError.Critical);
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_ContractId;
+                        response.error = new Error(error, GetSeverityError(error));
                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
                         return response;
                     }
@@ -3077,7 +3220,8 @@ namespace OPSWebServicesAPI.Controllers
                             iRes = Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash);
                             Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Bad hash: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                             response.isSuccess = false;
-                            response.error = new Error((int)ResultType.Result_Error_InvalidAuthenticationHash, (int)SeverityError.Critical);
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
                             response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
                             return response;
                         }
@@ -3111,7 +3255,8 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Invalid_Login;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;
                                 }
@@ -3126,7 +3271,9 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
                                     //return Convert.ToInt32(ResultType.Result_Error_Invalid_Login);
                                     response.isSuccess = false;
-                                    response.error = new Error(-230 - (int)tokenResult, (int)SeverityError.Critical);//new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                    int error = -230 - (int)tokenResult;
+                                    response.error = new Error(error, GetSeverityError(error));
+                                    //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
                                     return response;
                                 }
@@ -3145,7 +3292,8 @@ namespace OPSWebServicesAPI.Controllers
                                 Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Could not obtain operation data: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                 //return iRes;
                                 response.isSuccess = false;
-                                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
                             }
@@ -3178,7 +3326,8 @@ namespace OPSWebServicesAPI.Controllers
                                         Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Error sending email: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                         //return iRes;
                                         response.isSuccess = false;
-                                        response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                        int error = (int)ResultType.Result_Error_Generic;
+                                        response.error = new Error(error, GetSeverityError(error));
                                         response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                         return response;
                                     }
@@ -3189,7 +3338,8 @@ namespace OPSWebServicesAPI.Controllers
                                     Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error - Error generating PDF: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                                     //return iRes;
                                     response.isSuccess = false;
-                                    response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Critical);
+                                    int error = (int)ResultType.Result_Error_Generic;
+                                    response.error = new Error(error, GetSeverityError(error));
                                     response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                     return response;
                                 }
@@ -3206,7 +3356,8 @@ namespace OPSWebServicesAPI.Controllers
                     iRes = Convert.ToInt32(rt);
                     Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
-                    response.error = new Error((int)rt, (int)SeverityError.Critical);
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
                     response.value = null; //Convert.ToInt32(rt).ToString();
                     return response;
                 }
@@ -3217,11 +3368,13 @@ namespace OPSWebServicesAPI.Controllers
                 Logger_AddLogMessage(string.Format("QueryUserReportAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
                 Logger_AddLogException(e);
                 response.isSuccess = false;
-                response.error = new Error((int)ResultType.Result_Error_Generic, (int)SeverityError.Exception);
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                 return response;
             }
 
+            Logger_AddLogMessage(string.Format("QueryUserReportAPI::OK iRes: " + iRes), LoggerSeverities.Info);
             response.isSuccess = true;
             response.error = null;// new Error((int)ResultType.Result_OK, (int)SeverityError.Critical);
             response.value = iRes + "";
@@ -5220,9 +5373,33 @@ namespace OPSWebServicesAPI.Controllers
         private string SortedListToString(SortedList lista)
         {
             string texto = "";
-            foreach (string kvp in lista.Keys)
-                texto = texto + string.Format(" {0}: {1} ,", kvp , lista[kvp]);
+            foreach (var kvp in lista.Keys)
+            {
+                texto = texto + string.Format(" {0}: {1} ,", kvp, lista[kvp]);
+                if (lista[kvp] is SortedList)
+                {
+                    texto = texto + SortedListToString((SortedList)lista[kvp]);
+                }
+            }
+                
             return texto;
+        }
+
+        private int GetSeverityError(int codeError)
+        {
+            SeverityError severityError = SeverityError.Critical;
+            List<int> codesWarning = new List<int> { -2, -3, -4, -5, -6, -7, -8, -20, -21, -22, -23, -25, -27, -28, -30, -31, -32, -33, -250, -300, -301, -301, -302, -303, -304, -305 };
+            List<int> codesException = new List<int> { -9, -12, -24, -26 };
+            List<int> codesCritical = new List<int> { -1, -10, -11, -13, -14, -29, -290 };
+            List<int> codesLow = new List<int> { -230, -231, -232, -233, -234, -235, -236, -237 };
+            for (int i = -100; i >= -131; i--) codesCritical.Add(i);
+
+            if (codesWarning.Contains(codeError)) { severityError = SeverityError.Warning; }
+            if (codesException.Contains(codeError)) { severityError = SeverityError.Exception; }
+            if (codesCritical.Contains(codeError)) { severityError = SeverityError.Critical; }
+            if (codesLow.Contains(codeError)) { severityError = SeverityError.Low; }
+
+            return (int)severityError;
         }
 
         #endregion
@@ -9407,7 +9584,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                     throw new Exception("Oracle connection is not open");
 
-                string strSQL = string.Format("SELECT COUNT(*) FROM MOBILE_USERS WHERE MU_EMAIL = '{0}' AND MU_ID <> {1} AND MU_VALID = 1 AND MU_DELETED = 0", strMobileUserEmail, strMobileUserId);
+                string strSQL = string.Format("SELECT COUNT(*) FROM MOBILE_USERS WHERE LOWER(MU_EMAIL) = '{0}' AND MU_ID <> {1} AND MU_VALID = 1 AND MU_DELETED = 0", strMobileUserEmail.ToLower(), strMobileUserId);
                 oraCmd.CommandText = strSQL;
 
                 dataReader = oraCmd.ExecuteReader();
