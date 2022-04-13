@@ -2552,7 +2552,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("QueryUserCreditAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     int error = iRes;
                     response.error = new Error(error, GetSeverityError(error));
@@ -2794,7 +2794,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     int iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("RechargeUserCreditAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     int error = iRes;
                     response.error = new Error(error, GetSeverityError(error));

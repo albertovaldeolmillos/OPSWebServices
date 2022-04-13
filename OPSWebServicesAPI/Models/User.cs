@@ -135,6 +135,12 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("un")]
         public string userName { get; set; }
         /// <summary>
+        /// password
+        /// </summary>
+        [DisplayName("pw")]
+        [Required]
+        public string password { get; set; }
+        /// <summary>
         /// App version
         /// </summary>
         [DisplayName("v")]

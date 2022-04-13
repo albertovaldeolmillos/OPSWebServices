@@ -67,6 +67,7 @@ namespace OPSWebServicesAPI.Helpers
                     .ForMember(d => d.operatingSystem, o => o.MapFrom(s => s["os"]))
                     .ForMember(d => d.secondSurname, o => o.MapFrom(s => s["ss"]))
                     .ForMember(d => d.userName, o => o.MapFrom(s => s["un"]))
+                    .ForMember(d => d.password, o => o.MapFrom(s => s["pw"]))
                     .ForMember(d => d.version, o => o.MapFrom(s => s["v"]))
                     .ForMember(d => d.validateConditions, o => o.MapFrom(s => s["val"]))
                     //.ForMember(d => d.notifications, o => o.MapFrom(s => s["notifications"]))

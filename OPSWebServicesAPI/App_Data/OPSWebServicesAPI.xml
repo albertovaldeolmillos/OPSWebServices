@@ -2525,6 +2525,11 @@
             Username
             </summary>
         </member>
+        <member name="P:OPSWebServicesAPI.Models.User.password">
+            <summary>
+            password
+            </summary>
+        </member>
         <member name="P:OPSWebServicesAPI.Models.User.version">
             <summary>
             App version
