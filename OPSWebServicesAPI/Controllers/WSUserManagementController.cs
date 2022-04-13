@@ -10156,12 +10156,20 @@ namespace OPSWebServicesAPI.Controllers
                     dataReader.Read();
                     parametersOut["un"] = dataReader.GetString(0);
                     parametersOut["em"] = dataReader.GetString(1);
-                    parametersOut["fs"] = dataReader.GetString(2);
+                    //parametersOut["fs"] = dataReader.GetString(2);
+                    if (dataReader.IsDBNull(2))
+                        parametersOut["fs"] = "";
+                    else
+                        parametersOut["fs"] = dataReader.GetString(2);
                     if (dataReader.IsDBNull(3))
                         parametersOut["ss"] = "";
                     else
                         parametersOut["ss"] = dataReader.GetString(3);
-                    parametersOut["na"] = dataReader.GetString(4);
+                    if (dataReader.IsDBNull(4))
+                        parametersOut["na"] = "";
+                    else
+                        parametersOut["na"] = dataReader.GetString(4);
+                    //parametersOut["na"] = dataReader.GetString(4);
                     if (dataReader.IsDBNull(5))
                         parametersOut["nif"] = "";
                     else
