@@ -1314,7 +1314,7 @@ namespace OPSWebServicesAPI.Controllers
                                 //xmlOut = GenerateXMLErrorResult(rt);
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error M1: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 response.isSuccess = false;
-                                int error = (int)ResultType.Result_Error_Generic;
+                                int error = (int)rt;
                                 response.error = new Error(error, GetSeverityError(error));
                                 response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 return response;
