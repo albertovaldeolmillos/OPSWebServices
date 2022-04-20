@@ -5121,6 +5121,8 @@ namespace OPSWebServicesAPI.Controllers
                 string strHash = "";
                 string strHashString = "";
 
+                Logger_AddLogMessage(string.Format("QuerySectorsAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
                 ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
 
                 if (rt == ResultType.Result_OK)
@@ -5265,6 +5267,10 @@ namespace OPSWebServicesAPI.Controllers
             sectorsNamelist = sectorsNamelist.DistinctBy(p => new { p.zoneId, p.zone,p.zoneColor,p.sectorId,p.sector,p.sectorColor }).ToList();
             parametersOut["sectorlist"] = sectorsNamelist.ToArray();
             parametersOut["sectorsNumber"] = sectorsNamelist.Count;
+
+            Logger_AddLogMessage(string.Format("QuerySectorsAPI::OK sectorsNumber= {0}", sectorsNamelist.Count), LoggerSeverities.Info);
+            foreach (var s in sectorsNamelist) 
+                Logger_AddLogMessage(string.Format("QuerySectorsAPI::OK sectorId= {0}, sector= {1}", s.sectorId, s.sector), LoggerSeverities.Info);
 
             SectorsInfo sectorsInfo = new SectorsInfo();
             ConfigMapModel configMapModel = new ConfigMapModel();
