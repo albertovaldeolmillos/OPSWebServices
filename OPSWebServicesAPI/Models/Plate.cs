@@ -14,7 +14,7 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("p")]
         public string plate { get; set; }
         /// <summary>
-        /// status (1:Rotative, 2:Resident, 3:VIP
+        /// status 4:Rotative, 5:Resident, 6:VIP
         /// </summary>
         [DisplayName("stp")]
         public int status { get; set; }

@@ -9969,13 +9969,13 @@ namespace OPSWebServicesAPI.Controllers
             string merchantTerminal = ConfigurationManager.AppSettings["PayTpv_MerchantTerminal"].ToString();
             string language = ConfigurationManager.AppSettings["PayTpv_Language"].ToString();
             string merchatCurrency = ConfigurationManager.AppSettings["PayTpv_MerchantCurrency"].ToString();
+            string merchatScaException = ConfigurationManager.AppSettings["PayTpv_MerchantScaException"].ToString();
             strUrl = strUrl + "MERCHANT_MERCHANTCODE=" + merchantCode;
             strUrl = strUrl + "&MERCHANT_TERMINAL=" + merchantTerminal;
             strUrl = strUrl + "&LANGUAGE=" + language;
             strUrl = strUrl + "&MERCHANT_ORDER=" + idOrder;
             strUrl = strUrl + "&MERCHANT_AMOUNT=" + amount;
-            strUrl = strUrl + "&MERCHANT_CURRENCY=" + merchatCurrency;
-            strUrl = strUrl + "&OPERATION=" + operation;
+            strUrl = strUrl + "&MERCHANT_CURRENCY=" + merchatCurrency;           
 
             if (!GetUserDataPayTpv(nMobileUserId, out parametersOut, 0))
             {
@@ -9987,6 +9987,8 @@ namespace OPSWebServicesAPI.Controllers
 
             if (operation == 109 && tokenUser != "" && tokenId != "")
             {
+                strUrl = strUrl + "&OPERATION=" + operation;
+                strUrl = strUrl + "&MERCHANT_SCA_EXCEPTION=" + merchatScaException;
                 strUrl = strUrl + "&IDUSER=" + tokenUser;
                 strUrl = strUrl + "&TOKEN_USER=" + tokenId;
                 //¡¡¡¡¡¡CUIDADO!!!!!!!  ------------->  token_user = IDUSER y tokenId = TOKEN_USER 
@@ -9995,6 +9997,8 @@ namespace OPSWebServicesAPI.Controllers
             }
             else
             {
+                strUrl = strUrl + "&OPERATION=1";
+                strUrl = strUrl + "&MERCHANT_SCA_EXCEPTION=" + merchatScaException;
                 //md5(MERCHANT_MERCHANTCODE + MERCHANT_TERMINAL + OPERATION + MERCHANT_ORDER + MERCHANT_AMOUNT + MERCHANT_CURRENCY + md5(PASSWORD)) 
                 merchantSignature = CreateMD5(merchantCode + merchantTerminal + operation + idOrder + amount + merchatCurrency + CreateMD5(password));
             }
