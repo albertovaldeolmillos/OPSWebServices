@@ -10000,7 +10000,7 @@ namespace OPSWebServicesAPI.Controllers
                 strUrl = strUrl + "&OPERATION=1";
                 strUrl = strUrl + "&MERCHANT_SCA_EXCEPTION=" + merchatScaException;
                 //md5(MERCHANT_MERCHANTCODE + MERCHANT_TERMINAL + OPERATION + MERCHANT_ORDER + MERCHANT_AMOUNT + MERCHANT_CURRENCY + md5(PASSWORD)) 
-                merchantSignature = CreateMD5(merchantCode + merchantTerminal + operation + idOrder + amount + merchatCurrency + CreateMD5(password).ToLower());
+                merchantSignature = CreateMD5(merchantCode + merchantTerminal + "1" + idOrder + amount + merchatCurrency + CreateMD5(password).ToLower());
             }
 
             strUrl = strUrl + "&MERCHANT_MERCHANTSIGNATURE=" + merchantSignature.ToLower();
