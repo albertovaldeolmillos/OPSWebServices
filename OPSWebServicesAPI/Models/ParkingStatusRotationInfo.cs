@@ -13,7 +13,7 @@ namespace OPSWebServicesAPI.Models
         [DisplayName("r")]
         public int result { get; set; }
         /// <summary>
-        /// status: 1 (UNPARKED), 2 (PARKED)
+        /// status: 1 (UNPARKED), 2 (PARKED), 3 (UNPARKINTENTED)
         /// </summary>
         [DisplayName("sta")]
         public int status { get; set; }

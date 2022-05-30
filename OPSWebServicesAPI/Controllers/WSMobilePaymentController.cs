@@ -55,6 +55,7 @@ namespace OPSWebServicesAPI.Controllers
         private const string OUT_SUFIX = "_out";
         private const int UNPARKED = 1;
         private const int PARKED = 2;
+        private const int UNPARKINTENTED = 3;
         internal const string PARM_NUM_SPACES_BONUS = "P_NUM_SPACES_BONUS";
         internal const string PARM_SPACES_BONUS = "P_SPACES_BONUS";
 
@@ -3160,6 +3161,7 @@ namespace OPSWebServicesAPI.Controllers
                             parametersOutMapping["Ar"] = "r";
 
                             rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOut, nContractId);
+                            Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI: rt= {0}, lOperId = {1}, iArticle= {2}", rt.ToString(), lOperId.ToString(), iArticle.ToString()), LoggerSeverities.Info);
 
                             if (rt == ResultType.Result_OK)
                             {
@@ -3177,6 +3179,7 @@ namespace OPSWebServicesAPI.Controllers
                                 }
                                 else
                                 {
+                                    parametersOut["moneyReturned"] = "1";
                                     Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI: OK: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
                                 }
                             }
@@ -3214,14 +3217,25 @@ namespace OPSWebServicesAPI.Controllers
                             //}
                             else
                             {
-                                //xmlOut = GenerateXMLErrorResult(rt);
-                                Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error M1: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
-                                response.isSuccess = false;
-                                int error = (int)rt;
-                                response.error = new Error(error, GetSeverityError(error));
-                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
-                                return response;
+                                parametersOut["moneyReturned"] = "0";
+                                parametersOut["q"] = "0";
+                                if (lOperId > 0)
+                                {
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error M1: ---------UpdateFlagUnparkIntent------------: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
+                                    UpdateFlagUnparkIntent(lOperId, nContractId);
+                                }
+                                else
+                                {
+                                    //xmlOut = GenerateXMLErrorResult(rt);
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error M1: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
+                                    response.isSuccess = false;
+                                    int error = (int)rt;
+                                    response.error = new Error(error, GetSeverityError(error));
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                    return response;
+                                }
                             }
+
                         }
                     }
                 }
@@ -4139,6 +4153,7 @@ namespace OPSWebServicesAPI.Controllers
                                 // Obtain current parking operation info
                                 if (GetOperStatusData(lRotOperId, out parametersOutRot, nContractId))
                                 {
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI:: parametersOutRot= {0}", SortedListToString(parametersOutRot)), LoggerSeverities.Info);
                                     // Check to see if previous parking operation was started by another user
                                     int nPrevMobileUserId = Convert.ToInt32(parametersOutRot["mui"]);
                                     if (nPrevMobileUserId != -1)
@@ -4195,8 +4210,20 @@ namespace OPSWebServicesAPI.Controllers
                                     }
                                 }
 
+                                //Si la última operación tiene marcada el OPE_UNPARK_INTENT = 1, indica que el usuario ha intentado desaparcar y no ha podido
+                                if (Convert.ToInt32(parametersOutRot["unpark_intent"]) == 1)
+                                {
+                                    parametersOutRot.Remove("mui");
+                                    parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                                    parametersOutRot["sta"] = UNPARKINTENTED.ToString();
+                                    // If there is no extension, then the result is always -3
+                                    parametersOutRot["ex"] = "-4";
+                                    nRotExtension = Convert.ToInt32(rt);
+                                    rt = ResultType.Result_OK;
+                                }
+
                                 // Send M1 for rotation
-                                if (rt == ResultType.Result_OK)
+                                else if (rt == ResultType.Result_OK)
                                 {
                                     parametersIn["o"] = ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString();
                                     parametersIn["ad"] = parametersOutRot["ad"].ToString();
@@ -4234,6 +4261,8 @@ namespace OPSWebServicesAPI.Controllers
 
                                     SortedList parametersOutM1 = new SortedList();
                                     rt = SendM1(parametersIn, parametersInMapping, parametersOutMapping, iVirtualUnit, out parametersOutM1, nContractId);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI:: M1 out params: parametersOutM1= {0}", SortedListToString(parametersOutM1)), LoggerSeverities.Info);
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI:: rt= {0}", rt.ToString()), LoggerSeverities.Info);
 
                                     if (rt == ResultType.Result_OK)
                                     {
@@ -4615,7 +4644,7 @@ namespace OPSWebServicesAPI.Controllers
             //parkingStatusInfo.parkingStatusRotationInfo = parkingStatusRotationInfo;
 
             //response.value = parkingStatusInfo;
-            if (parkingStatusRotationInfo.status == 2)
+            if ((parkingStatusRotationInfo.status == 2) || (parkingStatusRotationInfo.status == 3))
                 response.value = parkingStatusRotationInfo;
             else
                 response.value = null;
@@ -10975,7 +11004,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                     throw new Exception("Oracle connection is not open");
 
-                string strSQL = string.Format("SELECT OPE_DART_ID, OPE_DOPE_ID, TO_CHAR(OPE_INIDATE, 'hh24missddMMYY'), TO_CHAR(OPE_ENDDATE, 'hh24missddMMYY'), NVL(OPE_MOBI_USER_ID,-1), OPE_LATITUDE, OPE_LONGITUD, OPE_REFERENCE, OPE_GRP_ID, OPE_VALUE_VIS, OPE_DURATION, TO_CHAR(OPE_MOVDATE, 'hh24missddMMYY'), OPE_ADDR_STREET, OPE_ADDR_NUMBER FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                string strSQL = string.Format("SELECT OPE_DART_ID, OPE_DOPE_ID, TO_CHAR(OPE_INIDATE, 'hh24missddMMYY'), TO_CHAR(OPE_ENDDATE, 'hh24missddMMYY'), NVL(OPE_MOBI_USER_ID,-1), OPE_LATITUDE, OPE_LONGITUD, OPE_REFERENCE, OPE_GRP_ID, OPE_VALUE_VIS, OPE_DURATION, TO_CHAR(OPE_MOVDATE, 'hh24missddMMYY'), OPE_ADDR_STREET, OPE_ADDR_NUMBER, OPE_UNPARK_INTENT FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
                 oraCmd.CommandText = strSQL;
 
                 dataReader = oraCmd.ExecuteReader();
@@ -11006,6 +11035,8 @@ namespace OPSWebServicesAPI.Controllers
                         parametersOut["streetname"] = dataReader.GetString(12);
                     if (!dataReader.IsDBNull(13))
                         parametersOut["streetno"] = dataReader.GetString(13);
+                    if (!dataReader.IsDBNull(14))
+                        parametersOut["unpark_intent"] = dataReader.GetInt32(14).ToString();
                     bResult = true;
                 }
 
@@ -17431,6 +17462,69 @@ namespace OPSWebServicesAPI.Controllers
 
                 string strSQL = string.Format("update parking_spaces set ps_state = {0}, ps_date_mod = sysdate where ps_id = {1}",
                 iStatus, lSpaceId);
+
+                oraCmd.CommandText = strSQL;
+
+                if (oraCmd.ExecuteNonQuery() > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("UpdateSpaceStatus::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool UpdateFlagUnparkIntent(long lOperId, int nContractId)
+        {
+            bool bResult = false;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("update operations o " +
+                                                "set o.ope_unpark_intent = 1 " +
+                                                "where ope_id = {0}", lOperId);
 
                 oraCmd.CommandText = strSQL;
 

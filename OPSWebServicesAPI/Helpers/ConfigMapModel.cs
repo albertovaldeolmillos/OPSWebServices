@@ -291,6 +291,7 @@ namespace OPSWebServicesAPI.Helpers
                     .ForMember(d => d.payAmount, o => o.MapFrom(s => s["q"]))
                     .ForMember(d => d.dateInitial, o => o.MapFrom(s => s["d1"]))
                     .ForMember(d => d.dateEnd, o => o.MapFrom(s => s["d2"]))
+                    .ForMember(d => d.moneyReturned, o => o.MapFrom(s => s["moneyReturned"]))
                     ;
                 cfg.AllowNullCollections = true;
                 cfg.AllowNullDestinationValues = true;

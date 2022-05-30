@@ -44,5 +44,10 @@ namespace OPSWebServicesAPI.Models
         /// </summary>
         [DisplayName("d2")]
         public string dateEnd { get; set; }
+        /// <summary>
+        /// if payAmount is > 0 or no, return 1- yes 0- no
+        /// </summary>
+        [DisplayName("moneyReturned")]
+        public int moneyReturned { get; set; }
     }
 }

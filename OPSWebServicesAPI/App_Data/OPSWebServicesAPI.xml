@@ -1642,7 +1642,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.status">
             <summary>
-            status: 1 (UNPARKED), 2 (PARKED)
+            status: 1 (UNPARKED), 2 (PARKED), 3 (UNPARKINTENTED)
             </summary>
         </member>
         <member name="P:OPSWebServicesAPI.Models.ParkingStatusRotationInfo.extension">
@@ -2283,6 +2283,11 @@
         <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.dateEnd">
             <summary>
             End date (in format hh24missddMMYY) for the parking operation chain (first parking, extensions and unparking operation) after unparking
+            </summary>
+        </member>
+        <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.moneyReturned">
+            <summary>
+            if payAmount is > 0 or no, return 1- yes 0- no
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserChangePassword">
