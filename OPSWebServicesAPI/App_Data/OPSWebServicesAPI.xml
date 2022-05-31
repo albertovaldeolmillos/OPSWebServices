@@ -2287,7 +2287,7 @@
         </member>
         <member name="P:OPSWebServicesAPI.Models.UnParkingQueryInfo.moneyReturned">
             <summary>
-            if payAmount is > 0 or no, return 1- yes 0- no
+            if payAmount is > 0 or no, return true- yes false- no
             </summary>
         </member>
         <member name="T:OPSWebServicesAPI.Models.UserChangePassword">

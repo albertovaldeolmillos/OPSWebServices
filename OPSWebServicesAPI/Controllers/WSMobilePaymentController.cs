@@ -3179,7 +3179,7 @@ namespace OPSWebServicesAPI.Controllers
                                 }
                                 else
                                 {
-                                    parametersOut["moneyReturned"] = "1";
+                                    parametersOut["moneyReturned"] = true;
                                     Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI: OK: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
                                 }
                             }
@@ -3217,7 +3217,7 @@ namespace OPSWebServicesAPI.Controllers
                             //}
                             else
                             {
-                                parametersOut["moneyReturned"] = "0";
+                                parametersOut["moneyReturned"] = false;
                                 parametersOut["q"] = "0";
                                 if (lOperId > 0)
                                 {
