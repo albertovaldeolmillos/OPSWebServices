@@ -922,6 +922,12 @@
             -20: User not found.
              </returns>
         </member>
+        <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.CancelUserAccountAPI">
+            <summary>
+            Cancel User Account
+            </summary>
+            <returns>Returns user id or error</returns>
+        </member>
         <member name="M:OPSWebServicesAPI.Controllers.WSUserManagementController.DtxToString(System.DateTime)">
             <summary>
             Pass a DateTime to a string in format (hhmmssddmmyy)

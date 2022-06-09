@@ -3383,6 +3383,186 @@ namespace OPSWebServicesAPI.Controllers
             //return iRes;
         }
 
+        /// <summary>
+        /// Cancel User Account
+        /// </summary>
+        /// <returns>Returns user id or error</returns>
+        [HttpGet]
+        [Route("CancelUserAccountAPI")]
+        //public ResultUserInfo QueryUserAPI([FromBody] UserQuery userQuery)
+        public ResultUpdateUserInfo CancelUserAccountAPI()
+        {
+            int nMobileUserId = -1;
+            ResultUpdateUserInfo response = new ResultUpdateUserInfo();
+            SortedList parametersOut = new SortedList();
+
+            SortedList parametersIn = new SortedList();
+
+            string token;
+            if (!TokenRequest.TryTokenRequest(Request, out token))
+            {
+                int iRes = Convert.ToInt32(ResultType.Result_Error_No_Bearer_Token);
+                Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error: No Bearer Token, iOut={0}", iRes), LoggerSeverities.Error);
+                response.isSuccess = false;
+                int error = (int)ResultType.Result_Error_No_Bearer_Token;
+                response.error = new Error(error, GetSeverityError(error));
+                response.value = null;
+                return response;
+            }
+            else
+            {
+                TokenValidationResult tokenResult = DefaultVerification(token);
+                if (tokenResult != TokenValidationResult.Passed)
+                {
+                    int iRes = -230 - (int)tokenResult;
+                    Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    int error = iRes;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null;
+                    return response;
+                }
+            }
+            parametersIn.Add("mui", token);
+
+            try
+            {
+                SortedList plateDataList = null;
+                string strHash = "";
+                string strHashString = "";
+
+                Logger_AddLogMessage(string.Format("CancelUserAccountAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
+
+                ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
+
+                if (rt == ResultType.Result_OK)
+                {
+                    if ((parametersIn["mui"] == null) || (parametersIn["mui"].ToString().Length == 0))
+                    {
+                        //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Missing_Input_Parameter);
+                        Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error - Missing parameter: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                        response.isSuccess = false;
+                        int error = (int)ResultType.Result_Error_Missing_Input_Parameter_AuthorizationToken;
+                        response.error = new Error(error, GetSeverityError(error));
+                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Missing_Input_Parameter).ToString();
+                        return response;
+                    }
+                    else
+                    {
+                        bool bHashOk = false;
+
+                        if (_useHash.Equals("true"))
+                        {
+                            string strCalculatedHash = CalculateHash(strHashString);
+                            string strCalculatedHashJavaBouncyCastle = CalculateHashJavaBouncyCastle(strHashString);
+
+                            if ((strCalculatedHash == strHash) && (strCalculatedHashJavaBouncyCastle == strHash))
+                                bHashOk = true;
+                        }
+                        else
+                            bHashOk = true;
+
+                        if (!bHashOk)
+                        {
+                            //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_InvalidAuthenticationHash);
+                            Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error - Bad hash: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_InvalidAuthenticationHash"), LoggerSeverities.Error);
+                            response.isSuccess = false;
+                            int error = (int)ResultType.Result_Error_InvalidAuthenticationHash;
+                            response.error = new Error(error, GetSeverityError(error));
+                            response.value = null; //Convert.ToInt32(ResultType.Result_Error_InvalidAuthenticationHash).ToString();
+                            return response;
+                        }
+                        else
+                        {
+                            // Determine contract ID if any
+                            int nContractId = 0;
+                            nContractId = 0;
+
+                            // Use token for verification
+                            string strToken = parametersIn["mui"].ToString();
+
+                            // Try to obtain user from token
+                            nMobileUserId = GetUserFromToken(strToken, nContractId);
+
+                            if (nMobileUserId <= 0)
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error - Could not obtain user from token: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                int error = (int)ResultType.Result_Error_Invalid_Login;
+                                response.error = new Error(error, GetSeverityError(error));
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+                            else
+                                Logger_AddLogMessage(string.Format("CancelUserAccountAPI: MobileUserId = {0}", nMobileUserId), LoggerSeverities.Info);
+
+                            // Determine if token is valid
+                            TokenValidationResult tokenResult = DefaultVerification(strToken);
+
+                            if (tokenResult != TokenValidationResult.Passed)
+                            {
+                                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Invalid_Login);
+                                Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error - Token not valid: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                //return xmlOut;
+                                response.isSuccess = false;
+                                int error = -230 - (int)tokenResult;
+                                response.error = new Error(error, GetSeverityError(error));
+                                //new Error((int)ResultType.Result_Error_Invalid_Login, (int)SeverityError.Critical);
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Invalid_Login).ToString();
+                                return response;
+                            }
+
+                            // Change parameter from token to user
+                            parametersIn["mui"] = nMobileUserId.ToString();
+
+                            // Get user data
+                            if (!UpdateUserCancelAccount(Convert.ToInt32(parametersIn["mui"])))
+                            {
+                                Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error - Could not cancel user account: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                                response.isSuccess = false;
+                                int error = (int)ResultType.Result_Error_Generic;
+                                response.error = new Error(error, GetSeverityError(error));
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                                return response;
+                            }
+
+                            parametersOut["r"] = Convert.ToInt32(ResultType.Result_OK).ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    //xmlOut = GenerateXMLErrorResult(rt);
+                    Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                    response.isSuccess = false;
+                    int error = (int)rt;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                //xmlOut = GenerateXMLErrorResult(ResultType.Result_Error_Generic);
+                Logger_AddLogMessage(string.Format("CancelUserAccountAPI::Error: parametersIn= {0}, error = {1}", SortedListToString(parametersIn), "Result_Error_Generic"), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                response.isSuccess = false;
+                int error = (int)ResultType.Result_Error_Generic;
+                response.error = new Error(error, GetSeverityError(error));
+                response.value = null; //Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
+                return response;
+            }
+
+            //return xmlOut;
+            Logger_AddLogMessage(string.Format("CancelUserAccountAPI::OK nMobileUserId: " + nMobileUserId), LoggerSeverities.Info);
+            response.isSuccess = true;
+            response.error = null;
+            response.value = nMobileUserId.ToString();
+            return response;
+        }
+
         /*
              * 
              * The parameters of method LoginUserXML are:
@@ -6601,6 +6781,65 @@ namespace OPSWebServicesAPI.Controllers
                 }
             }
 
+            return bResult;
+        }
+
+        private bool UpdateUserCancelAccount(int iUserId)
+        {
+            bool bResult = false;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = "";
+                strSQL = string.Format("update mobile_users set mu_deleted = 1, mu_activate_account = 0 where mu_id = {0}", iUserId);
+
+                oraCmd.CommandText = strSQL;
+
+                if (oraCmd.ExecuteNonQuery() > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("UpdateUserSpaceNotifications::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
             return bResult;
         }
 
