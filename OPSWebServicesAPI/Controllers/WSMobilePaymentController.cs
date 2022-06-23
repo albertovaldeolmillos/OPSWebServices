@@ -9361,7 +9361,8 @@ namespace OPSWebServicesAPI.Controllers
             }
             if (nContractId == 79 && idSector == 60005)
             {
-                if (mes >= 6 && mes <= 9)
+                //if (mes >= 6 && mes <= 9)
+                if (mes < 6 || mes > 9)
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September;
@@ -9372,7 +9373,8 @@ namespace OPSWebServicesAPI.Controllers
             }
             if (nContractId == 79 && (idSector == 60003 || idSector == 60004))
             {
-                if ((mes >= 6 && mes <= 9) || (mes == 5 && diaDeSemana == DayOfWeek.Saturday) || (mes == 5 && diaDeSemana == DayOfWeek.Sunday) || (mes == 5 && diaDelMes == 1))
+                //if ((mes >= 6 && mes <= 9) || (mes == 5 && diaDeSemana == DayOfWeek.Saturday) || (mes == 5 && diaDeSemana == DayOfWeek.Sunday) || (mes == 5 && diaDelMes == 1))
+                if (mes < 6 || mes > 9 || (mes == 5 && diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && diaDelMes > 1))
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends;
@@ -9384,7 +9386,8 @@ namespace OPSWebServicesAPI.Controllers
             //Hondarribia
             if (nContractId == 10 && idSector == 60001)
             {
-                if ((mes >= 6 && mes <= 8) || (mes == 9 && (diaDelMes >= 1 && diaDelMes <= 15)))
+                //if ((mes >= 6 && mes <= 8) || (mes == 9 && (diaDelMes >= 1 && diaDelMes <= 15)))
+                if ((mes < 6) || (mes > 9) || (mes == 9 && diaDelMes > 15))
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September;
@@ -9414,9 +9417,12 @@ namespace OPSWebServicesAPI.Controllers
             //Tolosa
             if (nContractId == 5 && idSector == 60018)
             {
-                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 18 || (hora == 18 && minuto > 30 ))) ||
-                    (diaDeSemana >= DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
-                    (diaDeSemana >= DayOfWeek.Sunday))
+                //if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 18 || (hora == 18 && minuto > 30 ))) ||
+                //    (diaDeSemana >= DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                //    (diaDeSemana >= DayOfWeek.Sunday))
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 18 || (hora == 18 && minuto > 30))) ||
+                    (diaDeSemana == DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                    (diaDeSemana == DayOfWeek.Sunday))
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours;
@@ -9444,7 +9450,8 @@ namespace OPSWebServicesAPI.Controllers
             }
             if (nContractId == 3 && (idSector == 22002 || idSector == 22003))
             {
-                if (mes >= 6 && mes <= 9)
+                //if (mes >= 6 && mes <= 9)
+                if (mes < 6 || mes > 9)
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September;
