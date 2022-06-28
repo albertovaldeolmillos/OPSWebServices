@@ -3221,7 +3221,7 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersOut["q"] = "0";
                                 if (lOperId > 0)
                                 {
-                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error M1: ---------UpdateFlagUnparkIntent------------: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
+                                    Logger_AddLogMessage(string.Format("QueryUnParkingOperationAPI::Error M1: ---------Update FlagUnparkIntent a 1------------: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
                                     UpdateFlagUnparkIntent(lOperId, nContractId);
                                 }
                                 else
@@ -4220,6 +4220,7 @@ namespace OPSWebServicesAPI.Controllers
                                     parametersOutRot["ex"] = "-4";
                                     nRotExtension = Convert.ToInt32(rt);
                                     rt = ResultType.Result_OK;
+                                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::----------USO de FlagUnparkIntent----------: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
                                 }
 
                                 // Send M1 for rotation
@@ -9350,14 +9351,15 @@ namespace OPSWebServicesAPI.Controllers
             //Deba
             if (nContractId == 79 && idSector == 60006)
             {
-                if (mes >= 5 && mes <= 9)
-                {
+                //if (mes >= 5 && mes <= 9)
+                //if (mes < 5 || mes > 9)
+                //{
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
                     response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     existsException = true;
-                }
+                //}
             }
             if (nContractId == 79 && idSector == 60005)
             {

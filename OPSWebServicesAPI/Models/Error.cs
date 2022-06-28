@@ -456,7 +456,7 @@ namespace OPSWebServicesAPI.Models
     [DataContractAttribute]
     public class Error
     {
-
+        public Error() { }
         /// <summary>
         /// constructor del error
         /// </summary>
