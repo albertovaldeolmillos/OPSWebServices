@@ -568,6 +568,7 @@
             -11: Missing input parameter
             -12: OPS System error
             -13: Operation already inserted
+            -14: Quantity to be paid differs from calculated value
             -20: Mobile user not found
             -23: Invalid Login
             -24: User has no rights. Operation begun by another user

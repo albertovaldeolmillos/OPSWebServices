@@ -2329,6 +2329,7 @@ namespace OPSWebServicesAPI.Controllers
             g.	-11: Missing input parameter
             h.	-12: OPS System error
             i.	-13: Operation already inserted
+            j.  -14: Quantity to be paid differs from calculated value
             j.  -20: Mobile user not found
             k.  -23: Invalid Login
             l.	-24: User has no rights. Operation begun by another user
@@ -2352,6 +2353,7 @@ namespace OPSWebServicesAPI.Controllers
         ///-11: Missing input parameter
         ///-12: OPS System error
         ///-13: Operation already inserted
+        ///-14: Quantity to be paid differs from calculated value
         ///-20: Mobile user not found
         ///-23: Invalid Login
         ///-24: User has no rights. Operation begun by another user
@@ -2696,6 +2698,12 @@ namespace OPSWebServicesAPI.Controllers
                             parametersM1InMapping["pt"] = "pt";
                             parametersM1InMapping["dll"] = "dll";
 
+                            // Have to use different values for free parking
+                            if (Convert.ToInt32(parametersIn["q"]) == 0)
+                            {
+                                parametersIn.Add("cdl", "1");
+                                parametersM1InMapping["cdl"] = "cdl";
+                            }
 
                             Hashtable parametersM1OutMapping = new Hashtable();
 
@@ -2706,12 +2714,35 @@ namespace OPSWebServicesAPI.Controllers
                             parametersM1OutMapping["Aad"] = "ad";
                             parametersM1OutMapping["At"] = "t";
                             parametersM1OutMapping["App"] = "pp";
+                            parametersM1OutMapping["Aq1"] = "q1";
+                            if (Convert.ToInt32(parametersIn["q"]) == 0)
+                            {
+                                parametersM1OutMapping["At1"] = "t1";
+                                parametersM1OutMapping["Ad1"] = "d1";
+                                parametersM1OutMapping["Ad2"] = "d2";
+                            }
 
                             ResultType rtM1 = SendM1(parametersIn, parametersM1InMapping, parametersM1OutMapping, iVirtualUnit, out parametersM1Out, nContractId);
 
                             iRes = Convert.ToInt32(rtM1);
                             if (rtM1 == ResultType.Result_OK)
                             {
+                                // Check for problems with postpago (maximum time can be modified if within postpago time)
+                                if (parametersM1Out["pp"] != null)
+                                {
+                                    int nPostpago = Convert.ToInt32(parametersM1Out["pp"].ToString());
+                                    if (nPostpago == 1 && Convert.ToInt32(parametersM1Out["q1"].ToString()) != Convert.ToInt32(parametersIn["q"].ToString()))
+                                    {
+                                        iRes = Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated);
+                                        Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: parametersIn= {0}, iOut={1}", SortedListToString(parametersIn), iRes), LoggerSeverities.Error);
+                                        //return iRes;
+                                        response.isSuccess = false;
+                                        int error = (int)ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated;
+                                        response.error = new Error(error, GetSeverityError(error));
+                                        response.value = null; //Convert.ToInt32(ResultType.Result_Error_Quantity_To_Pay_Different_As_Calculated).ToString();
+                                        return response;
+                                    }
+                                }
 
                                 Hashtable parametersM2InMapping = new Hashtable();
                                 parametersM2InMapping["m"] = "m";
@@ -2748,8 +2779,17 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersM2In["p"] = ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString();  //Tipo de pago: teléfono
                                 parametersM2In["d"] = parametersIn["d"];
                                 parametersM2In["d1"] = parametersM1Out["di"];
-                                parametersM2In["d2"] = parametersM1Out["d"];
-                                parametersM2In["t"] = parametersM1Out["t"];
+
+                                if (Convert.ToInt32(parametersIn["q"]) == 0)
+                                {
+                                    parametersM2In["d2"] = parametersM1Out["d1"];
+                                    parametersM2In["t"] = parametersM1Out["t1"];
+                                }
+                                else
+                                {
+                                    parametersM2In["d2"] = parametersM1Out["d"];
+                                    parametersM2In["t"] = parametersM1Out["t"];
+                                }
                                 parametersM2In["q"] = parametersIn["q"];
                                 parametersM2In["pp"] = (parametersM1Out["pp"] == null) ? "0" : parametersM1Out["pp"];
                                 parametersM2In["om"] = "1"; //operation is always online
@@ -3076,8 +3116,19 @@ namespace OPSWebServicesAPI.Controllers
                             int iGroupId = -1;
                             int iArticle = -1;
                             int iVirtualUnit = -1;
-                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
-                                + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            //string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
+                            //    + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            string strRotList = "";
+                            string strResList = "";
+                            string strVipList = "";
+                            GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotation"].ToString()), out strRotList, nContractId);
+                            GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Resident"].ToString()), out strResList, nContractId);
+                            GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Vip"].ToString()), out strVipList, nContractId);
+                            string strArticlesFilter = strRotList;
+                            if (strResList.Length > 0)
+                                strArticlesFilter += ", " + strResList;
+                            if (strVipList.Length > 0)
+                                strArticlesFilter += ", " + strVipList;
                             if (GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId, nContractId))
                             {
                                 if (lOperId > 0)
@@ -3562,8 +3613,19 @@ namespace OPSWebServicesAPI.Controllers
                             int iGroupId = -1;
                             int iArticle = -1;
                             int iVirtualUnit = -1;
-                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
-                                + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            //string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString()
+                            //    + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            string strRotList = "";
+                            string strResList = "";
+                            string strVipList = "";
+                            GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotation"].ToString()), out strRotList, nContractId);
+                            GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Resident"].ToString()), out strResList, nContractId);
+                            GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Vip"].ToString()), out strVipList, nContractId);
+                            string strArticlesFilter = strRotList;
+                            if (strResList.Length > 0)
+                                strArticlesFilter += ", " + strResList;
+                            if (strVipList.Length > 0)
+                                strArticlesFilter += ", " + strVipList;
                             if (GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lOperId, nContractId))
                             {
                                 if (lOperId > 0)
@@ -4126,8 +4188,15 @@ namespace OPSWebServicesAPI.Controllers
                                 parametersIn["d"] = DateTime.Now.ToString("HHmmssddMMyy");
 
                             // Find last operation group for rotation and VIP articles
-                            string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString();
-                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lRotOperId, nContractId))
+                            //string strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.VipList"].ToString();
+                            //string strRotList = "";
+                            //string strVipList = "";
+                            //GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotation"].ToString()), out strRotList, nContractId);
+                            //GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Vip"].ToString()), out strVipList, nContractId);
+                            //string strArticlesFilter = strRotList;
+                            //if (strVipList.Length > 0)
+                            //    strArticlesFilter += ", " + strVipList;
+                            if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(),  ref lRotOperId, nContractId))
                             {
                                 parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
                                 parametersOutRes["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -4333,6 +4402,7 @@ namespace OPSWebServicesAPI.Controllers
 
                             // Find last operation group for resident articles
                             //strArticlesFilter = ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                            //GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Resident"].ToString()), out strArticlesFilter, nContractId);
                             //if (!GetLastParkingOperation(parametersIn["p"].ToString(), parametersIn["d"].ToString(), strArticlesFilter, ref lResOperId, nContractId))
                             //{
                             //    parametersOutRot["r"] = Convert.ToInt32(ResultType.Result_Error_Generic).ToString();
@@ -9291,6 +9361,85 @@ namespace OPSWebServicesAPI.Controllers
             catch (Exception e)
             {
                 Logger_AddLogMessage("GetContractNames::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
+        private bool GetArticleList(int nType, out string strList, int nContractId = 0)
+        {
+            bool bResult = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            strList = "";
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT DART_ID FROM ARTICLES_DEF WHERE DART_TYPE = {0}", nType);
+                oraCmd.CommandText = strSQL;
+
+                int nCount = 0;
+                dataReader = oraCmd.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    if (nCount++ > 0)
+                        strList += ",";
+                    strList += dataReader.GetInt32(0).ToString();
+                }
+
+                if (strList.Length > 0)
+                    bResult = true;
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetArticleList::Exception", LoggerSeverities.Error);
                 Logger_AddLogException(e);
             }
             finally
@@ -17364,6 +17513,155 @@ namespace OPSWebServicesAPI.Controllers
             return bResult;
         }
 
+        private bool GetLastParkingOperation(string strPlate, string strDate,  ref long lOperId, int nContractId = 0)
+        {
+            bool bResult = true;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            OracleConnection oraConn = null;
+
+            lOperId = -1;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                oraConn = new OracleConnection(sConn);
+
+                oraCmd = new OracleCommand();
+                oraCmd.Connection = oraConn;
+                oraCmd.Connection.Open();
+
+                if (oraCmd == null)
+                    throw new Exception("Oracle command is null");
+
+                // Conexion BBDD?
+                if (oraCmd.Connection == null)
+                    throw new Exception("Oracle connection is null");
+
+                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                    throw new Exception("Oracle connection is not open");
+
+                string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
+                    strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
+                oraCmd.CommandText = strSQL;
+
+                dataReader = oraCmd.ExecuteReader();
+                if (dataReader.Read())
+                {
+                    if (!dataReader.IsDBNull(0))
+                        lOperId = dataReader.GetInt32(0);
+                }
+
+                // Obtain information about the operation to determine if vehicle still has valid parking
+                if (lOperId > 0)
+                {
+                    int nOperType = -1;
+                    int nStatus = -1;
+                    strSQL = string.Format("SELECT OPE_DOPE_ID, CASE WHEN (OPE_ENDDATE - to_date('{0}','hh24missddmmyy') > 0) THEN 2 ELSE 1 END FROM OPERATIONS WHERE OPE_ID = {1}", strDate, lOperId);
+                    oraCmd.CommandText = strSQL;
+
+                    if (dataReader != null)
+                    {
+                        dataReader.Close();
+                        dataReader.Dispose();
+                    }
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0) && !dataReader.IsDBNull(1))
+                        {
+                            nOperType = dataReader.GetInt32(0);
+                            nStatus = dataReader.GetInt32(1);
+
+                            // The vehicle is only considered to be parked if the last operation is a parking or an extension and the date is valid
+                            if ((nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Parking"]) || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Extension"]))
+                                && (nStatus == Convert.ToInt32(ConfigurationManager.AppSettings["OperationStatus.Parked"])))
+                            {
+                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be parked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                            }
+                            else
+                            {
+                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be unparked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                lOperId = -1;
+                            }
+                        }
+                        else
+                        {
+                            Logger_AddLogMessage(string.Format("GetLastParkingOperation::Error - could not obtain information about operation {0}", lOperId.ToString()), LoggerSeverities.Error);
+                            lOperId = -1;
+                        }
+                    }
+                }
+
+                //string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}) AND OPE_DART_ID IN ({3}) AND to_date('{4}','hh24missddmmyy') <= OPE_ENDDATE",
+                //    strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), strArticlesFilter, strDate);
+                //oraCmd.CommandText = strSQL;
+
+                //dataReader = oraCmd.ExecuteReader();
+                //if (dataReader.Read())
+                //{
+                //    if (!dataReader.IsDBNull(0))
+                //        lOperId = dataReader.GetInt32(0);
+                //}
+
+                //// Check for a later refund operation related to the previously found one
+                //if (lOperId > 0)
+                //{
+                //    strSQL = string.Format("SELECT MAX(OPE_MOVDATE), OPE_ID FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID = {1} AND OPE_DART_ID IN ({2}) AND OPE_BASE_OPE_ID = {3} AND OPE_ID <> {3} GROUP BY OPE_ID",
+                //    strPlate, ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString(), strArticlesFilter, lOperId);
+                //    oraCmd.CommandText = strSQL;
+
+                //    dataReader = oraCmd.ExecuteReader();
+                //    if (dataReader.Read())
+                //    {
+                //        if (!dataReader.IsDBNull(0))
+                //        {
+                //            // If a refund operation is found, then the vehicle is not parked any more, and thus, no parking operation should be returned
+                //            lOperId = dataReader.GetInt32(1);
+                //            if (lOperId >= 0)
+                //                lOperId = -1;
+                //        }
+                //    }
+                //}
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage("GetLastParkingOperation::Exception", LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResult = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                if (oraConn != null)
+                {
+                    oraConn.Close();
+                    oraConn.Dispose();
+                    oraConn = null;
+                }
+            }
+
+            return bResult;
+        }
+
         private bool GetSpaceStatus(long lSpaceId, ref int iStatus, int nContractId = 0)
         {
             bool bResult = true;
@@ -17776,6 +18074,13 @@ namespace OPSWebServicesAPI.Controllers
                 parametersOut = new SortedList();
                 string strGroupList = "";
                 string strArticlesList = "";
+                string strRotList = "";
+                string strResList = "";
+                string strVipList = "";
+
+                GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Rotation"].ToString()), out strRotList, nContractId);
+                GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Resident"].ToString()), out strResList, nContractId);
+                GetArticleList(Convert.ToInt32(ConfigurationManager.AppSettings["ArticleType.Vip"].ToString()), out strVipList, nContractId);
 
                 if (nRotGroup == -1 && nResGroup == -1)     // No parking
                 {
@@ -17785,16 +18090,20 @@ namespace OPSWebServicesAPI.Controllers
                     if (bIsVip)
                     {
                         // Even though considered VIP, still offer the possibility to park as rotation
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.Vip"].ToString();
+                        strArticlesList = strRotList;
+                        if (strVipList.Length > 0)
+                            strArticlesList += ", " + strVipList;
                     }
                     else if (bIsResident)
                     {
                         // Even though considered resident, still offer the possibility to park as rotation
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                        strArticlesList = strRotList;
+                        if (strResList.Length > 0)
+                            strArticlesList += ", " + strResList;
                     }
                     else
                     {
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                        strArticlesList = strRotList;
                     }
                 }
                 else if (nRotGroup != -1 && nResGroup == -1)    // Only Rotation parking
@@ -17803,11 +18112,13 @@ namespace OPSWebServicesAPI.Controllers
                     if (bIsVip)
                     {
                         // Even though considered VIP, still offer the possibility to park as rotation
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.Vip"].ToString();
+                        strArticlesList = strRotList;
+                        if (strVipList.Length > 0)
+                            strArticlesList += ", " + strVipList;
                     }
                     else
                     {
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                        strArticlesList = strRotList;
                     }
                 }
                 else if (nRotGroup == -1 && nResGroup != -1)    // Only Resident parking
@@ -17816,11 +18127,13 @@ namespace OPSWebServicesAPI.Controllers
                     if (bIsResident)
                     {
                         // Even though considered resident, still offer the possibility to park as rotation
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                        strArticlesList = strRotList;
+                        if (strResList.Length > 0)
+                            strArticlesList += ", " + strResList;
                     }
                     else
                     {
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                        strArticlesList = strRotList;
                     }
                 }
                 else     // Both Rotation and Resident parking
@@ -17829,16 +18142,20 @@ namespace OPSWebServicesAPI.Controllers
                     if (bIsVip)
                     {
                         // Even though considered VIP, still offer the possibility to park as rotation
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.Vip"].ToString();
+                        strArticlesList = strRotList;
+                        if (strVipList.Length > 0)
+                            strArticlesList += ", " + strVipList;
                     }
                     else if (bIsResident)
                     {
                         // Even though considered resident, still offer the possibility to park as rotation
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString() + ", " + ConfigurationManager.AppSettings["ArticleType.ResList"].ToString();
+                        strArticlesList = strRotList;
+                        if (strResList.Length > 0)
+                            strArticlesList += ", " + strResList;
                     }
                     else
                     {
-                        strArticlesList = ConfigurationManager.AppSettings["ArticleType.RotList"].ToString();
+                        strArticlesList = strRotList;
                     }
                 }
 

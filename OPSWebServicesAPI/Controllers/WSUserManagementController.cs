@@ -2239,6 +2239,7 @@ namespace OPSWebServicesAPI.Controllers
             f.	-12: OPS System error
             g.	-21: User name already registered
             h.	-22: e-mail already registered
+            i.  -34: e-mail send failed
 
         * 
         * 
@@ -2452,7 +2453,17 @@ namespace OPSWebServicesAPI.Controllers
                                 if (parametersIn["na"] == null) parametersIn["na"] = parametersIn["em"];
                                 if (parametersIn["fs"] == null) parametersIn["fs"] = "";
 
-                                SendConfEmail(strToken, parametersIn["na"].ToString(), parametersIn["fs"].ToString(), parametersIn["em"].ToString());
+                                //SendConfEmail(strToken, parametersIn["na"].ToString(), parametersIn["fs"].ToString(), parametersIn["em"].ToString());
+                                if (!SendConfEmail(strToken, parametersIn["na"].ToString(), parametersIn["fs"].ToString(), parametersIn["em"].ToString()))
+                                {
+                                    Logger_AddLogMessage(string.Format("RegisterUserXML::Error - Failed to send user email: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                    //return (int)ResultType.Result_Error_Mobile_User_Email_Failed;
+                                    response.isSuccess = false;
+                                    int error = (int)ResultType.Result_Error_Mobile_User_Email_Failed;
+                                    response.error = new Error(error, GetSeverityError(error));
+                                    response.value = null; //Convert.ToInt32(ResultType.Result_Error_Mobile_User_Email_Already_Registered).ToString();
+                                    return response;
+                                }
                             }
                             else
                                 Logger_AddLogMessage(string.Format("RegisterUserAPI::Error - Failed to add user: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
@@ -6902,6 +6913,7 @@ namespace OPSWebServicesAPI.Controllers
                 SMTPServer.Port = Convert.ToInt32(ConfigurationManager.AppSettings["SMTPPort"]);
                 SMTPServer.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["EmailUser"].ToString(), ConfigurationManager.AppSettings["EmailPassword"].ToString());
                 SMTPServer.EnableSsl = true;
+                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
                 // Eliminate invalid remote certificate error 
                 ServicePointManager.ServerCertificateValidationCallback = delegate (object s, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors) { return true; };
@@ -7459,14 +7471,14 @@ namespace OPSWebServicesAPI.Controllers
                         // Search for fine payments
                         if (bUseHistoricData)
                         {
-                            strSQLSelect = string.Format("SELECT HOPE_ID, HOPE_DOPE_ID, HOPE_GRP_ID, HOPE_DPAY_ID, NVL(HOPE_POST_PAY,0), HOPE_VALUE_VIS, TO_CHAR( HOPE_MOVDATE, 'dd/MM/YY hh24:mi'), HOPE_FIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_STATUSADMON, GRP_DESCSHORT, HOPE_MOVDATE, HFIN_VEHICLEID, TO_CHAR( HOPE_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS, FINES_HIS, GROUPS ");
-                            strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} AND HOPE_DOPE_ID = {1} AND HOPE_FIN_ID = HFIN_ID ",
+                            strSQLSelect = string.Format("SELECT HOPEF_ID, HOPEF_DOPE_ID, HOPEF_GRP_ID, HOPEF_DPAY_ID, NVL(HOPEF_POST_PAY,0), HOPEF_VALUE_VIS, TO_CHAR( HOPEF_MOVDATE, 'dd/MM/YY hh24:mi'), HOPEF_FIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_STATUSADMON, GRP_DESCSHORT, HOPEF_MOVDATE, HFIN_VEHICLEID, TO_CHAR( HOPEF_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS_FULL, FINES_HIS, GROUPS ");
+                            strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} AND HOPEF_DOPE_ID = {1} AND HOPEF_FIN_ID = HFIN_ID ",
                                 parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
                             if (nDateFormat == DATE_FORMAT_DAYS)
-                                strSQLWhere += string.Format("AND HOPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                                strSQLWhere += string.Format("AND HOPEF_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                             else
-                                strSQLWhere += string.Format("AND HOPE_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY') ", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
-                            strSQLWhere += " AND HOPE_GRP_ID = GRP_ID ORDER BY HOPE_MOVDATE DESC";
+                                strSQLWhere += string.Format("AND HOPEF_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY') ", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                            strSQLWhere += " AND HOPEF_GRP_ID = GRP_ID ORDER BY HOPEF_MOVDATE DESC";
                         }
                         else
                         {
@@ -7527,17 +7539,17 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         if (bUseHistoricData)
                         {
-                            strSQLSelect = string.Format("SELECT HOPE_ID, HOPE_DOPE_ID, HOPE_VEHICLEID, HOPE_GRP_ID, TO_CHAR( HOPE_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( HOPE_ENDDATE, 'dd/MM/YY hh24:mi'), HOPE_DPAY_ID, NVL(HOPE_POST_PAY,0), HOPE_VALUE_VIS, TO_CHAR( HOPE_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, HOPE_MOVDATE, HOPE_RECHARGE_TYPE, HOPE_REFERENCE, TO_CHAR( HOPE_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( HOPE_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS, GROUPS ");
-                            strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                            strSQLSelect = string.Format("SELECT HOPEF_ID, HOPEF_DOPE_ID, HOPEF_VEHICLEID, HOPEF_GRP_ID, TO_CHAR( HOPEF_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( HOPEF_ENDDATE, 'dd/MM/YY hh24:mi'), HOPEF_DPAY_ID, NVL(HOPEF_POST_PAY,0), HOPEF_VALUE_VIS, TO_CHAR( HOPEF_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, HOPEF_MOVDATE, HOPEF_RECHARGE_TYPE, HOPEF_REFERENCE, TO_CHAR( HOPEF_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( HOPEF_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS_FULL, GROUPS ");
+                            strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
                             if (nDateFormat == DATE_FORMAT_DAYS)
-                                strSQLWhere += string.Format("AND HOPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
+                                strSQLWhere += string.Format("AND HOPEF_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                             else
-                                strSQLWhere += string.Format("AND HOPE_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY')", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
+                                strSQLWhere += string.Format("AND HOPEF_MOVDATE BETWEEN TO_DATE( '{0}', 'hh24missddMMYY') AND TO_DATE( '{1}', 'hh24missddMMYY')", parametersIn["d1"].ToString(), parametersIn["d2"].ToString());
                             if (nNumFilters > 0)
-                                strSQLWhere += "AND HOPE_DOPE_ID IN (" + strFilterList + ") ";
+                                strSQLWhere += "AND HOPEF_DOPE_ID IN (" + strFilterList + ") ";
                             else
-                                strSQLWhere += "AND HOPE_DOPE_ID <> " + ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString();
-                            strSQLWhere += " AND HOPE_GRP_ID = GRP_ID ORDER BY HOPE_MOVDATE DESC";
+                                strSQLWhere += "AND HOPEF_DOPE_ID <> " + ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString();
+                            strSQLWhere += " AND HOPEF_GRP_ID = GRP_ID ORDER BY HOPEF_MOVDATE DESC";
                         }
                         else
                         {
@@ -7611,6 +7623,12 @@ namespace OPSWebServicesAPI.Controllers
                             }
                         }
                     }
+                    oraCmd.Connection.Close();
+                    oraCmd.Dispose();
+                    oraCmd = null;
+
+                    oraConn.Dispose();
+                    oraConn = null;
                 }
             }
             catch (Exception e)
@@ -8412,6 +8430,7 @@ namespace OPSWebServicesAPI.Controllers
                 SMTPServer.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["EmailUser"].ToString(), ConfigurationManager.AppSettings["EmailPassword"].ToString());
                 SMTPServer.EnableSsl = true;
                 SMTPServer.DeliveryMethod = SmtpDeliveryMethod.Network;
+                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
                 // Eliminate invalid remote certificate error 
                 ServicePointManager.ServerCertificateValidationCallback = delegate (object s, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors) { return true; };
@@ -8446,6 +8465,7 @@ namespace OPSWebServicesAPI.Controllers
                 SMTPServer.Port = Convert.ToInt32(ConfigurationManager.AppSettings["SMTPPort"]);
                 SMTPServer.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["EmailUser"].ToString(), ConfigurationManager.AppSettings["EmailPassword"].ToString());
                 SMTPServer.EnableSsl = true;
+                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
                 // Eliminate invalid remote certificate error 
                 ServicePointManager.ServerCertificateValidationCallback = delegate (object s, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors) { return true; };
