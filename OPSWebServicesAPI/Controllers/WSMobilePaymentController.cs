@@ -2386,7 +2386,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("ConfirmParkingOperationAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     int error = iRes;
                     response.error = new Error(error, GetSeverityError(error));
@@ -3408,7 +3408,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("ConfirmUnParkingOperationAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     int error = iRes;
                     response.error = new Error(error, GetSeverityError(error));
@@ -4023,7 +4023,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     int iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("QueryParkingStatusAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     int error = iRes;
                     response.error = new Error(error, GetSeverityError(error));
@@ -4805,7 +4805,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (tokenResult != TokenValidationResult.Passed)
                 {
                     iRes = -230 - (int)tokenResult;
-                    Logger_AddLogMessage(string.Format("QueryUserOperationsAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
+                    Logger_AddLogMessage(string.Format("ConfirmFinePaymentAPI::Error: Token invalid, iOut={0}", iRes), LoggerSeverities.Error);
                     response.isSuccess = false;
                     int error = iRes;
                     response.error = new Error(error, GetSeverityError(error));
@@ -5221,6 +5221,7 @@ namespace OPSWebServicesAPI.Controllers
                 string strHash = "";
                 string strHashString = "";
 
+                //Logger_AddLogMessage("Hello", LoggerSeverities.Error);
                 Logger_AddLogMessage(string.Format("QuerySectorsAPI: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Info);
 
                 ResultType rt = FindInputParametersAPI(parametersIn, out strHash, out strHashString);
@@ -9241,7 +9242,7 @@ namespace OPSWebServicesAPI.Controllers
             int nLocationId = 0;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -9253,31 +9254,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT NVL(MIN(MLC_ID), 0) FROM MOBILE_LOCATION_CACHE WHERE MLC_ADDR_STREET = '{0}' and MLC_ADDR_NUMBER = '{1}' AND SYSDATE - MLC_DATE < {2}",
-                    strStreet, strNumber, nDateRange);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nLocationId = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT NVL(MIN(MLC_ID), 0) FROM MOBILE_LOCATION_CACHE WHERE MLC_ADDR_STREET = '{0}' and MLC_ADDR_NUMBER = '{1}' AND SYSDATE - MLC_DATE < {2}",
+                        strStreet, strNumber, nDateRange);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nLocationId = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -9300,12 +9303,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nLocationId;
@@ -9316,7 +9319,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             strName1 = "";
             strName2 = "";
@@ -9330,32 +9333,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MCON_DESC1, MCON_DESC2 FROM MOBILE_CONTRACTS WHERE MCON_ID = {0}", nContractId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    strName1 = dataReader.GetString(0);
-                    strName2 = dataReader.GetString(1);
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MCON_DESC1, MCON_DESC2 FROM MOBILE_CONTRACTS WHERE MCON_ID = {0}", nContractId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        strName1 = dataReader.GetString(0);
+                        strName2 = dataReader.GetString(1);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -9378,12 +9383,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -9394,7 +9399,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             strList = "";
 
@@ -9406,32 +9411,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT DART_ID FROM ARTICLES_DEF WHERE DART_TYPE = {0}", nType);
-                oraCmd.CommandText = strSQL;
-
-                int nCount = 0;
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (nCount++ > 0)
-                        strList += ",";
-                    strList += dataReader.GetInt32(0).ToString();
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT DART_ID FROM ARTICLES_DEF WHERE DART_TYPE = {0}", nType);
+                    oraCmd.CommandText = strSQL;
+
+                    int nCount = 0;
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        if (nCount++ > 0)
+                            strList += ",";
+                        strList += dataReader.GetInt32(0).ToString();
+                    }
                 }
 
                 if (strList.Length > 0)
@@ -9457,12 +9464,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -9557,7 +9564,15 @@ namespace OPSWebServicesAPI.Controllers
                 existsException = true;
             }
             //Arrasate
-            if (nContractId == 61 && (idSector == 60105 || idSector == 60205 || idSector == 60305 || idSector == 61105 || idSector == 61205 || idSector == 62105 || idSector == 63105 || idSector == 63215))
+            if (nContractId == 61 && mes == 8)
+            {
+                response.isSuccess = false;
+                int error = (int)ResultType.Result_Error_Parking_Not_Allowed;
+                response.error = new Error(error, GetSeverityError(error));
+                response.value = null;
+                existsException = true;
+            }
+            if (nContractId == 61 && (idSector == 60105 || idSector == 60205 || idSector == 60305 || idSector == 60405 || idSector == 61105 || idSector == 61205 || idSector == 61305 || idSector == 62105 || idSector == 63105 || idSector == 63215))
             {
                 response.isSuccess = false;
                 int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
@@ -9610,6 +9625,15 @@ namespace OPSWebServicesAPI.Controllers
                     response.value = null;
                     existsException = true;
                 }
+            }
+            //Durango
+            if (nContractId == 1 && (idSector == 60103 || idSector == 60303 || idSector == 60403))
+            {
+                response.isSuccess = false;
+                int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
+                response.error = new Error(error, GetSeverityError(error));
+                response.value = null;
+                existsException = true;
             }
 
             return existsException; 
@@ -9770,7 +9794,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             Loc curLocation = null;
 
             try
@@ -9781,38 +9805,40 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MLC_LATITUDE, MLC_LONGITUDE FROM MOBILE_LOCATION_CACHE WHERE MLC_ID = {0}",
-                    nLocationId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    string strLattitude = dataReader.GetDouble(0).ToString();
-                    string strLongitude = dataReader.GetDouble(1).ToString();
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                    if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MLC_LATITUDE, MLC_LONGITUDE FROM MOBILE_LOCATION_CACHE WHERE MLC_ID = {0}",
+                        nLocationId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
                     {
-                        strLattitude = strLattitude.ToString().Replace(".", ",");
-                        strLongitude = strLongitude.ToString().Replace(".", ",");
+                        string strLattitude = dataReader.GetDouble(0).ToString();
+                        string strLongitude = dataReader.GetDouble(1).ToString();
+
+                        if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                        {
+                            strLattitude = strLattitude.ToString().Replace(".", ",");
+                            strLongitude = strLongitude.ToString().Replace(".", ",");
+                        }
+                        curLocation = new Loc(Convert.ToDouble(strLattitude), Convert.ToDouble(strLongitude));
                     }
-                    curLocation = new Loc(Convert.ToDouble(strLattitude), Convert.ToDouble(strLongitude));
                 }
             }
             catch (Exception e)
@@ -9836,12 +9862,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return curLocation;
@@ -9961,7 +9987,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             string strLat = "";
             string strLong = "";
 
@@ -9978,44 +10004,46 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    strLat = location.Lt.ToString().Replace(",", ".");
-                    strLong = location.Lg.ToString().Replace(",", ".");
-                }
-                else
-                {
-                    strLat = location.Lt.ToString();
-                    strLong = location.Lg.ToString();
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                string strSQL = string.Format("SELECT MLC_ADDR_STREET, MLC_ADDR_NUMBER FROM MOBILE_LOCATION_CACHE WHERE MLC_LATITUDE = {0} AND MLC_LONGITUDE = {1} AND SYSDATE - MLC_DATE < {2}",
-                    strLat, strLong, nDateRange);
-                oraCmd.CommandText = strSQL;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
-                {
-                    strStreet = dataReader.GetString(0);
-                    strNumber = dataReader.GetString(1);
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                    bResult = true;
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                    {
+                        strLat = location.Lt.ToString().Replace(",", ".");
+                        strLong = location.Lg.ToString().Replace(",", ".");
+                    }
+                    else
+                    {
+                        strLat = location.Lt.ToString();
+                        strLong = location.Lg.ToString();
+                    }
+
+                    string strSQL = string.Format("SELECT MLC_ADDR_STREET, MLC_ADDR_NUMBER FROM MOBILE_LOCATION_CACHE WHERE MLC_LATITUDE = {0} AND MLC_LONGITUDE = {1} AND SYSDATE - MLC_DATE < {2}",
+                        strLat, strLong, nDateRange);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        strStreet = dataReader.GetString(0);
+                        strNumber = dataReader.GetString(1);
+
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -10038,12 +10066,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10053,7 +10081,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -10063,28 +10091,30 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL = string.Format("INSERT INTO MOBILE_LOCATION_CACHE (MLC_CONTRACT_ID, MLC_LATITUDE, MLC_LONGITUDE, MLC_ADDR_STREET, MLC_ADDR_NUMBER) VALUES ({0}, {1}, {2}, '{3}', '{4}')",
+                        nContractId, strLattitude, strLongitude, strStreet, strNumber);
+                    oraCmd.CommandText = strSQL;
 
-                string strSQL = string.Format("INSERT INTO MOBILE_LOCATION_CACHE (MLC_CONTRACT_ID, MLC_LATITUDE, MLC_LONGITUDE, MLC_ADDR_STREET, MLC_ADDR_NUMBER) VALUES ({0}, {1}, {2}, '{3}', '{4}')",
-                    nContractId, strLattitude, strLongitude, strStreet, strNumber);
-                oraCmd.CommandText = strSQL;
-
-                if (oraCmd.ExecuteNonQuery() > 0)
-                    bResult = true;
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -10099,12 +10129,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10115,7 +10145,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             stretchList = new List<int>();
 
@@ -10127,31 +10157,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                // Get a list of all the stretches that have defined areas
-                string strSQL = string.Format("SELECT DISTINCT( MSA_MSS_ID ) FROM MOBILE_STRETCH_AREAS ORDER BY MSA_MSS_ID");
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    int iStretch = dataReader.GetInt32(0);
-                    stretchList.Add(iStretch);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    // Get a list of all the stretches that have defined areas
+                    string strSQL = string.Format("SELECT DISTINCT( MSA_MSS_ID ) FROM MOBILE_STRETCH_AREAS ORDER BY MSA_MSS_ID");
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        int iStretch = dataReader.GetInt32(0);
+                        stretchList.Add(iStretch);
+                    }
                 }
             }
             catch (Exception e)
@@ -10175,12 +10207,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10191,7 +10223,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             areaList = new List<Loc>();
 
@@ -10203,37 +10235,39 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                // Get a list of all the coordinates for the stretch area
-                string strSQL = string.Format("SELECT MSA_COORDINATES FROM MOBILE_STRETCH_AREAS WHERE MSA_MSS_ID = {0}", iStretchId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    string strCoordinates = dataReader.GetString(0);
-                    string[] strPoints = strCoordinates.Split(new char[] { ',' });
-                    if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    // Get a list of all the coordinates for the stretch area
+                    string strSQL = string.Format("SELECT MSA_COORDINATES FROM MOBILE_STRETCH_AREAS WHERE MSA_MSS_ID = {0}", iStretchId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
                     {
-                        strPoints[0] = strPoints[0].ToString().Replace(".", ",");
-                        strPoints[1] = strPoints[1].ToString().Replace(".", ",");
+                        string strCoordinates = dataReader.GetString(0);
+                        string[] strPoints = strCoordinates.Split(new char[] { ',' });
+                        if (Convert.ToInt32(ConfigurationManager.AppSettings["GlobalizeCommaGPS"]) == 1)
+                        {
+                            strPoints[0] = strPoints[0].ToString().Replace(".", ",");
+                            strPoints[1] = strPoints[1].ToString().Replace(".", ",");
+                        }
+                        areaList.Add(new Loc(Convert.ToDouble(strPoints[0]), Convert.ToDouble(strPoints[1])));
                     }
-                    areaList.Add(new Loc(Convert.ToDouble(strPoints[0]), Convert.ToDouble(strPoints[1])));
                 }
             }
             catch (Exception e)
@@ -10257,12 +10291,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10274,7 +10308,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             nGroupId = -1;
             nStreetId = -1;
             nStreetNo = -1;
@@ -10287,32 +10321,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MSS_GRP_ID, MSS_MSTR_ID, MSS_STR_NUM_MIN FROM MOBILE_STREETS_STRETCHES WHERE MSS_ID = {0}",
-                    nStretchId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    nGroupId = dataReader.GetInt32(0);
-                    nStreetId = dataReader.GetInt32(1);
-                    nStreetNo = dataReader.GetInt32(2);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MSS_GRP_ID, MSS_MSTR_ID, MSS_STR_NUM_MIN FROM MOBILE_STREETS_STRETCHES WHERE MSS_ID = {0}",
+                        nStretchId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        nGroupId = dataReader.GetInt32(0);
+                        nStreetId = dataReader.GetInt32(1);
+                        nStreetNo = dataReader.GetInt32(2);
+                    }
                 }
             }
             catch (Exception e)
@@ -10336,12 +10372,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10433,7 +10469,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -10443,28 +10479,30 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL = string.Format("INSERT INTO MOBILE_GPS_CACHE (MGC_CONTRACT_ID, MGC_SEARCH, MGC_RESULT, MGC_PLACE_ID) VALUES ({0}, '{1}', '{2}', '{3}')",
+                        nContractId, strSearchMask, strPrediction, strPlaceId);
+                    oraCmd.CommandText = strSQL;
 
-                string strSQL = string.Format("INSERT INTO MOBILE_GPS_CACHE (MGC_CONTRACT_ID, MGC_SEARCH, MGC_RESULT, MGC_PLACE_ID) VALUES ({0}, '{1}', '{2}', '{3}')",
-                    nContractId, strSearchMask, strPrediction, strPlaceId);
-                oraCmd.CommandText = strSQL;
-
-                if (oraCmd.ExecuteNonQuery() > 0)
-                    bResult = true;
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -10479,12 +10517,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10495,7 +10533,7 @@ namespace OPSWebServicesAPI.Controllers
             int nNumLocations = 0;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -10507,31 +10545,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT COUNT(*) FROM MOBILE_GPS_CACHE WHERE MGC_CONTRACT_ID = {0} AND SUBSTR(UPPER(MGC_SEARCH), 0, {1}) = '{2}' AND SYSDATE - MGC_DATE < {3}",
-                    nContractId, strSearchMask.Length, strSearchMask.ToUpper(), nDateRange);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nNumLocations = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT COUNT(*) FROM MOBILE_GPS_CACHE WHERE MGC_CONTRACT_ID = {0} AND SUBSTR(UPPER(MGC_SEARCH), 0, {1}) = '{2}' AND SYSDATE - MGC_DATE < {3}",
+                        nContractId, strSearchMask.Length, strSearchMask.ToUpper(), nDateRange);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nNumLocations = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -10554,12 +10594,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nNumLocations;
@@ -10570,7 +10610,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             strLocations = "";
 
             try
@@ -10582,45 +10622,47 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MGC_PLACE_ID, MGC_RESULT FROM MOBILE_GPS_CACHE WHERE MGC_CONTRACT_ID = {0} AND SUBSTR(UPPER(MGC_SEARCH), 0, {1}) = '{2}' AND SYSDATE - MGC_DATE < {3} ORDER BY MGC_PLACE_ID",
-                    nContractId, strSearchMask.Length, strSearchMask.ToUpper(), nDateRange);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    int nCount = 0;
-                    string strCurPlaceId = "";
-                    strLocations = "{\"predictions\" : [";
-                    while (dataReader.Read())
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MGC_PLACE_ID, MGC_RESULT FROM MOBILE_GPS_CACHE WHERE MGC_CONTRACT_ID = {0} AND SUBSTR(UPPER(MGC_SEARCH), 0, {1}) = '{2}' AND SYSDATE - MGC_DATE < {3} ORDER BY MGC_PLACE_ID",
+                        nContractId, strSearchMask.Length, strSearchMask.ToUpper(), nDateRange);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
                     {
-                        string strPlaceId = dataReader.GetString(0);
-                        if (!strPlaceId.Equals(strCurPlaceId))
+                        int nCount = 0;
+                        string strCurPlaceId = "";
+                        strLocations = "{\"predictions\" : [";
+                        while (dataReader.Read())
                         {
-                            if (nCount > 0)
-                                strLocations += ",";
-                            strLocations += dataReader.GetString(1);
-                            strCurPlaceId = strPlaceId;
-                            nCount++;
+                            string strPlaceId = dataReader.GetString(0);
+                            if (!strPlaceId.Equals(strCurPlaceId))
+                            {
+                                if (nCount > 0)
+                                    strLocations += ",";
+                                strLocations += dataReader.GetString(1);
+                                strCurPlaceId = strPlaceId;
+                                nCount++;
+                            }
                         }
+                        strLocations += "],\"status\" : \"OK\"}";
                     }
-                    strLocations += "],\"status\" : \"OK\"}";
                 }
             }
             catch (Exception e)
@@ -10644,12 +10686,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10660,7 +10702,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             nStreetId = -1;
 
@@ -10672,31 +10714,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                //string strSQL = string.Format("SELECT MSTR_ID FROM MOBILE_STREETS WHERE UPPER(MSTR_DESC) = '{0}' AND MSTR_VALID = 1 AND MSTR_DELETED = 0", strStreetName.ToUpper());
-                string strSQL = string.Format("SELECT MSTR_ID FROM MOBILE_STREETS WHERE INSTR('{0}', UPPER(MSTR_DESC)) > 0 AND MSTR_VALID = 1 AND MSTR_DELETED = 0", strStreetName.ToUpper());
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    nStreetId = dataReader.GetInt32(0);
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    //string strSQL = string.Format("SELECT MSTR_ID FROM MOBILE_STREETS WHERE UPPER(MSTR_DESC) = '{0}' AND MSTR_VALID = 1 AND MSTR_DELETED = 0", strStreetName.ToUpper());
+                    string strSQL = string.Format("SELECT MSTR_ID FROM MOBILE_STREETS WHERE INSTR('{0}', UPPER(MSTR_DESC)) > 0 AND MSTR_VALID = 1 AND MSTR_DELETED = 0", strStreetName.ToUpper());
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        nStreetId = dataReader.GetInt32(0);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -10720,12 +10764,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10736,7 +10780,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             strStreetName = "";
 
@@ -10748,30 +10792,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MSTR_DESC FROM MOBILE_STREETS WHERE MSTR_ID = {0} AND MSTR_VALID = 1 AND MSTR_DELETED = 0", nStreetId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    strStreetName = dataReader.GetString(0);
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MSTR_DESC FROM MOBILE_STREETS WHERE MSTR_ID = {0} AND MSTR_VALID = 1 AND MSTR_DELETED = 0", nStreetId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        strStreetName = dataReader.GetString(0);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -10795,12 +10841,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10811,7 +10857,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             streetDataList = new SortedList();
             int nStreetIndex = 0;
@@ -10824,33 +10870,35 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                // Get a list of all the coordinates for the stretch area
-                string strSQL = string.Format("SELECT MSTR_DESC FROM MOBILE_STREETS WHERE MSTR_SHOW_GUI = 1 AND MSTR_DELETED = 0 ORDER BY MSTR_DESC");
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    SortedList streetData = new SortedList();
-                    streetData["st_name"] = dataReader.GetString(0);
-                    nStreetIndex++;
-                    streetDataList["street" + nStreetIndex.ToString()] = streetData;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    // Get a list of all the coordinates for the stretch area
+                    string strSQL = string.Format("SELECT MSTR_DESC FROM MOBILE_STREETS WHERE MSTR_SHOW_GUI = 1 AND MSTR_DELETED = 0 ORDER BY MSTR_DESC");
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        SortedList streetData = new SortedList();
+                        streetData["st_name"] = dataReader.GetString(0);
+                        nStreetIndex++;
+                        streetDataList["street" + nStreetIndex.ToString()] = streetData;
+                    }
                 }
             }
             catch (Exception e)
@@ -10874,12 +10922,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10890,7 +10938,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             int iStreetNum = 1;
             int iEven = 0;
 
@@ -10905,44 +10953,46 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                try
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    string[] strStreetNumArray = strStreetNum.Split(new char[] { '-' });
-                    string strOnlyNumber = new string(strStreetNumArray[0].Where(char.IsDigit).ToArray());
-                    iStreetNum = Convert.ToInt32(strOnlyNumber);
-                    iEven = 1 - iStreetNum % 2;
-                }
-                catch
-                {
-                    Logger_AddLogMessage("GetSectorFromStretch::Failed to convert street number, using 1", LoggerSeverities.Info);
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                string strSQL = string.Format("SELECT MSS_ID, MSS_GRP_ID FROM MOBILE_STREETS_STRETCHES WHERE MSS_MSTR_ID = {0} AND {1} >= MSS_STR_NUM_MIN AND {1} <= MSS_STR_NUM_MAX AND MSS_EVEN IN ({2}, 2) AND MSS_VALID = 1 AND MSS_DELETED = 0",
-                    iStreetId, iStreetNum, iEven);
-                oraCmd.CommandText = strSQL;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
-                {
-                    iStretchId = dataReader.GetInt32(0);
-                    iSectorId = dataReader.GetInt32(1);
-                    bResult = true;
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    try
+                    {
+                        string[] strStreetNumArray = strStreetNum.Split(new char[] { '-' });
+                        string strOnlyNumber = new string(strStreetNumArray[0].Where(char.IsDigit).ToArray());
+                        iStreetNum = Convert.ToInt32(strOnlyNumber);
+                        iEven = 1 - iStreetNum % 2;
+                    }
+                    catch
+                    {
+                        Logger_AddLogMessage("GetSectorFromStretch::Failed to convert street number, using 1", LoggerSeverities.Info);
+                    }
+
+                    string strSQL = string.Format("SELECT MSS_ID, MSS_GRP_ID FROM MOBILE_STREETS_STRETCHES WHERE MSS_MSTR_ID = {0} AND {1} >= MSS_STR_NUM_MIN AND {1} <= MSS_STR_NUM_MAX AND MSS_EVEN IN ({2}, 2) AND MSS_VALID = 1 AND MSS_DELETED = 0",
+                        iStreetId, iStreetNum, iEven);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        iStretchId = dataReader.GetInt32(0);
+                        iSectorId = dataReader.GetInt32(1);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -10966,12 +11016,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -10982,7 +11032,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             iGroupId = -1;
 
@@ -10994,30 +11044,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT FIN_GRP_ID_ZONE FROM FINES WHERE FIN_ID = {0}", lFineId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        iGroupId = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT FIN_GRP_ID_ZONE FROM FINES WHERE FIN_ID = {0}", lFineId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                            iGroupId = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -11041,12 +11093,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -11058,7 +11110,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -11068,31 +11120,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID,-1) FROM OPERATIONS WHERE OPE_ID = {0}", nOperId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nMobileUserId = dataReader.GetInt32(0);
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID,-1) FROM OPERATIONS WHERE OPE_ID = {0}", nOperId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nMobileUserId = dataReader.GetInt32(0);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -11115,12 +11169,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -11132,7 +11186,7 @@ namespace OPSWebServicesAPI.Controllers
             parametersOut = null;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             long lValue = -1;
             long lAvailTarId = -1;
 
@@ -11146,8 +11200,9 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                { 
                 oraCmd = new OracleCommand();
                 oraCmd.Connection = oraConn;
                 oraCmd.Connection.Open();
@@ -11198,40 +11253,12 @@ namespace OPSWebServicesAPI.Controllers
                     bResult = true;
                 }
 
-                if (bResult)
-                {
-                    bResult = false;
-
-                    strSQL = string.Format("SELECT MAT_ID FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_DART_ID = {0} AND MAT_GRP_ID = {1}",
-                        parametersOut["ad"], parametersOut["g"]);
-                    oraCmd.CommandText = strSQL;
-
-                    if (dataReader != null)
+                    if (bResult)
                     {
-                        dataReader.Close();
-                        dataReader.Dispose();
-                    }
+                        bResult = false;
 
-                    dataReader = oraCmd.ExecuteReader();
-                    if (dataReader.HasRows)
-                    {
-                        dataReader.Read();
-
-                        if (!dataReader.IsDBNull(0))
-                            lAvailTarId = dataReader.GetInt32(0);
-
-                        if (lAvailTarId > 0)
-                        {
-                            parametersOut["id"] = lAvailTarId.ToString();
-                            bResult = true;
-                        }
-                    }
-
-                    // If available tariff was not found by searching by article ID then search by tariff value
-                    if (lAvailTarId < 0)
-                    {
-                        strSQL = string.Format("SELECT MAT_ID FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_VALUE = {0} AND MAT_GRP_ID = {1}",
-                            parametersOut["aq"], parametersOut["g"]);
+                        strSQL = string.Format("SELECT MAT_ID FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_DART_ID = {0} AND MAT_GRP_ID = {1}",
+                            parametersOut["ad"], parametersOut["g"]);
                         oraCmd.CommandText = strSQL;
 
                         if (dataReader != null)
@@ -11252,6 +11279,35 @@ namespace OPSWebServicesAPI.Controllers
                             {
                                 parametersOut["id"] = lAvailTarId.ToString();
                                 bResult = true;
+                            }
+                        }
+
+                        // If available tariff was not found by searching by article ID then search by tariff value
+                        if (lAvailTarId < 0)
+                        {
+                            strSQL = string.Format("SELECT MAT_ID FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_VALUE = {0} AND MAT_GRP_ID = {1}",
+                                parametersOut["aq"], parametersOut["g"]);
+                            oraCmd.CommandText = strSQL;
+
+                            if (dataReader != null)
+                            {
+                                dataReader.Close();
+                                dataReader.Dispose();
+                            }
+
+                            dataReader = oraCmd.ExecuteReader();
+                            if (dataReader.HasRows)
+                            {
+                                dataReader.Read();
+
+                                if (!dataReader.IsDBNull(0))
+                                    lAvailTarId = dataReader.GetInt32(0);
+
+                                if (lAvailTarId > 0)
+                                {
+                                    parametersOut["id"] = lAvailTarId.ToString();
+                                    bResult = true;
+                                }
                             }
                         }
                     }
@@ -11280,12 +11336,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -11296,7 +11352,7 @@ namespace OPSWebServicesAPI.Controllers
             int nRefundable = 0;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -11306,30 +11362,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_GRP_ID = {0} AND MAT_DART_ID = {1}", nGroupId, nArticleId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nRefundable = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_GRP_ID = {0} AND MAT_DART_ID = {1}", nGroupId, nArticleId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nRefundable = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -11352,12 +11410,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nRefundable;
@@ -11369,7 +11427,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -11379,31 +11437,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT CGRP_ID FROM GROUPS_CHILDS WHERE CGRP_TYPE = 'G' AND CGRP_CHILD = {0}", nGroupId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nParentId = dataReader.GetInt32(0);
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT CGRP_ID FROM GROUPS_CHILDS WHERE CGRP_TYPE = 'G' AND CGRP_CHILD = {0}", nGroupId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nParentId = dataReader.GetInt32(0);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -11426,12 +11486,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -11444,7 +11504,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -11454,32 +11514,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT GRP_DESCSHORT, GRP_COLOUR FROM GROUPS WHERE GRP_ID = {0}", nGroupId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    strGroupName = dataReader.GetString(0);
-                    if (!dataReader.IsDBNull(1)) strGroupColor = dataReader.GetString(1);
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT GRP_DESCSHORT, GRP_COLOUR FROM GROUPS WHERE GRP_ID = {0}", nGroupId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        strGroupName = dataReader.GetString(0);
+                        if (!dataReader.IsDBNull(1)) strGroupColor = dataReader.GetString(1);
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -11502,12 +11564,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -11518,7 +11580,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             strValue = "";
 
@@ -11530,30 +11592,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT PAR_VALUE FROM PARAMETERS WHERE PAR_DESCSHORT = '{0}'", strParameter);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        strValue = dataReader.GetString(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT PAR_VALUE FROM PARAMETERS WHERE PAR_DESCSHORT = '{0}'", strParameter);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                            strValue = dataReader.GetString(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -11577,12 +11641,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -11650,7 +11714,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             contractDataList = new SortedList();
             int nContractIndex = 0;
@@ -11661,78 +11725,80 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                // Get a list of all the contracts
-                ArrayList bonusList = new ArrayList();
-                string strSQL = string.Format("SELECT MCON_ID, MCON_LATITUDE, MCON_LONGITUDE, MCON_DESC1, MCON_DESC2, MCON_IMAGE_PATH, MCON_EMAIL, MCON_TELEPHONE, MCON_ADDRESS, MCON_RADIUS, MCON_WS_OPER, MCON_WS_USER FROM MOBILE_CONTRACTS WHERE MCON_ACTIVE = 1 ORDER BY MCON_ID");
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    SortedList contractData = new SortedList();
-                    contractData["cont_id"] = dataReader.GetInt32(0).ToString();
-                    if (!dataReader.IsDBNull(1))
-                        contractData["lt"] = dataReader.GetDouble(1).ToString();//.Replace(",", ".");
-                    else
-                        contractData["lt"] = " ";
-                    if (!dataReader.IsDBNull(2))
-                        contractData["lg"] = dataReader.GetDouble(2).ToString();//.Replace(",", ".");
-                    else
-                        contractData["lg"] = " ";
-                    if (!dataReader.IsDBNull(3))
-                        contractData["desc1"] = dataReader.GetString(3);
-                    else
-                        contractData["desc1"] = " ";
-                    if (!dataReader.IsDBNull(4))
-                        contractData["desc2"] = dataReader.GetString(4);
-                    else
-                        contractData["desc2"] = " ";
-                    if (!dataReader.IsDBNull(5))
-                        contractData["image"] = dataReader.GetString(5);
-                    else
-                        contractData["image"] = " ";
-                    if (!dataReader.IsDBNull(6))
-                        contractData["email"] = dataReader.GetString(6);
-                    else
-                        contractData["email"] = " ";
-                    if (!dataReader.IsDBNull(7))
-                        contractData["phone"] = dataReader.GetString(7);
-                    else
-                        contractData["phone"] = " ";
-                    if (!dataReader.IsDBNull(8))
-                        contractData["addr"] = dataReader.GetString(8);
-                    else
-                        contractData["addr"] = " ";
-                    if (!dataReader.IsDBNull(9))
-                        contractData["rad"] = dataReader.GetInt32(9).ToString();
-                    else
-                        contractData["rad"] = " ";
-                    if (!dataReader.IsDBNull(10))
-                        contractData["wsoper"] = dataReader.GetString(10).ToString();
-                    else
-                        contractData["wsoper"] = " ";
-                    if (!dataReader.IsDBNull(11))
-                        contractData["wsuser"] = dataReader.GetString(11).ToString();
-                    else
-                        contractData["wsuser"] = " ";
-                    nContractIndex++;
-                    contractDataList["contract" + nContractIndex.ToString()] = contractData;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    // Get a list of all the contracts
+                    ArrayList bonusList = new ArrayList();
+                    string strSQL = string.Format("SELECT MCON_ID, MCON_LATITUDE, MCON_LONGITUDE, MCON_DESC1, MCON_DESC2, MCON_IMAGE_PATH, MCON_EMAIL, MCON_TELEPHONE, MCON_ADDRESS, MCON_RADIUS, MCON_WS_OPER, MCON_WS_USER FROM MOBILE_CONTRACTS WHERE MCON_ACTIVE = 1 ORDER BY MCON_ID");
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        SortedList contractData = new SortedList();
+                        contractData["cont_id"] = dataReader.GetInt32(0).ToString();
+                        if (!dataReader.IsDBNull(1))
+                            contractData["lt"] = dataReader.GetDouble(1).ToString();//.Replace(",", ".");
+                        else
+                            contractData["lt"] = " ";
+                        if (!dataReader.IsDBNull(2))
+                            contractData["lg"] = dataReader.GetDouble(2).ToString();//.Replace(",", ".");
+                        else
+                            contractData["lg"] = " ";
+                        if (!dataReader.IsDBNull(3))
+                            contractData["desc1"] = dataReader.GetString(3);
+                        else
+                            contractData["desc1"] = " ";
+                        if (!dataReader.IsDBNull(4))
+                            contractData["desc2"] = dataReader.GetString(4);
+                        else
+                            contractData["desc2"] = " ";
+                        if (!dataReader.IsDBNull(5))
+                            contractData["image"] = dataReader.GetString(5);
+                        else
+                            contractData["image"] = " ";
+                        if (!dataReader.IsDBNull(6))
+                            contractData["email"] = dataReader.GetString(6);
+                        else
+                            contractData["email"] = " ";
+                        if (!dataReader.IsDBNull(7))
+                            contractData["phone"] = dataReader.GetString(7);
+                        else
+                            contractData["phone"] = " ";
+                        if (!dataReader.IsDBNull(8))
+                            contractData["addr"] = dataReader.GetString(8);
+                        else
+                            contractData["addr"] = " ";
+                        if (!dataReader.IsDBNull(9))
+                            contractData["rad"] = dataReader.GetInt32(9).ToString();
+                        else
+                            contractData["rad"] = " ";
+                        if (!dataReader.IsDBNull(10))
+                            contractData["wsoper"] = dataReader.GetString(10).ToString();
+                        else
+                            contractData["wsoper"] = " ";
+                        if (!dataReader.IsDBNull(11))
+                            contractData["wsuser"] = dataReader.GetString(11).ToString();
+                        else
+                            contractData["wsuser"] = " ";
+                        nContractIndex++;
+                        contractDataList["contract" + nContractIndex.ToString()] = contractData;
+                    }
                 }
             }
             catch (Exception e)
@@ -11756,12 +11822,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -12021,7 +12087,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -12032,35 +12098,36 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-
-                string strSQL = string.Format("SELECT NVL(GVU_UNI_ID,-1) FROM GROUP_VIRTUAL_UNIT WHERE GVU_GRP_ID = {0}", nGroup);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nVirtualUnit = dataReader.GetInt32(0);
-                    bResult = true;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+
+                    string strSQL = string.Format("SELECT NVL(GVU_UNI_ID,-1) FROM GROUP_VIRTUAL_UNIT WHERE GVU_GRP_ID = {0}", nGroup);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nVirtualUnit = dataReader.GetInt32(0);
+                        bResult = true;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -12083,12 +12150,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
 
 
             }
@@ -13496,7 +13563,7 @@ namespace OPSWebServicesAPI.Controllers
 
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -13504,124 +13571,126 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT FIN_DFIN_ID, "
-                            + "       FIN_VEHICLEID, "
-                            + "       FIN_DATE, "
-                            + "       fdq.DFINQ_VALUE, "
-                            + "       fd1.DFIN_PAYINPDM, "
-                            + "		  FIN_STATUSADMON, "
-                            + "		  FIN_GRP_ID_ZONE, "
-                            + "		  DDAY_CODE, "
-                            + "		  DFINQ_INI_MINUTE, "
-                            + "		  DFINQ_END_MINUTE, "
-                            //+ "       CASE WHEN (trunc(f.fin_date + 1) in (SELECT day_date FROM DAYS)) THEN 1 ELSE 0 END as IsHollyday, "
-                            + "		  trunc((CURRENT_DATE - f.fin_date) * 24 * 60) ELAPSED_MINUTES  "
-                            + " FROM DAYS_DEF dd, FINES f "
-                            + " INNER JOIN FINES_DEF fd1 ON f.FIN_DFIN_ID = fd1.DFIN_ID, FINES_DEF fd2 "
-                            + " INNER JOIN FINES_DEF_QUANTITY fdq ON fd2.DFIN_ID = fdq.DFINQ_ID "
-                            + " WHERE FIN_ID = " + fine_id + " and fd1.dfin_pay_dday_id=dday_id "
-                            + "   AND fd1.DFIN_COD_ID = 1 "
-                            + "   and fd1.dfin_id = fd2.dfin_id "
-                            + "   and f.fin_date >= fdq.dfinq_inidate "
-                            + "   and f.fin_date < fdq.dfinq_endate");
-
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    bool bExit = false;
-                    while (dataReader.Read() && !bExit)
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT FIN_DFIN_ID, "
+                                + "       FIN_VEHICLEID, "
+                                + "       FIN_DATE, "
+                                + "       fdq.DFINQ_VALUE, "
+                                + "       fd1.DFIN_PAYINPDM, "
+                                + "		  FIN_STATUSADMON, "
+                                + "		  FIN_GRP_ID_ZONE, "
+                                + "		  DDAY_CODE, "
+                                + "		  DFINQ_INI_MINUTE, "
+                                + "		  DFINQ_END_MINUTE, "
+                                //+ "       CASE WHEN (trunc(f.fin_date + 1) in (SELECT day_date FROM DAYS)) THEN 1 ELSE 0 END as IsHollyday, "
+                                + "		  trunc((CURRENT_DATE - f.fin_date) * 24 * 60) ELAPSED_MINUTES  "
+                                + " FROM DAYS_DEF dd, FINES f "
+                                + " INNER JOIN FINES_DEF fd1 ON f.FIN_DFIN_ID = fd1.DFIN_ID, FINES_DEF fd2 "
+                                + " INNER JOIN FINES_DEF_QUANTITY fdq ON fd2.DFIN_ID = fdq.DFINQ_ID "
+                                + " WHERE FIN_ID = " + fine_id + " and fd1.dfin_pay_dday_id=dday_id "
+                                + "   AND fd1.DFIN_COD_ID = 1 "
+                                + "   and fd1.dfin_id = fd2.dfin_id "
+                                + "   and f.fin_date >= fdq.dfinq_inidate "
+                                + "   and f.fin_date < fdq.dfinq_endate");
+
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
                     {
-                        responseResult = 0;
-
-                        responseFineDefId = dataReader.GetInt32(0);// "FIN_DFIN_ID"
-                        responseVehicleId = dataReader.GetString(1);// "FIN_VEHICLEID"
-                        responseQuantity = dataReader.GetDouble(3);//"DFINQ_VALUE"
-                        responseDate = dataReader.GetDateTime(2);//"FIN_DATE"
-                        payInPdm = dataReader.GetInt32(4);//"DFIN_PAYINPDM"
-                        responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
-                        strDayCode = dataReader.GetString(7);//"DDAY_CODE"
-
-                        if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                        bool bExit = false;
+                        while (dataReader.Read() && !bExit)
                         {
-                            responsePayed = 1;
-                        }
+                            responseResult = 0;
 
+                            responseFineDefId = dataReader.GetInt32(0);// "FIN_DFIN_ID"
+                            responseVehicleId = dataReader.GetString(1);// "FIN_VEHICLEID"
+                            responseQuantity = dataReader.GetDouble(3);//"DFINQ_VALUE"
+                            responseDate = dataReader.GetDateTime(2);//"FIN_DATE"
+                            payInPdm = dataReader.GetInt32(4);//"DFIN_PAYINPDM"
+                            responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
+                            strDayCode = dataReader.GetString(7);//"DDAY_CODE"
 
-                        int iFinQIniMinute = dataReader.GetInt32(8);//"DFINQ_INI_MINUTE"
-                        int iFinQEndMinute = dataReader.GetInt32(9);//"DFINQ_END_MINUTE"
-                        int iElapsedMinutes = dataReader.GetInt32(10);//"ELAPSED_MINUTES"
-
-                        //responseIsHollyday = dataReader.GetBoolean(10);//IsHollyday
-
-
-                        //CFineManager oFineManager = new CFineManager();
-                        //bool bFinePaymentInTime = oFineManager.IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode);
-
-                        bool bFinePaymentInTime = IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode, nContractId);
-
-                        if (payInPdm == 0)
-                        {
-                            responseResult = -1;
-                            bExit = true;
-                        }
-                        else if (bFinePaymentInTime)
-                        {
-                            if ((iElapsedMinutes > iFinQIniMinute) && (iElapsedMinutes <= iFinQEndMinute))
+                            if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
                             {
-                                responseResult = 1;
+                                responsePayed = 1;
+                            }
+
+
+                            int iFinQIniMinute = dataReader.GetInt32(8);//"DFINQ_INI_MINUTE"
+                            int iFinQEndMinute = dataReader.GetInt32(9);//"DFINQ_END_MINUTE"
+                            int iElapsedMinutes = dataReader.GetInt32(10);//"ELAPSED_MINUTES"
+
+                            //responseIsHollyday = dataReader.GetBoolean(10);//IsHollyday
+
+
+                            //CFineManager oFineManager = new CFineManager();
+                            //bool bFinePaymentInTime = oFineManager.IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode);
+
+                            bool bFinePaymentInTime = IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode, nContractId);
+
+                            if (payInPdm == 0)
+                            {
+                                responseResult = -1;
                                 bExit = true;
+                            }
+                            else if (bFinePaymentInTime)
+                            {
+                                if ((iElapsedMinutes > iFinQIniMinute) && (iElapsedMinutes <= iFinQEndMinute))
+                                {
+                                    responseResult = 1;
+                                    bExit = true;
+                                }
+                                else
+                                {
+                                    responseResult = -2;
+                                }
                             }
                             else
                             {
                                 responseResult = -2;
+                                bExit = true;
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        //todavía no existe la multa
+                        // existe alguna operación de pago de la misma
+
+                        strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                        oraCmd.CommandText = strSQL;
+
+                        if (dataReader != null)
                         {
-                            responseResult = -2;
-                            bExit = true;
+                            dataReader.Close();
+                            dataReader.Dispose();
                         }
-                    }
-                }
-                else
-                {
-                    //todavía no existe la multa
-                    // existe alguna operación de pago de la misma
 
-                    strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
-                    oraCmd.CommandText = strSQL;
+                        dataReader = oraCmd.ExecuteReader();
 
-                    if (dataReader != null)
-                    {
-                        dataReader.Close();
-                        dataReader.Dispose();
-                    }
-
-                    dataReader = oraCmd.ExecuteReader();
-
-                    if (dataReader.HasRows)
-                    {
-                        dataReader.Read();
-                        if (dataReader.GetInt32(0) > 0)
-                            responsePayed = 1;
+                        if (dataReader.HasRows)
+                        {
+                            dataReader.Read();
+                            if (dataReader.GetInt32(0) > 0)
+                                responsePayed = 1;
+                        }
                     }
                 }
             }
@@ -13645,12 +13714,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
             parametersOut.Add("r", responseResult);//1
             parametersOut.Add("f", responseFineNumber);//20999998
@@ -14478,7 +14547,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bExists = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -14488,36 +14557,38 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format(" SELECT COUNT(*) FROM OPERATIONS " +
-                    "WHERE OPE_DOPE_ID = {0} AND OPE_OPE_ID = {1} AND OPE_ART_ID = {2} AND OPE_GRP_ID = {3} AND OPE_UNI_ID = {4} AND OPE_DPAY_ID = {5}" +
-                    " AND OPE_MOVDATE = to_date('{6}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_INIDATE = to_date('{7}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_ENDDATE = to_date('{8}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_DURATION = {9} AND OPE_VALUE = {10} AND OPE_VEHICLEID = '{11}'",
-                    dopeid, opeopeid, artid, grpid, uniid, dpayid, mov, 
-                    ini, end, duration, quantity, vehicleid);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    int numOp = dataReader.GetInt32(0);
-                    if (numOp > 0)
-                        bExists = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format(" SELECT COUNT(*) FROM OPERATIONS " +
+                        "WHERE OPE_DOPE_ID = {0} AND OPE_OPE_ID = {1} AND OPE_ART_ID = {2} AND OPE_GRP_ID = {3} AND OPE_UNI_ID = {4} AND OPE_DPAY_ID = {5}" +
+                        " AND OPE_MOVDATE = to_date('{6}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_INIDATE = to_date('{7}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_ENDDATE = to_date('{8}', 'DD/MM/YYYY HH24:MI:SS') AND OPE_DURATION = {9} AND OPE_VALUE = {10} AND OPE_VEHICLEID = '{11}'",
+                        dopeid, opeopeid, artid, grpid, uniid, dpayid, mov,
+                        ini, end, duration, quantity, vehicleid);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        int numOp = dataReader.GetInt32(0);
+                        if (numOp > 0)
+                            bExists = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -14540,12 +14611,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bExists;
@@ -14558,7 +14629,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bExists = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -14568,54 +14639,29 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT FIN_VEHICLEID, FIN_MODEL, FIN_MANUFACTURER, FIN_COLOUR, FIN_GRP_ID, FIN_STR_ID, FIN_STRNUMBER, FIN_COMMENTS, FIN_USR_ID "
-                    + "FROM FINES "
-                    + "INNER JOIN FINES_DEF ON FINES.FIN_DFIN_ID = FINES_DEF.DFIN_ID "
-                    + "WHERE FIN_ID = {0} "
-                    + "AND DFIN_COD_ID = {1}", fineNumber, fineDefCode);
-
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (dataReader.Read())
-                    {
-                        vehicleId = dataReader.IsDBNull(0) ? "" : dataReader.GetString(0);// "FIN_VEHICLEID"
-                        model = dataReader.IsDBNull(1) ? "" : dataReader.GetString(1);// "FIN_MODEL"
-                        manufacturer = dataReader.IsDBNull(2) ? "" : dataReader.GetString(2);// "FIN_MANUFACTURER"
-                        colour = dataReader.IsDBNull(3) ? "" : dataReader.GetString(3);// "FIN_COLOUR"
-                        groupId = dataReader.IsDBNull(4) ? -1 : dataReader.GetInt32(4);// "FIN_GRP_ID"
-                        streetId = dataReader.IsDBNull(5) ? -1 : dataReader.GetInt32(5);// "FIN_STR_ID"
-                        streetNumber = dataReader.IsDBNull(6) ? -1 : dataReader.GetInt32(6);// "FIN_STRNUMBER"
-                        comments = dataReader.IsDBNull(7) ? "" : dataReader.GetString(7);// "FIN_COMMENTS"
-                        userId = dataReader.IsDBNull(8) ? -1 : dataReader.GetInt32(8);// "FIN_USR_ID"
-                        bExists = true;
-                    }
-                }
-                else
-                {
-                    strSQL = string.Format("SELECT FIN_VEHICLEID, FIN_MODEL, FIN_MANUFACTURER, FIN_COLOUR, FIN_GRP_ID, FIN_STR_ID, FIN_STRNUMBER, FIN_COMMENTS, FIN_USR_ID "
-                        + "FROM FINES_HIS "
-                        + "INNER JOIN FINES_DEF ON FINES_HIS.HFIN_DFIN_ID = FINES_DEF.DFIN_ID "
-                        + "WHERE HFIN_ID = {0} "
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT FIN_VEHICLEID, FIN_MODEL, FIN_MANUFACTURER, FIN_COLOUR, FIN_GRP_ID, FIN_STR_ID, FIN_STRNUMBER, FIN_COMMENTS, FIN_USR_ID "
+                        + "FROM FINES "
+                        + "INNER JOIN FINES_DEF ON FINES.FIN_DFIN_ID = FINES_DEF.DFIN_ID "
+                        + "WHERE FIN_ID = {0} "
                         + "AND DFIN_COD_ID = {1}", fineNumber, fineDefCode);
+
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
@@ -14623,16 +14669,43 @@ namespace OPSWebServicesAPI.Controllers
                     {
                         if (dataReader.Read())
                         {
-                            vehicleId = dataReader.GetString(0);// "FIN_VEHICLEID"
-                            model = dataReader.GetString(1);// "FIN_MODEL"
-                            manufacturer = dataReader.GetString(2);// "FIN_MANUFACTURER"
-                            colour = dataReader.GetString(3);// "FIN_COLOUR"
-                            groupId = dataReader.GetInt32(4);// "FIN_GRP_ID"
-                            streetId = dataReader.GetInt32(5);// "FIN_STR_ID"
-                            streetNumber = dataReader.GetInt32(6);// "FIN_STRNUMBER"
-                            comments = dataReader.GetString(7);// "FIN_COMMENTS"
-                            userId = dataReader.GetInt32(8);// "FIN_USR_ID"
+                            vehicleId = dataReader.IsDBNull(0) ? "" : dataReader.GetString(0);// "FIN_VEHICLEID"
+                            model = dataReader.IsDBNull(1) ? "" : dataReader.GetString(1);// "FIN_MODEL"
+                            manufacturer = dataReader.IsDBNull(2) ? "" : dataReader.GetString(2);// "FIN_MANUFACTURER"
+                            colour = dataReader.IsDBNull(3) ? "" : dataReader.GetString(3);// "FIN_COLOUR"
+                            groupId = dataReader.IsDBNull(4) ? -1 : dataReader.GetInt32(4);// "FIN_GRP_ID"
+                            streetId = dataReader.IsDBNull(5) ? -1 : dataReader.GetInt32(5);// "FIN_STR_ID"
+                            streetNumber = dataReader.IsDBNull(6) ? -1 : dataReader.GetInt32(6);// "FIN_STRNUMBER"
+                            comments = dataReader.IsDBNull(7) ? "" : dataReader.GetString(7);// "FIN_COMMENTS"
+                            userId = dataReader.IsDBNull(8) ? -1 : dataReader.GetInt32(8);// "FIN_USR_ID"
                             bExists = true;
+                        }
+                    }
+                    else
+                    {
+                        strSQL = string.Format("SELECT FIN_VEHICLEID, FIN_MODEL, FIN_MANUFACTURER, FIN_COLOUR, FIN_GRP_ID, FIN_STR_ID, FIN_STRNUMBER, FIN_COMMENTS, FIN_USR_ID "
+                            + "FROM FINES_HIS "
+                            + "INNER JOIN FINES_DEF ON FINES_HIS.HFIN_DFIN_ID = FINES_DEF.DFIN_ID "
+                            + "WHERE HFIN_ID = {0} "
+                            + "AND DFIN_COD_ID = {1}", fineNumber, fineDefCode);
+                        oraCmd.CommandText = strSQL;
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.HasRows)
+                        {
+                            if (dataReader.Read())
+                            {
+                                vehicleId = dataReader.GetString(0);// "FIN_VEHICLEID"
+                                model = dataReader.GetString(1);// "FIN_MODEL"
+                                manufacturer = dataReader.GetString(2);// "FIN_MANUFACTURER"
+                                colour = dataReader.GetString(3);// "FIN_COLOUR"
+                                groupId = dataReader.GetInt32(4);// "FIN_GRP_ID"
+                                streetId = dataReader.GetInt32(5);// "FIN_STR_ID"
+                                streetNumber = dataReader.GetInt32(6);// "FIN_STRNUMBER"
+                                comments = dataReader.GetString(7);// "FIN_COMMENTS"
+                                userId = dataReader.GetInt32(8);// "FIN_USR_ID"
+                                bExists = true;
+                            }
                         }
                     }
                 }
@@ -14657,12 +14730,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bExists;
@@ -14673,7 +14746,7 @@ namespace OPSWebServicesAPI.Controllers
             int nResult = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -14681,35 +14754,37 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = String.Format("select count(*) " +
-                                "from  blacklist_cards b " +
-                                "where b.bc_number = '{0}' ", szCCNumber);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nResult = dataReader.GetInt32(0);
-                    if (nResult > 0)
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = String.Format("select count(*) " +
+                                    "from  blacklist_cards b " +
+                                    "where b.bc_number = '{0}' ", szCCNumber);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
                     {
-                        Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + szCCNumber + " is in blacklist", LoggerSeverities.Debug);
+                        dataReader.Read();
+                        nResult = dataReader.GetInt32(0);
+                        if (nResult > 0)
+                        {
+                            Logger_AddLogMessage("[Msg07:ListaNegra]: Credit Card " + szCCNumber + " is in blacklist", LoggerSeverities.Debug);
+                        }
                     }
                 }
             }
@@ -14733,12 +14808,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return (nResult > 0);
@@ -14749,7 +14824,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             iGroupId = -1;
 
@@ -14761,30 +14836,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT OPE_GRP_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        iGroupId = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT OPE_GRP_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                            iGroupId = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -14808,12 +14885,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -14824,7 +14901,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             iArticle = -1;
 
@@ -14836,30 +14913,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT OPE_DART_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        iArticle = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT OPE_DART_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                            iArticle = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -14883,12 +14962,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -14900,7 +14979,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -14911,35 +14990,36 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-
-                string strSQL = "SELECT NVL(GVU_UNI_ID,-1) FROM GROUP_VIRTUAL_UNIT ORDER BY GVU_UNI_ID";
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nVirtualUnit = dataReader.GetInt32(0);
-                    bResult = true;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+
+                    string strSQL = "SELECT NVL(GVU_UNI_ID,-1) FROM GROUP_VIRTUAL_UNIT ORDER BY GVU_UNI_ID";
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nVirtualUnit = dataReader.GetInt32(0);
+                        bResult = true;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -14962,12 +15042,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
 
 
             }
@@ -14980,7 +15060,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             lSpaceId = -1;
 
@@ -14992,32 +15072,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT OPE_PS_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        lSpaceId = dataReader.GetInt64(0);
-                    if (lSpaceId > 0)
-                        bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT OPE_PS_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                            lSpaceId = dataReader.GetInt64(0);
+                        if (lSpaceId > 0)
+                            bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -15041,12 +15123,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -15057,7 +15139,7 @@ namespace OPSWebServicesAPI.Controllers
             int firstChild = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -15067,30 +15149,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("select CGRP_ID FROM  GROUPS_CHILDS INNER JOIN GROUPS  ON CGRP_ID = GRP_ID  INNER JOIN GROUPS_DEF " +
-                    "ON GRP_DGRP_ID = DGRP_ID WHERE CGRP_CHILD = {0} AND DGRP_PHYORDER IS NOT NULL ORDER BY CGRP_ORDER ASC", uniid);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    firstChild = dataReader.Read() ? dataReader.GetInt32(0) : -1;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("select CGRP_ID FROM  GROUPS_CHILDS INNER JOIN GROUPS  ON CGRP_ID = GRP_ID  INNER JOIN GROUPS_DEF " +
+                        "ON GRP_DGRP_ID = DGRP_ID WHERE CGRP_CHILD = {0} AND DGRP_PHYORDER IS NOT NULL ORDER BY CGRP_ORDER ASC", uniid);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        firstChild = dataReader.Read() ? dataReader.GetInt32(0) : -1;
+                    }
                 }
             }
             catch (Exception e)
@@ -15113,12 +15197,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return firstChild;
@@ -16483,7 +16567,7 @@ namespace OPSWebServicesAPI.Controllers
 
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             OracleDataReader dr = null;
 
             try
@@ -16492,143 +16576,144 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                StringBuilder sqlQuery = new StringBuilder();
-                sqlQuery.AppendFormat("select fin_id from fines t " +
-                                        "WHERE TO_char(FIN_DATE,'DDMMYY')='{0:ddMMyy}' " +
-                                        "AND fin_vehicleid='{1}' " +
-                                        "AND t.fin_statusadmon=0 and t.fin_status=30 " + //pendiente de pago y generada
-                                        "ORDER BY FIN_DATE DESC", _date, _vehicleId);
-
-                oraCmd.CommandText = sqlQuery.ToString();
-
-                dr = oraCmd.ExecuteReader();
-
-                if (dr.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    fine_id = dr["fin_id"].ToString();
-                    responseFineNumber = fine_id;
-                    string strSQL = string.Format("SELECT FIN_DFIN_ID, "
-                            + "       FIN_VEHICLEID, "
-                            + "       FIN_DATE, "
-                            + "       fdq.DFINQ_VALUE, "
-                            + "       fd1.DFIN_PAYINPDM, "
-                            + "		  FIN_STATUSADMON, "
-                            + "		  FIN_GRP_ID_ZONE, "
-                            + "		  DDAY_CODE, "
-                            + "		  DFINQ_INI_MINUTE, "
-                            + "		  DFINQ_END_MINUTE, "
-                            //+ "       CASE WHEN (trunc(f.fin_date + 1) in (SELECT day_date FROM DAYS)) THEN 1 ELSE 0 END as IsHollyday, "
-                            + "		  trunc((CURRENT_DATE - f.fin_date) * 24 * 60) ELAPSED_MINUTES  "
-                            + " FROM DAYS_DEF dd, FINES f "
-                            + " INNER JOIN FINES_DEF fd1 ON f.FIN_DFIN_ID = fd1.DFIN_ID, FINES_DEF fd2 "
-                            + " INNER JOIN FINES_DEF_QUANTITY fdq ON fd2.DFIN_ID = fdq.DFINQ_ID "
-                            + " WHERE FIN_ID = " + fine_id + " and fd1.dfin_pay_dday_id=dday_id "
-                            + "   AND fd1.DFIN_COD_ID = 1 "
-                            + "   and fd1.dfin_id = fd2.dfin_id "
-                            + "   and f.fin_date >= fdq.dfinq_inidate "
-                            + "   and f.fin_date < fdq.dfinq_endate");
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                    oraCmd.CommandText = strSQL;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                    dataReader = oraCmd.ExecuteReader();
-                    if (dataReader.HasRows)
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    StringBuilder sqlQuery = new StringBuilder();
+                    sqlQuery.AppendFormat("select fin_id from fines t " +
+                                            "WHERE TO_char(FIN_DATE,'DDMMYY')='{0:ddMMyy}' " +
+                                            "AND fin_vehicleid='{1}' " +
+                                            "AND t.fin_statusadmon=0 and t.fin_status=30 " + //pendiente de pago y generada
+                                            "ORDER BY FIN_DATE DESC", _date, _vehicleId);
+
+                    oraCmd.CommandText = sqlQuery.ToString();
+
+                    dr = oraCmd.ExecuteReader();
+
+                    if (dr.Read())
                     {
-                        bool bExit = false;
-                        while (dataReader.Read() && !bExit)
+                        fine_id = dr["fin_id"].ToString();
+                        responseFineNumber = fine_id;
+                        string strSQL = string.Format("SELECT FIN_DFIN_ID, "
+                                + "       FIN_VEHICLEID, "
+                                + "       FIN_DATE, "
+                                + "       fdq.DFINQ_VALUE, "
+                                + "       fd1.DFIN_PAYINPDM, "
+                                + "		  FIN_STATUSADMON, "
+                                + "		  FIN_GRP_ID_ZONE, "
+                                + "		  DDAY_CODE, "
+                                + "		  DFINQ_INI_MINUTE, "
+                                + "		  DFINQ_END_MINUTE, "
+                                //+ "       CASE WHEN (trunc(f.fin_date + 1) in (SELECT day_date FROM DAYS)) THEN 1 ELSE 0 END as IsHollyday, "
+                                + "		  trunc((CURRENT_DATE - f.fin_date) * 24 * 60) ELAPSED_MINUTES  "
+                                + " FROM DAYS_DEF dd, FINES f "
+                                + " INNER JOIN FINES_DEF fd1 ON f.FIN_DFIN_ID = fd1.DFIN_ID, FINES_DEF fd2 "
+                                + " INNER JOIN FINES_DEF_QUANTITY fdq ON fd2.DFIN_ID = fdq.DFINQ_ID "
+                                + " WHERE FIN_ID = " + fine_id + " and fd1.dfin_pay_dday_id=dday_id "
+                                + "   AND fd1.DFIN_COD_ID = 1 "
+                                + "   and fd1.dfin_id = fd2.dfin_id "
+                                + "   and f.fin_date >= fdq.dfinq_inidate "
+                                + "   and f.fin_date < fdq.dfinq_endate");
+
+                        oraCmd.CommandText = strSQL;
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.HasRows)
                         {
-                            responseResult = 0;
-
-                            responseFineDefId = dataReader.GetInt32(0);// "FIN_DFIN_ID"
-                            responseVehicleId = dataReader.GetString(1);// "FIN_VEHICLEID"
-                            responseQuantity = dataReader.GetDouble(3);//"DFINQ_VALUE"
-                            responseDate = dataReader.GetDateTime(2);//"FIN_DATE"
-                            payInPdm = dataReader.GetInt32(4);//"DFIN_PAYINPDM"
-                            responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
-                            strDayCode = dataReader.GetString(7);//"DDAY_CODE"
-
-                            if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
+                            bool bExit = false;
+                            while (dataReader.Read() && !bExit)
                             {
-                                responsePayed = 1;
-                            }
+                                responseResult = 0;
 
+                                responseFineDefId = dataReader.GetInt32(0);// "FIN_DFIN_ID"
+                                responseVehicleId = dataReader.GetString(1);// "FIN_VEHICLEID"
+                                responseQuantity = dataReader.GetDouble(3);//"DFINQ_VALUE"
+                                responseDate = dataReader.GetDateTime(2);//"FIN_DATE"
+                                payInPdm = dataReader.GetInt32(4);//"DFIN_PAYINPDM"
+                                responseGrpId = dataReader.GetInt32(6);//"FIN_GRP_ID_ZONE"
+                                strDayCode = dataReader.GetString(7);//"DDAY_CODE"
 
-                            int iFinQIniMinute = dataReader.GetInt32(8);//"DFINQ_INI_MINUTE"
-                            int iFinQEndMinute = dataReader.GetInt32(9);//"DFINQ_END_MINUTE"
-                            int iElapsedMinutes = dataReader.GetInt32(10);//"ELAPSED_MINUTES"
-
-                            //responseIsHollyday = dataReader.GetBoolean(10);//IsHollyday
-
-
-                            //CFineManager oFineManager = new CFineManager();
-                            //bool bFinePaymentInTime = oFineManager.IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode);
-
-                            bool bFinePaymentInTime = IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode, nContractId);
-
-                            if (payInPdm == 0)
-                            {
-                                responseResult = -1;
-                                bExit = true;
-                            }
-                            else if (bFinePaymentInTime)
-                            {
-                                if ((iElapsedMinutes > iFinQIniMinute) && (iElapsedMinutes <= iFinQEndMinute))
+                                if (dataReader.GetInt32(5) != CFineManager_C_ADMON_STATUS_PENDIENTE)//"FIN_STATUSADMON"
                                 {
-                                    responseResult = 1;
+                                    responsePayed = 1;
+                                }
+
+
+                                int iFinQIniMinute = dataReader.GetInt32(8);//"DFINQ_INI_MINUTE"
+                                int iFinQEndMinute = dataReader.GetInt32(9);//"DFINQ_END_MINUTE"
+                                int iElapsedMinutes = dataReader.GetInt32(10);//"ELAPSED_MINUTES"
+
+                                //responseIsHollyday = dataReader.GetBoolean(10);//IsHollyday
+
+
+                                //CFineManager oFineManager = new CFineManager();
+                                //bool bFinePaymentInTime = oFineManager.IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode);
+
+                                bool bFinePaymentInTime = IsFinePaymentInTime(responseDate, DateTime.Now, payInPdm, strDayCode, nContractId);
+
+                                if (payInPdm == 0)
+                                {
+                                    responseResult = -1;
                                     bExit = true;
+                                }
+                                else if (bFinePaymentInTime)
+                                {
+                                    if ((iElapsedMinutes > iFinQIniMinute) && (iElapsedMinutes <= iFinQEndMinute))
+                                    {
+                                        responseResult = 1;
+                                        bExit = true;
+                                    }
+                                    else
+                                    {
+                                        responseResult = -2;
+                                    }
                                 }
                                 else
                                 {
                                     responseResult = -2;
+                                    bExit = true;
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            //todavía no existe la multa
+                            // existe alguna operación de pago de la misma
+
+                            strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                            oraCmd.CommandText = strSQL;
+
+                            if (dataReader != null)
                             {
-                                responseResult = -2;
-                                bExit = true;
+                                dataReader.Close();
+                                dataReader.Dispose();
                             }
-                        }
-                    }
-                    else
-                    {
-                        //todavía no existe la multa
-                        // existe alguna operación de pago de la misma
 
-                        strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
-                        oraCmd.CommandText = strSQL;
+                            dataReader = oraCmd.ExecuteReader();
 
-                        if (dataReader != null)
-                        {
-                            dataReader.Close();
-                            dataReader.Dispose();
-                        }
-
-                        dataReader = oraCmd.ExecuteReader();
-
-                        if (dataReader.HasRows)
-                        {
-                            dataReader.Read();
-                            if (dataReader.GetInt32(0) > 0)
-                                responsePayed = 1;
+                            if (dataReader.HasRows)
+                            {
+                                dataReader.Read();
+                                if (dataReader.GetInt32(0) > 0)
+                                    responsePayed = 1;
+                            }
                         }
                     }
                 }
-
 
             }
             catch (Exception e)
@@ -16651,12 +16736,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
             parametersOut.Add("r", responseResult);//1
             parametersOut.Add("f", responseFineNumber);//20999998
@@ -16748,7 +16833,7 @@ namespace OPSWebServicesAPI.Controllers
             int nResult = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -16756,34 +16841,36 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strDateTime = DtxToString(dt);
-                string strSQL = string.Format("select count(*) " +
-                                                "from days " +
-                                                "where day_date = to_date('{0}', 'HH24MISSDDMMYY')",
-                                                strDateTime);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nResult = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strDateTime = DtxToString(dt);
+                    string strSQL = string.Format("select count(*) " +
+                                                    "from days " +
+                                                    "where day_date = to_date('{0}', 'HH24MISSDDMMYY')",
+                                                    strDateTime);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nResult = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -16806,12 +16893,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return (nResult > 0);
@@ -16822,7 +16909,7 @@ namespace OPSWebServicesAPI.Controllers
             int nMobileUserId = (int)ResultType.Result_Error_Generic;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -16832,30 +16919,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MU_ID FROM MOBILE_USERS WHERE MU_AUTH_TOKEN = '{0}' AND MU_VALID = 1 AND MU_DELETED = 0", strTokenId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nMobileUserId = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MU_ID FROM MOBILE_USERS WHERE MU_AUTH_TOKEN = '{0}' AND MU_VALID = 1 AND MU_DELETED = 0", strTokenId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nMobileUserId = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -16878,12 +16967,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nMobileUserId;
@@ -16901,7 +16990,7 @@ namespace OPSWebServicesAPI.Controllers
             int nResult = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -16911,30 +17000,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT COUNT(*) FROM RESIDENTS WHERE RES_VEHICLEID = '{0}'", strPlate);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nResult = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT COUNT(*) FROM RESIDENTS WHERE RES_VEHICLEID = '{0}'", strPlate);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nResult = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -16957,12 +17048,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nResult;
@@ -16973,7 +17064,7 @@ namespace OPSWebServicesAPI.Controllers
             int nResult = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -16983,30 +17074,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT COUNT(*) FROM VIPS WHERE VIP_VEHICLEID = '{0}'", strPlate);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nResult = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT COUNT(*) FROM VIPS WHERE VIP_VEHICLEID = '{0}'", strPlate);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nResult = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -17029,12 +17122,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nResult;
@@ -17045,7 +17138,7 @@ namespace OPSWebServicesAPI.Controllers
             int nResult = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17055,34 +17148,36 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MU_FUNDS FROM MOBILE_USERS WHERE MU_ID = {0}", nMobileUserId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nCredit = dataReader.GetInt32(0);
-                    nResult = 1;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MU_FUNDS FROM MOBILE_USERS WHERE MU_ID = {0}", nMobileUserId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nCredit = dataReader.GetInt32(0);
+                        nResult = 1;
+                    }
+                    else
+                        nResult = -20;
                 }
-                else
-                    nResult = -20;
             }
             catch (Exception e)
             {
@@ -17104,12 +17199,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nResult;
@@ -17121,7 +17216,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17132,35 +17227,36 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-
-                string strSQL = string.Format("SELECT COUNT(*) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')", strPlate, strDate);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    bExists = (dataReader.GetInt32(0) > 0);
-                    bResult = true;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+
+                    string strSQL = string.Format("SELECT COUNT(*) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')", strPlate, strDate);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        bExists = (dataReader.GetInt32(0) > 0);
+                        bResult = true;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -17183,12 +17279,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
 
 
             }
@@ -17202,7 +17298,7 @@ namespace OPSWebServicesAPI.Controllers
             nMobileUserId = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17212,40 +17308,42 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAX(OPE_ID), NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
-                    strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
-                if (nGroup > 0)
-                    strSQL += string.Format("AND OPE_GRP_ID = {0} ", nGroup);
-                if (nArticle > 0)
-                    strSQL += string.Format("AND OPE_DART_ID = {0} ", nArticle);
-                else
-                    strSQL += "AND OPE_DART_ID IN (SELECT DART_ID FROM ARTICLES_DEF WHERE DART_REFUNDABLE = 1) ";
-                strSQL += "GROUP BY OPE_MOBI_USER_ID ORDER BY 1 DESC";
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    nMobileUserId = dataReader.GetInt32(1);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                    bResult = true;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAX(OPE_ID), NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
+                        strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
+                    if (nGroup > 0)
+                        strSQL += string.Format("AND OPE_GRP_ID = {0} ", nGroup);
+                    if (nArticle > 0)
+                        strSQL += string.Format("AND OPE_DART_ID = {0} ", nArticle);
+                    else
+                        strSQL += "AND OPE_DART_ID IN (SELECT DART_ID FROM ARTICLES_DEF WHERE DART_REFUNDABLE = 1) ";
+                    strSQL += "GROUP BY OPE_MOBI_USER_ID ORDER BY 1 DESC";
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        nMobileUserId = dataReader.GetInt32(1);
+
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -17268,12 +17366,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17288,7 +17386,7 @@ namespace OPSWebServicesAPI.Controllers
             long lOperId = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17304,30 +17402,32 @@ namespace OPSWebServicesAPI.Controllers
                         if (sConn == null)
                             throw new Exception("No ConnectionString configuration");
 
-                        oraConn = new OracleConnection(sConn);
-
-                        oraCmd = new OracleCommand();
-                        oraCmd.Connection = oraConn;
-                        oraCmd.Connection.Open();
-
-                        if (oraCmd == null)
-                            throw new Exception("Oracle command is null");
-
-                        // Conexion BBDD?
-                        if (oraCmd.Connection == null)
-                            throw new Exception("Oracle connection is null");
-
-                        if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                            throw new Exception("Oracle connection is not open");
-
-                        string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_ID = {0} ", lOperId);
-                        oraCmd.CommandText = strSQL;
-
-                        dataReader = oraCmd.ExecuteReader();
-                        if (dataReader.HasRows)
+                        //oraConn = new OracleConnection(sConn);
+                        using (OracleConnection oraConn = new OracleConnection(sConn))
                         {
-                            dataReader.Read();
-                            nMobileUserId = dataReader.GetInt32(0);
+                            oraCmd = new OracleCommand();
+                            oraCmd.Connection = oraConn;
+                            oraCmd.Connection.Open();
+
+                            if (oraCmd == null)
+                                throw new Exception("Oracle command is null");
+
+                            // Conexion BBDD?
+                            if (oraCmd.Connection == null)
+                                throw new Exception("Oracle connection is null");
+
+                            if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                                throw new Exception("Oracle connection is not open");
+
+                            string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_ID = {0} ", lOperId);
+                            oraCmd.CommandText = strSQL;
+
+                            dataReader = oraCmd.ExecuteReader();
+                            if (dataReader.HasRows)
+                            {
+                                dataReader.Read();
+                                nMobileUserId = dataReader.GetInt32(0);
+                            }
                         }
                     }
                 }
@@ -17353,12 +17453,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17369,7 +17469,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             lOperId = -1;
 
@@ -17381,71 +17481,73 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) AND OPE_DART_ID IN ({4})",
-                    strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString(), strArticlesFilter);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        lOperId = dataReader.GetInt32(0);
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                // Obtain information about the operation to determine if vehicle still has valid parking
-                if (lOperId > 0)
-                {
-                    int nOperType = -1;
-                    int nStatus = -1;
-                    strSQL = string.Format("SELECT OPE_DOPE_ID, CASE WHEN (OPE_ENDDATE - to_date('{0}','hh24missddmmyy') > 0) THEN 2 ELSE 1 END FROM OPERATIONS WHERE OPE_ID = {1}", strDate, lOperId);
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) AND OPE_DART_ID IN ({4})",
+                        strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString(), strArticlesFilter);
                     oraCmd.CommandText = strSQL;
-
-                    if (dataReader != null)
-                    {
-                        dataReader.Close();
-                        dataReader.Dispose();
-                    }
 
                     dataReader = oraCmd.ExecuteReader();
                     if (dataReader.Read())
                     {
-                        if (!dataReader.IsDBNull(0) && !dataReader.IsDBNull(1))
-                        {
-                            nOperType = dataReader.GetInt32(0);
-                            nStatus = dataReader.GetInt32(1);
+                        if (!dataReader.IsDBNull(0))
+                            lOperId = dataReader.GetInt32(0);
+                    }
 
-                            // The vehicle is only considered to be parked if the last operation is a parking or an extension and the date is valid
-                            if ((nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Parking"]) || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Extension"]))
-                                && (nStatus == Convert.ToInt32(ConfigurationManager.AppSettings["OperationStatus.Parked"])))
+                    // Obtain information about the operation to determine if vehicle still has valid parking
+                    if (lOperId > 0)
+                    {
+                        int nOperType = -1;
+                        int nStatus = -1;
+                        strSQL = string.Format("SELECT OPE_DOPE_ID, CASE WHEN (OPE_ENDDATE - to_date('{0}','hh24missddmmyy') > 0) THEN 2 ELSE 1 END FROM OPERATIONS WHERE OPE_ID = {1}", strDate, lOperId);
+                        oraCmd.CommandText = strSQL;
+
+                        if (dataReader != null)
+                        {
+                            dataReader.Close();
+                            dataReader.Dispose();
+                        }
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.Read())
+                        {
+                            if (!dataReader.IsDBNull(0) && !dataReader.IsDBNull(1))
                             {
-                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be parked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                nOperType = dataReader.GetInt32(0);
+                                nStatus = dataReader.GetInt32(1);
+
+                                // The vehicle is only considered to be parked if the last operation is a parking or an extension and the date is valid
+                                if ((nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Parking"]) || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Extension"]))
+                                    && (nStatus == Convert.ToInt32(ConfigurationManager.AppSettings["OperationStatus.Parked"])))
+                                {
+                                    Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be parked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                }
+                                else
+                                {
+                                    Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be unparked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                    lOperId = -1;
+                                }
                             }
                             else
                             {
-                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be unparked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Error - could not obtain information about operation {0}", lOperId.ToString()), LoggerSeverities.Error);
                                 lOperId = -1;
                             }
-                        }
-                        else
-                        {
-                            Logger_AddLogMessage(string.Format("GetLastParkingOperation::Error - could not obtain information about operation {0}", lOperId.ToString()), LoggerSeverities.Error);
-                            lOperId = -1;
                         }
                     }
                 }
@@ -17502,12 +17604,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17518,7 +17620,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             lOperId = -1;
 
@@ -17530,71 +17632,73 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
-                    strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        lOperId = dataReader.GetInt32(0);
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                // Obtain information about the operation to determine if vehicle still has valid parking
-                if (lOperId > 0)
-                {
-                    int nOperType = -1;
-                    int nStatus = -1;
-                    strSQL = string.Format("SELECT OPE_DOPE_ID, CASE WHEN (OPE_ENDDATE - to_date('{0}','hh24missddmmyy') > 0) THEN 2 ELSE 1 END FROM OPERATIONS WHERE OPE_ID = {1}", strDate, lOperId);
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
+                        strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
                     oraCmd.CommandText = strSQL;
-
-                    if (dataReader != null)
-                    {
-                        dataReader.Close();
-                        dataReader.Dispose();
-                    }
 
                     dataReader = oraCmd.ExecuteReader();
                     if (dataReader.Read())
                     {
-                        if (!dataReader.IsDBNull(0) && !dataReader.IsDBNull(1))
-                        {
-                            nOperType = dataReader.GetInt32(0);
-                            nStatus = dataReader.GetInt32(1);
+                        if (!dataReader.IsDBNull(0))
+                            lOperId = dataReader.GetInt32(0);
+                    }
 
-                            // The vehicle is only considered to be parked if the last operation is a parking or an extension and the date is valid
-                            if ((nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Parking"]) || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Extension"]))
-                                && (nStatus == Convert.ToInt32(ConfigurationManager.AppSettings["OperationStatus.Parked"])))
+                    // Obtain information about the operation to determine if vehicle still has valid parking
+                    if (lOperId > 0)
+                    {
+                        int nOperType = -1;
+                        int nStatus = -1;
+                        strSQL = string.Format("SELECT OPE_DOPE_ID, CASE WHEN (OPE_ENDDATE - to_date('{0}','hh24missddmmyy') > 0) THEN 2 ELSE 1 END FROM OPERATIONS WHERE OPE_ID = {1}", strDate, lOperId);
+                        oraCmd.CommandText = strSQL;
+
+                        if (dataReader != null)
+                        {
+                            dataReader.Close();
+                            dataReader.Dispose();
+                        }
+
+                        dataReader = oraCmd.ExecuteReader();
+                        if (dataReader.Read())
+                        {
+                            if (!dataReader.IsDBNull(0) && !dataReader.IsDBNull(1))
                             {
-                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be parked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                nOperType = dataReader.GetInt32(0);
+                                nStatus = dataReader.GetInt32(1);
+
+                                // The vehicle is only considered to be parked if the last operation is a parking or an extension and the date is valid
+                                if ((nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Parking"]) || nOperType == Convert.ToInt32(ConfigurationManager.AppSettings["OperationsDef.Extension"]))
+                                    && (nStatus == Convert.ToInt32(ConfigurationManager.AppSettings["OperationStatus.Parked"])))
+                                {
+                                    Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be parked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                }
+                                else
+                                {
+                                    Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be unparked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                    lOperId = -1;
+                                }
                             }
                             else
                             {
-                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Vehicle is considered to be unparked - Operation type: {0}, Status: {1}", nOperType.ToString(), nStatus.ToString()), LoggerSeverities.Info);
+                                Logger_AddLogMessage(string.Format("GetLastParkingOperation::Error - could not obtain information about operation {0}", lOperId.ToString()), LoggerSeverities.Error);
                                 lOperId = -1;
                             }
-                        }
-                        else
-                        {
-                            Logger_AddLogMessage(string.Format("GetLastParkingOperation::Error - could not obtain information about operation {0}", lOperId.ToString()), LoggerSeverities.Error);
-                            lOperId = -1;
                         }
                     }
                 }
@@ -17651,12 +17755,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17667,7 +17771,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = true;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             iStatus = -1;
 
@@ -17679,30 +17783,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT PS_STATE FROM PARKING_SPACES WHERE PS_ID = {0}", lSpaceId);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    if (!dataReader.IsDBNull(0))
-                        iStatus = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT PS_STATE FROM PARKING_SPACES WHERE PS_ID = {0}", lSpaceId);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                            iStatus = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -17726,12 +17832,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17741,7 +17847,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17751,29 +17857,31 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL = string.Format("update parking_spaces set ps_state = {0}, ps_date_mod = sysdate where ps_id = {1}",
+                    iStatus, lSpaceId);
 
-                string strSQL = string.Format("update parking_spaces set ps_state = {0}, ps_date_mod = sysdate where ps_id = {1}",
-                iStatus, lSpaceId);
+                    oraCmd.CommandText = strSQL;
 
-                oraCmd.CommandText = strSQL;
-
-                if (oraCmd.ExecuteNonQuery() > 0)
-                    bResult = true;
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -17788,12 +17896,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17803,7 +17911,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17813,30 +17921,32 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL = string.Format("update operations o " +
+                                                    "set o.ope_unpark_intent = 1 " +
+                                                    "where ope_id = {0}", lOperId);
 
-                string strSQL = string.Format("update operations o " +
-                                                "set o.ope_unpark_intent = 1 " +
-                                                "where ope_id = {0}", lOperId);
+                    oraCmd.CommandText = strSQL;
 
-                oraCmd.CommandText = strSQL;
-
-                if (oraCmd.ExecuteNonQuery() > 0)
-                    bResult = true;
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -17851,12 +17961,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17866,7 +17976,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17876,29 +17986,31 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL = string.Format("update parking_spaces set ps_state = {0}, ps_date_mod = to_date( '{1}', 'hh24missddmmyy' ), ps_end_date = to_date( '{1}', 'hh24missddmmyy' ) where ps_id = {2}",
+                    iStatus, strEndDate, lSpaceId);
 
-                string strSQL = string.Format("update parking_spaces set ps_state = {0}, ps_date_mod = to_date( '{1}', 'hh24missddmmyy' ), ps_end_date = to_date( '{1}', 'hh24missddmmyy' ) where ps_id = {2}",
-                iStatus, strEndDate, lSpaceId);
+                    oraCmd.CommandText = strSQL;
 
-                oraCmd.CommandText = strSQL;
-
-                if (oraCmd.ExecuteNonQuery() > 0)
-                    bResult = true;
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -17913,12 +18025,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -17929,7 +18041,7 @@ namespace OPSWebServicesAPI.Controllers
             int nResult = -1;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -17939,31 +18051,33 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAX(PS_ID) FROM PARKING_SPACES WHERE PS_LATTITUDE = {0} AND PS_LONGITUDE = {1}", strLattitude, strLongitude);
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    if (!dataReader.IsDBNull(0))
-                        nResult = dataReader.GetInt32(0);
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAX(PS_ID) FROM PARKING_SPACES WHERE PS_LATTITUDE = {0} AND PS_LONGITUDE = {1}", strLattitude, strLongitude);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
+                    {
+                        dataReader.Read();
+                        if (!dataReader.IsDBNull(0))
+                            nResult = dataReader.GetInt32(0);
+                    }
                 }
             }
             catch (Exception e)
@@ -17986,12 +18100,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nResult;
@@ -18002,7 +18116,7 @@ namespace OPSWebServicesAPI.Controllers
             int nSpaceId = (int)ResultType.Result_Error_Generic;
 
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -18012,34 +18126,36 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL1 = " insert into PARKING_SPACES (ps_state, ps_grp_id, ps_lattitude, ps_longitude, ps_date_mod";
+                    string strSQL2 = " ) VALUES( " + iStatus.ToString() + ", " + strGroup + ", " + strLattitude + ", " + strLongitude + ", SYSDATE";
+                    strSQL2 += ") returning PS_ID into :nReturnValue";
 
-                string strSQL1 = " insert into PARKING_SPACES (ps_state, ps_grp_id, ps_lattitude, ps_longitude, ps_date_mod";
-                string strSQL2 = " ) VALUES( " + iStatus.ToString() + ", " + strGroup + ", " + strLattitude + ", " + strLongitude + ", SYSDATE";
-                strSQL2 += ") returning PS_ID into :nReturnValue";
+                    oraCmd.CommandText = strSQL1 + strSQL2;
 
-                oraCmd.CommandText = strSQL1 + strSQL2;
+                    oraCmd.Parameters.Add(new OracleParameter("nReturnValue", OracleDbType.Int32));
+                    oraCmd.Parameters["nReturnValue"].Direction = System.Data.ParameterDirection.ReturnValue;
 
-                oraCmd.Parameters.Add(new OracleParameter("nReturnValue", OracleDbType.Int32));
-                oraCmd.Parameters["nReturnValue"].Direction = System.Data.ParameterDirection.ReturnValue;
+                    oraCmd.ExecuteNonQuery();
 
-                oraCmd.ExecuteNonQuery();
-
-                nSpaceId = (int)oraCmd.Parameters["nReturnValue"].Value;
+                    nSpaceId = (int)oraCmd.Parameters["nReturnValue"].Value;
+                }
             }
             catch (Exception e)
             {
@@ -18054,12 +18170,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return nSpaceId;
@@ -18176,7 +18292,7 @@ namespace OPSWebServicesAPI.Controllers
             string strWhereList = "";
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -18196,38 +18312,40 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAT_ID, MAT_DESC, MAT_DART_ID, MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_ID IN ({0})", strWhereList);
-                oraCmd.CommandText = strSQL;
-
-                nIndex = 1;
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    parametersOut["tarid" + nIndex.ToString()] = dataReader.GetInt32(0).ToString();
-                    parametersOut["tardesc" + nIndex.ToString()] = dataReader.GetString(1);
-                    parametersOut["tarad" + nIndex.ToString()] = dataReader.GetInt32(2).ToString();
-                    parametersOut["tarrfd" + nIndex.ToString()] = dataReader.GetInt32(3).ToString();
-                    nIndex++;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                if (parametersOut.Count > 0)
-                    bResult = true;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAT_ID, MAT_DESC, MAT_DART_ID, MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_ID IN ({0})", strWhereList);
+                    oraCmd.CommandText = strSQL;
+
+                    nIndex = 1;
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        parametersOut["tarid" + nIndex.ToString()] = dataReader.GetInt32(0).ToString();
+                        parametersOut["tardesc" + nIndex.ToString()] = dataReader.GetString(1);
+                        parametersOut["tarad" + nIndex.ToString()] = dataReader.GetInt32(2).ToString();
+                        parametersOut["tarrfd" + nIndex.ToString()] = dataReader.GetInt32(3).ToString();
+                        nIndex++;
+                    }
+
+                    if (parametersOut.Count > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -18249,12 +18367,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -18265,7 +18383,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -18277,40 +18395,42 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAT_ID, MAT_DESC, MAT_DART_ID, MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_DART_ID IN ({0})", strArticleList);
-                if (strGroupList.Length > 0)
-                    strSQL += string.Format(" AND MAT_GRP_ID IN ({0})", strGroupList);
-                oraCmd.CommandText = strSQL;
-
-                int nIndex = 1;
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    parametersOut["tarid" + nIndex.ToString()] = dataReader.GetInt32(0).ToString();
-                    parametersOut["tardesc" + nIndex.ToString()] = dataReader.GetString(1);
-                    parametersOut["tarad" + nIndex.ToString()] = dataReader.GetInt32(2).ToString();
-                    parametersOut["tarrfd" + nIndex.ToString()] = dataReader.GetInt32(3).ToString();
-                    nIndex++;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                if (parametersOut.Count > 0)
-                    bResult = true;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAT_ID, MAT_DESC, MAT_DART_ID, MAT_REFUNDABLE FROM MOBILE_AVAILABLE_TARIFFS WHERE MAT_DART_ID IN ({0})", strArticleList);
+                    if (strGroupList.Length > 0)
+                        strSQL += string.Format(" AND MAT_GRP_ID IN ({0})", strGroupList);
+                    oraCmd.CommandText = strSQL;
+
+                    int nIndex = 1;
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        parametersOut["tarid" + nIndex.ToString()] = dataReader.GetInt32(0).ToString();
+                        parametersOut["tardesc" + nIndex.ToString()] = dataReader.GetString(1);
+                        parametersOut["tarad" + nIndex.ToString()] = dataReader.GetInt32(2).ToString();
+                        parametersOut["tarrfd" + nIndex.ToString()] = dataReader.GetInt32(3).ToString();
+                        nIndex++;
+                    }
+
+                    if (parametersOut.Count > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -18332,12 +18452,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -18350,7 +18470,7 @@ namespace OPSWebServicesAPI.Controllers
             OracleCommand oraCmd = null;
             OracleCommand oraCmd2 = null;
             OracleCommand oraCmd3 = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             OracleConnection oraConn2 = null;
 
             lOperId = -1;
@@ -18363,84 +18483,86 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')", ParametersIn["p"].ToString(), ParametersIn["d"].ToString());
-                oraCmd.CommandText = strSQL;
-
-                dataReader = oraCmd.ExecuteReader();
-                if (dataReader.HasRows)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    dataReader.Read();
-                    if (!dataReader.IsDBNull(0))
-                        lOperId = dataReader.GetInt32(0);
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                if (lOperId > 0)
-                {
-                    string strUpdate = "";
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                    if (ParametersIn["lt"] != null && ParametersIn["lg"] != null && ParametersIn["lt"].ToString().Length > 0 && ParametersIn["lg"].ToString().Length > 0 && !ParametersIn["lt"].ToString().Equals("undefined") && !ParametersIn["lg"].ToString().Equals("undefined"))
-                        strUpdate = " OPE_LATITUDE = " + ParametersIn["lt"].ToString() + ", OPE_LONGITUD = " + ParametersIn["lg"].ToString();
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                    if (ParametersIn["re"] != null && ParametersIn["re"].ToString().Length > 0)
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')", ParametersIn["p"].ToString(), ParametersIn["d"].ToString());
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.HasRows)
                     {
-                        if (strUpdate.Length > 0)
-                            strUpdate += ", OPE_REFERENCE = '" + ParametersIn["re"].ToString() + "' ";
-                        else
-                            strUpdate = " OPE_REFERENCE = '" + ParametersIn["re"].ToString() + "' ";
+                        dataReader.Read();
+                        if (!dataReader.IsDBNull(0))
+                            lOperId = dataReader.GetInt32(0);
                     }
 
-                    if (ParametersIn["spcid"] != null && ParametersIn["spcid"].ToString().Length > 0)
+                    if (lOperId > 0)
                     {
+                        string strUpdate = "";
+
+                        if (ParametersIn["lt"] != null && ParametersIn["lg"] != null && ParametersIn["lt"].ToString().Length > 0 && ParametersIn["lg"].ToString().Length > 0 && !ParametersIn["lt"].ToString().Equals("undefined") && !ParametersIn["lg"].ToString().Equals("undefined"))
+                            strUpdate = " OPE_LATITUDE = " + ParametersIn["lt"].ToString() + ", OPE_LONGITUD = " + ParametersIn["lg"].ToString();
+
+                        if (ParametersIn["re"] != null && ParametersIn["re"].ToString().Length > 0)
+                        {
+                            if (strUpdate.Length > 0)
+                                strUpdate += ", OPE_REFERENCE = '" + ParametersIn["re"].ToString() + "' ";
+                            else
+                                strUpdate = " OPE_REFERENCE = '" + ParametersIn["re"].ToString() + "' ";
+                        }
+
+                        if (ParametersIn["spcid"] != null && ParametersIn["spcid"].ToString().Length > 0)
+                        {
+                            if (strUpdate.Length > 0)
+                                strUpdate += ", OPE_PS_ID = " + ParametersIn["spcid"].ToString() + " ";
+                            else
+                                strUpdate = " OPE_PS_ID = " + ParametersIn["spcid"].ToString() + " ";
+                        }
+
+                        if (ParametersIn["streetname"] != null && ParametersIn["streetname"].ToString().Length > 0)
+                        {
+                            if (strUpdate.Length > 0)
+                                strUpdate += ", OPE_ADDR_STREET = '" + ParametersIn["streetname"].ToString() + "' ";
+                            else
+                                strUpdate = " OPE_ADDR_STREET = '" + ParametersIn["streetname"].ToString() + "' ";
+                        }
+
+                        if (ParametersIn["streetno"] != null && ParametersIn["streetno"].ToString().Length > 0)
+                        {
+                            if (strUpdate.Length > 0)
+                                strUpdate += ", OPE_ADDR_NUMBER = '" + ParametersIn["streetno"].ToString() + "' ";
+                            else
+                                strUpdate = " OPE_ADDR_NUMBER = '" + ParametersIn["streetno"].ToString() + "' ";
+                        }
+
                         if (strUpdate.Length > 0)
-                            strUpdate += ", OPE_PS_ID = " + ParametersIn["spcid"].ToString() + " ";
-                        else
-                            strUpdate = " OPE_PS_ID = " + ParametersIn["spcid"].ToString() + " ";
-                    }
+                        {
+                            oraCmd2 = new OracleCommand();
+                            oraCmd2.Connection = oraConn;
 
-                    if (ParametersIn["streetname"] != null && ParametersIn["streetname"].ToString().Length > 0)
-                    {
-                        if (strUpdate.Length > 0)
-                            strUpdate += ", OPE_ADDR_STREET = '" + ParametersIn["streetname"].ToString() + "' ";
-                        else
-                            strUpdate = " OPE_ADDR_STREET = '" + ParametersIn["streetname"].ToString() + "' ";
-                    }
+                            if (oraCmd2 == null)
+                                throw new Exception("Oracle command is null");
 
-                    if (ParametersIn["streetno"] != null && ParametersIn["streetno"].ToString().Length > 0)
-                    {
-                        if (strUpdate.Length > 0)
-                            strUpdate += ", OPE_ADDR_NUMBER = '" + ParametersIn["streetno"].ToString() + "' ";
-                        else
-                            strUpdate = " OPE_ADDR_NUMBER = '" + ParametersIn["streetno"].ToString() + "' ";
-                    }
-
-                    if (strUpdate.Length > 0)
-                    {
-                        oraCmd2 = new OracleCommand();
-                        oraCmd2.Connection = oraConn;
-
-                        if (oraCmd2 == null)
-                            throw new Exception("Oracle command is null");
-
-                        strSQL = string.Format("UPDATE OPERATIONS SET {0} WHERE OPE_ID='{1}'", strUpdate, lOperId);
-                        oraCmd2.CommandText = strSQL;
-                        oraCmd2.ExecuteNonQuery();
-                        bResult = true;
+                            strSQL = string.Format("UPDATE OPERATIONS SET {0} WHERE OPE_ID='{1}'", strUpdate, lOperId);
+                            oraCmd2.CommandText = strSQL;
+                            oraCmd2.ExecuteNonQuery();
+                            bResult = true;
+                        }
                     }
                 }
             }
@@ -18471,12 +18593,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd2 = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -18487,7 +18609,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd3 = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -18497,36 +18619,38 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                string strUpdate = "";
-
-                if (ParametersIn["cid"] != null && ParametersIn["cid"].ToString().Length > 0)
-                    strUpdate = " MUP_CLOUD_TOKEN = '" + ParametersIn["cid"].ToString() + "' ";
-
-                if (ParametersIn["os"] != null && ParametersIn["os"].ToString().Length > 0)
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
+                    string strUpdate = "";
+
+                    if (ParametersIn["cid"] != null && ParametersIn["cid"].ToString().Length > 0)
+                        strUpdate = " MUP_CLOUD_TOKEN = '" + ParametersIn["cid"].ToString() + "' ";
+
+                    if (ParametersIn["os"] != null && ParametersIn["os"].ToString().Length > 0)
+                    {
+                        if (strUpdate.Length > 0)
+                            strUpdate += ", MUP_DEVICE_OS = " + ParametersIn["os"].ToString();
+                        else
+                            strUpdate = " MUP_DEVICE_OS = " + ParametersIn["os"].ToString();
+                    }
+
                     if (strUpdate.Length > 0)
-                        strUpdate += ", MUP_DEVICE_OS = " + ParametersIn["os"].ToString();
-                    else
-                        strUpdate = " MUP_DEVICE_OS = " + ParametersIn["os"].ToString();
-                }
+                    {
+                        //oraConn = new OracleConnection(sConn);using (OracleConnection oraConn = new OracleConnection(sConn))
 
-                if (strUpdate.Length > 0)
-                {
-                    oraConn = new OracleConnection(sConn);
+                        oraCmd3 = new OracleCommand();
+                        oraCmd3.Connection = oraConn;
+                        oraCmd3.Connection.Open();
 
-                    oraCmd3 = new OracleCommand();
-                    oraCmd3.Connection = oraConn;
-                    oraCmd3.Connection.Open();
+                        if (oraCmd3 == null)
+                            throw new Exception("Oracle command is null");
 
-                    if (oraCmd3 == null)
-                        throw new Exception("Oracle command is null");
-
-                    string strSQL = string.Format("UPDATE MOBILE_USERS_PLATES SET {0} WHERE MUP_MU_ID = {1} AND MUP_PLATE = '{2}'", strUpdate, ParametersIn["mui"].ToString(), ParametersIn["p"].ToString());
-                    oraCmd3.CommandText = strSQL;
-                    oraCmd3.ExecuteNonQuery();
-                    bResult = true;
+                        string strSQL = string.Format("UPDATE MOBILE_USERS_PLATES SET {0} WHERE MUP_MU_ID = {1} AND MUP_PLATE = '{2}'", strUpdate, ParametersIn["mui"].ToString(), ParametersIn["p"].ToString());
+                        oraCmd3.CommandText = strSQL;
+                        oraCmd3.ExecuteNonQuery();
+                        bResult = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -18550,12 +18674,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd3 = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -18678,7 +18802,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -18688,32 +18812,34 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
 
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
+                    string strSQL = "";
+                    if (iNumNotif > 0)
+                        strSQL = string.Format("update mobile_users set mu_num_shared_spaces = mu_num_shared_spaces + {0} where mu_id = {1}", iNumNotif, iUserId);
+                    else
+                        strSQL = string.Format("update mobile_users set mu_num_shared_spaces = 0 where mu_id = {0}", iUserId);
 
-                string strSQL = "";
-                if (iNumNotif > 0)
-                    strSQL = string.Format("update mobile_users set mu_num_shared_spaces = mu_num_shared_spaces + {0} where mu_id = {1}", iNumNotif, iUserId);
-                else
-                    strSQL = string.Format("update mobile_users set mu_num_shared_spaces = 0 where mu_id = {0}", iUserId);
+                    oraCmd.CommandText = strSQL;
 
-                oraCmd.CommandText = strSQL;
-
-                if (oraCmd.ExecuteNonQuery() > 0)
-                    bResult = true;
+                    if (oraCmd.ExecuteNonQuery() > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -18728,12 +18854,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -18787,7 +18913,7 @@ namespace OPSWebServicesAPI.Controllers
         {
             bool bResult = false;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
 
             try
             {
@@ -18799,35 +18925,37 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(xmlIn);
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
 
-                string strSQL = string.Format("insert into msgs_log (lmsg_src_uni_id," +
-                "lmsg_dst_uni_id,lmsg_date,lmsg_type,lmsg_xml_in," +
-                "lmsg_xml_out) values ({0},{1},sysdate,'{2}','{3}','{4}')",
-                iVirtualUnit, CCunitId, doc.DocumentElement.Name, xmlIn, xmlOut.Replace("\n", ""));
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
 
-                oraCmd.CommandText = strSQL;
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
 
-                oraCmd.ExecuteNonQuery();
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(xmlIn);
+
+
+                    string strSQL = string.Format("insert into msgs_log (lmsg_src_uni_id," +
+                    "lmsg_dst_uni_id,lmsg_date,lmsg_type,lmsg_xml_in," +
+                    "lmsg_xml_out) values ({0},{1},sysdate,'{2}','{3}','{4}')",
+                    iVirtualUnit, CCunitId, doc.DocumentElement.Name, xmlIn, xmlOut.Replace("\n", ""));
+
+                    oraCmd.CommandText = strSQL;
+
+                    oraCmd.ExecuteNonQuery();
+                }
 
                 bResult = true;
 
@@ -18848,12 +18976,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
 
 
             }
@@ -18872,7 +19000,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             parametersOut = new SortedList();
 
             try
@@ -18883,44 +19011,46 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = "select aa.zoneid,aa.zone,aa.zonecolor,aa.sectorid,g.grp_descshort as sector, g.grp_colour as sectorColor " +
-                    "from (select cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor from groups_childs gc inner join groups gr on gr.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa, groups g " +
-                    "where g.grp_id = aa.sectorid and g.grp_dgrp_id = 2 and g.grp_deleted = 0 and g.grp_typetree = 1 order by aa.zoneid, aa.sectorid";
-                oraCmd.CommandText = strSQL;
-
-                int nIndex = 1;
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    SortedList sectorData = new SortedList();
-                    sectorData["zoneId"] = dataReader.GetInt32(0).ToString();
-                    sectorData["zone"] = dataReader.GetString(1);
-                    sectorData["zoneColor"] = (dataReader.IsDBNull(2)) ? "" : dataReader.GetString(2);
-                    sectorData["sectorId"] = dataReader.GetInt32(3).ToString();
-                    sectorData["sector"] = dataReader.GetString(4);
-                    sectorData["sectorColor"] = (dataReader.IsDBNull(5)) ? "" : dataReader.GetString(5);
-                    parametersOut["sector" + nIndex] = sectorData;
-                    nIndex++;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                if (parametersOut.Count > 0)
-                    bResult = true;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = "select aa.zoneid,aa.zone,aa.zonecolor,aa.sectorid,g.grp_descshort as sector, g.grp_colour as sectorColor " +
+                        "from (select cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor from groups_childs gc inner join groups gr on gr.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa, groups g " +
+                        "where g.grp_id = aa.sectorid and g.grp_dgrp_id = 2 and g.grp_deleted = 0 and g.grp_typetree = 1 order by aa.zoneid, aa.sectorid";
+                    oraCmd.CommandText = strSQL;
+
+                    int nIndex = 1;
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        SortedList sectorData = new SortedList();
+                        sectorData["zoneId"] = dataReader.GetInt32(0).ToString();
+                        sectorData["zone"] = dataReader.GetString(1);
+                        sectorData["zoneColor"] = (dataReader.IsDBNull(2)) ? "" : dataReader.GetString(2);
+                        sectorData["sectorId"] = dataReader.GetInt32(3).ToString();
+                        sectorData["sector"] = dataReader.GetString(4);
+                        sectorData["sectorColor"] = (dataReader.IsDBNull(5)) ? "" : dataReader.GetString(5);
+                        parametersOut["sector" + nIndex] = sectorData;
+                        nIndex++;
+                    }
+
+                    if (parametersOut.Count > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -18942,12 +19072,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -18964,7 +19094,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             parametersOut = new SortedList();
 
             try
@@ -18975,53 +19105,56 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = "select distinct aa.zoneid, aa.zone, aa.zonecolor, gr.grp_id as sectorid, gr.grp_descshort as sector, gr.grp_colour as sectorcolor, ms.mstr_id as streetid, ms.mstr_desc as street " + 
-                    "from mobile_streets ms " +
-                    "inner join mobile_streets_stretches mss on mss.mss_mstr_id = ms.mstr_id " +
-                    "inner join groups gr on gr.grp_id = mss.mss_grp_id " +
-                    "inner join groups_childs gc on gc.cgrp_child = gr.grp_id " +
-                    "inner join (select distinct cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor " + 
-                        "from groups_childs gc " +
-                        "inner join groups g on g.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa on aa.sectorid = gr.grp_id " +
-                    "where gr.grp_dgrp_id = 2 and gr.grp_deleted = 0 and gr.grp_typetree = 1 and ms.mstr_show_gui = 1 " +
-                    "order by ms.mstr_desc, grp_id";
-                oraCmd.CommandText = strSQL;
-
-                int nIndex = 1;
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    SortedList streetsData = new SortedList();
-                    streetsData["zoneId"] = dataReader.GetInt32(0).ToString();
-                    streetsData["zone"] = dataReader.GetString(1);
-                    streetsData["zoneColor"] = (dataReader.IsDBNull(2)) ? "" : dataReader.GetString(2);
-                    streetsData["sectorId"] = dataReader.GetInt32(3).ToString();
-                    streetsData["sector"] = dataReader.GetString(4);
-                    streetsData["sectorColor"] = (dataReader.IsDBNull(5)) ? "" : dataReader.GetString(5);
-                    streetsData["streetId"] = dataReader.GetInt32(6).ToString();
-                    streetsData["street"] = dataReader.GetString(7);
-                    parametersOut["street" + nIndex] = streetsData;
-                    nIndex++;
-                }
 
-                if (parametersOut.Count > 0)
-                    bResult = true;
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = "select distinct aa.zoneid, aa.zone, aa.zonecolor, gr.grp_id as sectorid, gr.grp_descshort as sector, gr.grp_colour as sectorcolor, ms.mstr_id as streetid, ms.mstr_desc as street " +
+                        "from mobile_streets ms " +
+                        "inner join mobile_streets_stretches mss on mss.mss_mstr_id = ms.mstr_id " +
+                        "inner join groups gr on gr.grp_id = mss.mss_grp_id " +
+                        "inner join groups_childs gc on gc.cgrp_child = gr.grp_id " +
+                        "inner join (select distinct cgrp_id as zoneId, cgrp_child as sectorId, grp_descshort as zone, grp_colour as zoneColor " +
+                            "from groups_childs gc " +
+                            "inner join groups g on g.grp_id = gc.cgrp_id where gc.cgrp_type = 'G') aa on aa.sectorid = gr.grp_id " +
+                        "where gr.grp_dgrp_id = 2 and gr.grp_deleted = 0 and gr.grp_typetree = 1 and ms.mstr_show_gui = 1 " +
+                        "order by ms.mstr_desc, grp_id";
+                    oraCmd.CommandText = strSQL;
+
+                    int nIndex = 1;
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        SortedList streetsData = new SortedList();
+                        streetsData["zoneId"] = dataReader.GetInt32(0).ToString();
+                        streetsData["zone"] = dataReader.GetString(1);
+                        streetsData["zoneColor"] = (dataReader.IsDBNull(2)) ? "" : dataReader.GetString(2);
+                        streetsData["sectorId"] = dataReader.GetInt32(3).ToString();
+                        streetsData["sector"] = dataReader.GetString(4);
+                        streetsData["sectorColor"] = (dataReader.IsDBNull(5)) ? "" : dataReader.GetString(5);
+                        streetsData["streetId"] = dataReader.GetInt32(6).ToString();
+                        streetsData["street"] = dataReader.GetString(7);
+                        parametersOut["street" + nIndex] = streetsData;
+                        nIndex++;
+                    }
+
+                    if (parametersOut.Count > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -19043,12 +19176,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
@@ -19059,7 +19192,7 @@ namespace OPSWebServicesAPI.Controllers
             bool bResult = false;
             OracleDataReader dataReader = null;
             OracleCommand oraCmd = null;
-            OracleConnection oraConn = null;
+            //OracleConnection oraConn = null;
             parametersOut = new SortedList();
 
             try
@@ -19070,42 +19203,44 @@ namespace OPSWebServicesAPI.Controllers
                 if (sConn == null)
                     throw new Exception("No ConnectionString configuration");
 
-                oraConn = new OracleConnection(sConn);
-
-                oraCmd = new OracleCommand();
-                oraCmd.Connection = oraConn;
-                oraCmd.Connection.Open();
-
-                if (oraCmd == null)
-                    throw new Exception("Oracle command is null");
-
-                // Conexion BBDD?
-                if (oraCmd.Connection == null)
-                    throw new Exception("Oracle connection is null");
-
-                if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
-                    throw new Exception("Oracle connection is not open");
-
-                string strSQL = "select mga_id, mga_zone_id, mga_sector_id, mga_area_id, mga_point_number, mga_coordinates from mobile_sectors_areas msa ";
-                oraCmd.CommandText = strSQL;
-
-                int nIndex = 1;
-                dataReader = oraCmd.ExecuteReader();
-                while (dataReader.Read())
+                ////oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
                 {
-                    SortedList sectorsAreasData = new SortedList();
-                    sectorsAreasData["mga_id"] = dataReader.GetInt32(0).ToString();
-                    sectorsAreasData["mga_zone_id"] = dataReader.GetInt32(1).ToString();
-                    sectorsAreasData["mga_sector_id"] = dataReader.GetInt32(2).ToString();
-                    sectorsAreasData["mga_area_id"] = dataReader.GetInt32(3).ToString();
-                    sectorsAreasData["mga_point_number"] = dataReader.GetInt32(4).ToString();
-                    sectorsAreasData["mga_coordinates"] = dataReader.GetString(5);
-                    parametersOut["sectorsAreas" + nIndex] = sectorsAreasData;
-                    nIndex++;
-                }
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
 
-                if (parametersOut.Count > 0)
-                    bResult = true;
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = "select mga_id, mga_zone_id, mga_sector_id, mga_area_id, mga_point_number, mga_coordinates from mobile_sectors_areas msa ";
+                    oraCmd.CommandText = strSQL;
+
+                    int nIndex = 1;
+                    dataReader = oraCmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        SortedList sectorsAreasData = new SortedList();
+                        sectorsAreasData["mga_id"] = dataReader.GetInt32(0).ToString();
+                        sectorsAreasData["mga_zone_id"] = dataReader.GetInt32(1).ToString();
+                        sectorsAreasData["mga_sector_id"] = dataReader.GetInt32(2).ToString();
+                        sectorsAreasData["mga_area_id"] = dataReader.GetInt32(3).ToString();
+                        sectorsAreasData["mga_point_number"] = dataReader.GetInt32(4).ToString();
+                        sectorsAreasData["mga_coordinates"] = dataReader.GetString(5);
+                        parametersOut["sectorsAreas" + nIndex] = sectorsAreasData;
+                        nIndex++;
+                    }
+
+                    if (parametersOut.Count > 0)
+                        bResult = true;
+                }
             }
             catch (Exception e)
             {
@@ -19127,12 +19262,12 @@ namespace OPSWebServicesAPI.Controllers
                     oraCmd = null;
                 }
 
-                if (oraConn != null)
-                {
-                    oraConn.Close();
-                    oraConn.Dispose();
-                    oraConn = null;
-                }
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
             }
 
             return bResult;
