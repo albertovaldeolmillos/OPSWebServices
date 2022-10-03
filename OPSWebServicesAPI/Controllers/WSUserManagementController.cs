@@ -6898,19 +6898,19 @@ namespace OPSWebServicesAPI.Controllers
                 string emailBody = ":</p><p>Su solicitud ha sido procesada con éxito. Para poder acceder al Servicio de pago por móvil e internet del Estacionamiento de ArinPark debe activar su cuenta pulsando sobre el siguiente enlace: ";
                 string emailAccountID = "Activar Cuenta </a> </p>";
                 string emailAlternativeURL = "Si no puede acceder con el enlace anterior copie y pegue la siguiente dirección en su navegador web: ";
-                string emailFeet = "<p>Si tiene alguna duda o consulta, puede contactar en: <a href=\"soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
+                string emailFeet = "<p>Si tiene alguna duda o consulta, puede contactar en: <a href=\"mailto:soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
                 string emailPreHead2 = "<p><p><p>";
                 string emailHead2 = " Jaun/Andere agurgarria";
                 string emailBody2 = ":</p><p>Zure eskaera zuzen gauzatu da. ArinPark-eko aparkalekuetako mugikor eta internet bidezko ordainketa zerbitzura sartzeko zure kontua aktibatu beharko duzu ondorengo estekan klikatuz: ";
                 string emailAccountID2 = "Aktibatu Kontua </a> </p>";
                 string emailAlternativeURL2 = "Ezin baduzu aurreko helbidera sartu, kopiatu eta itsatsi hurrengo helbidea zure sare nabigatzailean: ";
-                string emailFeet2 = "<p>Zalantza edo kontsultaren bat baduzu kontaktatu dezakezu ArinPark serbitzuarekin hurrengo posta elektronikoan: <a href=\"soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
+                string emailFeet2 = "<p>Zalantza edo kontsultaren bat baduzu kontaktatu dezakezu ArinPark serbitzuarekin hurrengo posta elektronikoan: <a href=\"mailto:soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
                 string emailPreHead3 = "<p><p><p>";
                 string emailHead3 = "Madame/Monsieur ";
                 string emailBody3 = ":</p><p>Nous avons donné suite à votre demande. Pour pouvoir accéder au Service de paiement du stationnement de ArinPark, par téléphone portable et via Internet, vous devez activer votre compte en cliquant sur le lien suivant: ";
                 string emailAccountID3 = "Activer compte </a> </p>";
                 string emailAlternativeURL3 = "Si vous ne pouvez pas y accéder par ce moyen, faites un copié-collé de l’adresse suivante dans votre Navigateur Internet: ";
-                string emailFeet3 = "<p>Au cas où vous auriez des doutes ou suggestions, n'hésitez pas à nous contacter sur ArinPark: <a href=\"soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
+                string emailFeet3 = "<p>Au cas où vous auriez des doutes ou suggestions, n'hésitez pas à nous contacter sur ArinPark: <a href=\"mailto:soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
                 string linkActivation = "<a href=\"" + urlActivation + "ActivationAccount.aspx?TokenID=" + activationID + "\" target=\"_blank\" > ";
 
                 string bodyMessage = emailHead + name + " " + surname1 +
@@ -7443,7 +7443,7 @@ namespace OPSWebServicesAPI.Controllers
                                 strSQLSelect = string.Format("SELECT HFIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_VEHICLEID, HFIN_GRP_ID_ZONE, GRP_DESCSHORT, HFIN_DATE, TO_CHAR( HFIN_DATE, 'YYYYMMddhh24miss') FROM FINES_HIS, FINES_DEF, GROUPS ");
                                 strSQLWhere = string.Format("WHERE HFIN_STATUSADMON = {0} AND HFIN_DFIN_ID = DFIN_ID AND DFIN_COD_ID = {1} ",
                                     ConfigurationManager.AppSettings["FineStatusAdmonDef.Pending"].ToString(), ConfigurationManager.AppSettings["FinesDefCode.Fine"].ToString());
-                                strSQLWhere += string.Format("AND HFIN_VEHICLEID IN (SELECT MUP_PLATE FROM MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
+                                strSQLWhere += string.Format("AND HFIN_VEHICLEID IN (SELECT MUP_PLATE FROM REMOTE_MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HFIN_DATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -7455,7 +7455,7 @@ namespace OPSWebServicesAPI.Controllers
                                 strSQLSelect = string.Format("SELECT FIN_ID, TO_CHAR( FIN_DATE, 'dd/MM/YY hh24:mi'), FIN_VEHICLEID, FIN_GRP_ID_ZONE, GRP_DESCSHORT, FIN_DATE, TO_CHAR( FIN_DATE, 'YYYYMMddhh24miss') FROM FINES, FINES_DEF, GROUPS ");
                                 strSQLWhere = string.Format("WHERE FIN_STATUSADMON = {0} AND FIN_DFIN_ID = DFIN_ID AND DFIN_COD_ID = {1} ",
                                     ConfigurationManager.AppSettings["FineStatusAdmonDef.Pending"].ToString(), ConfigurationManager.AppSettings["FinesDefCode.Fine"].ToString());
-                                strSQLWhere += string.Format("AND FIN_VEHICLEID IN (SELECT MUP_PLATE FROM MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
+                                strSQLWhere += string.Format("AND FIN_VEHICLEID IN (SELECT MUP_PLATE FROM REMOTE_MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND FIN_DATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -8453,7 +8453,7 @@ namespace OPSWebServicesAPI.Controllers
                 string emailBody = "<p>Su solicitud ha sido procesada con éxito y se ha generado el siguiente código de recuperación: ";
                 string emailCode = "<b>" + strRecoveryCode + "</b></p>" + 
                     "<p>En la aplicación debe utilizar este código en el siguiente paso del proceso. Introduzca el código junto con la nueva contraseña y accederá automáticamente a la aplicación.</p>";
-                string emailFeet = "<p>Si tiene alguna duda o consulta, puede contactar el soporte técnico de ArinPark en: <a href=\"soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
+                string emailFeet = "<p>Si tiene alguna duda o consulta, puede contactar el soporte técnico de ArinPark en: <a href=\"mailto:soporte.arinpark@gerteksa.eus\" target=\"_blank\" > soporte.arinpark@gerteksa.eus</a></p>";
                 string bodyMessage = emailHead +
                                      emailBody +
                                      emailCode;
@@ -10282,7 +10282,7 @@ namespace OPSWebServicesAPI.Controllers
             string tokenUser = "";
             string tokenId = "";
             string merchantSignature = "";
-            string strUrl = "https://secure.paytpv.com/gateway/bnkgateway.php?";
+            string strUrl = "https://api.paycomet.com/gateway/bnkgateway.php?";
             string merchantCode = ConfigurationManager.AppSettings["PayTpv_MerchantMerchantCode"].ToString();
             string merchantTerminal = ConfigurationManager.AppSettings["PayTpv_MerchantTerminal"].ToString();
             string language = ConfigurationManager.AppSettings["PayTpv_Language"].ToString();

@@ -1201,7 +1201,7 @@ namespace OPSWebServicesAPI.Controllers
                                     nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
                             }
 
-                            if (MessagesExceptionForParking(nContractId, Convert.ToInt32(parametersIn["g"]), out response))
+                            if (MessagesExceptionForParking(nContractId, Convert.ToInt32(parametersIn["g"]), parametersIn["p"].ToString(), out response))
                             {
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI::Error - Message Exception: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 return response;
@@ -1541,7 +1541,7 @@ namespace OPSWebServicesAPI.Controllers
                                     nContractId = Convert.ToInt32(parametersIn["contid"].ToString());
                             }
 
-                            if (MessagesExceptionForParking(nContractId, Convert.ToInt32(parametersIn["g"]), out response))
+                            if (MessagesExceptionForParking(nContractId, Convert.ToInt32(parametersIn["g"]), parametersIn["p"].ToString(), out response))
                             {
                                 Logger_AddLogMessage(string.Format("QueryParkingOperationWithMoneyStepsAPI::Error - Message Exception: parametersIn= {0}, parametersOut={1}", SortedListToString(parametersIn), SortedListToString(parametersOut)), LoggerSeverities.Error);
                                 return response;
@@ -9492,7 +9492,7 @@ namespace OPSWebServicesAPI.Controllers
             return c;
         }
 
-        private bool MessagesExceptionForParking(int nContractId, int idSector, out ResultParkingStepsInfo response)
+        private bool MessagesExceptionForParking(int nContractId, int idSector, string plate, out ResultParkingStepsInfo response)
         {
             bool existsException = false;
             response = new ResultParkingStepsInfo();
@@ -9572,7 +9572,22 @@ namespace OPSWebServicesAPI.Controllers
                 response.value = null;
                 existsException = true;
             }
-            if (nContractId == 61 && (idSector == 60105 || idSector == 60205 || idSector == 60305 || idSector == 60405 || idSector == 61105 || idSector == 61205 || idSector == 61305 || idSector == 62105 || idSector == 63105 || idSector == 63215))
+            //Todos los sectores BR
+            if (nContractId == 61 && (idSector == 60105 || idSector == 60205 || idSector == 60305 || idSector == 60405 || idSector == 61105 || idSector == 61205 || idSector == 61305 || idSector == 62105 || idSector == 63105 || idSector == 63205))
+            {
+                response.isSuccess = false;
+                int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
+                response.error = new Error(error, GetSeverityError(error));
+                response.value = null;
+                existsException = true;
+            }
+            if (nContractId == 61
+                //Todos los sectores ARRUNTA
+                && (idSector == 60103 || idSector == 60203 || idSector == 60303 || idSector == 60403 || idSector == 61103 || idSector == 61203 || idSector == 61303 || idSector == 62103 || idSector == 63103 || idSector == 63203 ||
+                //Todos los sectores LUZE
+                    idSector == 60104 || idSector == 60204 || idSector == 60304 || idSector == 60404 || idSector == 61104 || idSector == 61204 || idSector == 61304 || idSector == 62104 || idSector == 63104 || idSector == 63204)
+                //Que además cumplan que res_dart_id = 5
+                && CalculateArrasateResidentException(idSector, plate, nContractId))
             {
                 response.isSuccess = false;
                 int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
@@ -9637,6 +9652,81 @@ namespace OPSWebServicesAPI.Controllers
             }
 
             return existsException; 
+        }
+
+        private bool CalculateArrasateResidentException(int idSector, string plate, int nContractId)
+        {
+            bool bResident = false;
+            OracleDataReader dataReader = null;
+            OracleCommand oraCmd = null;
+            //OracleConnection oraConn = null;
+
+            try
+            {
+                string sConn = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                if (nContractId > 0)
+                    sConn = ConfigurationManager.AppSettings["ConnectionString" + nContractId.ToString()].ToString();
+                if (sConn == null)
+                    throw new Exception("No ConnectionString configuration");
+
+                //oraConn = new OracleConnection(sConn);
+                using (OracleConnection oraConn = new OracleConnection(sConn))
+                {
+                    oraCmd = new OracleCommand();
+                    oraCmd.Connection = oraConn;
+                    oraCmd.Connection.Open();
+
+                    if (oraCmd == null)
+                        throw new Exception("Oracle command is null");
+
+                    // Conexion BBDD?
+                    if (oraCmd.Connection == null)
+                        throw new Exception("Oracle connection is null");
+
+                    if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
+                        throw new Exception("Oracle connection is not open");
+
+                    string strSQL = string.Format("select count(*) from residents r where r.res_vehicleid = '{0}' and r.res_grp_id = {1} and r.res_dart_id = 5",
+                        plate, idSector);
+                    oraCmd.CommandText = strSQL;
+
+                    dataReader = oraCmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        if (dataReader.GetInt32(0) > 0)
+                            bResident = true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger_AddLogMessage(string.Format("CalculateArrasateResidentException::Error - {0}, group - {1}, plate - {2}", e.Message, idSector, plate), LoggerSeverities.Error);
+                Logger_AddLogException(e);
+                bResident = false;
+            }
+            finally
+            {
+                if (dataReader != null)
+                {
+                    dataReader.Close();
+                    dataReader.Dispose();
+                    dataReader = null;
+                }
+
+                if (oraCmd != null)
+                {
+                    oraCmd.Dispose();
+                    oraCmd = null;
+                }
+
+                //if (oraConn != null)
+                //{
+                //    oraConn.Close();
+                //    oraConn.Dispose();
+                //    oraConn = null;
+                //}
+            }
+            return bResident;
         }
 
         /// <summary>
@@ -16384,19 +16474,19 @@ namespace OPSWebServicesAPI.Controllers
                         StringBuilder sqlQuery = new StringBuilder();
                         if (_szCloudId.Length > 0 && _iOS > 0)
                         {
-                            sqlQuery.AppendFormat(" update mobile_users m " +
+                            sqlQuery.AppendFormat(" update remote_mobile_users m " +
                                 "set m.mu_cloud_token = '{0}', m.mu_device_os = {1} " +
                                 "where mu_id = {2}", _szCloudId, _iOS, _mobileUserId);
                         }
                         else if (_szCloudId.Length > 0)
                         {
-                            sqlQuery.AppendFormat(" update mobile_users m " +
+                            sqlQuery.AppendFormat(" update remote_mobile_users m " +
                                 "set m.mu_cloud_token = '{0}' " +
                                 "where mu_id = {1}", _szCloudId, _mobileUserId);
                         }
                         else
                         {
-                            sqlQuery.AppendFormat(" update mobile_users m " +
+                            sqlQuery.AppendFormat(" update remote_mobile_users m " +
                                 "set m.mu_device_os = {0} " +
                                 "where mu_id = {1}", _iOS, _mobileUserId);
                         }
@@ -18646,7 +18736,7 @@ namespace OPSWebServicesAPI.Controllers
                         if (oraCmd3 == null)
                             throw new Exception("Oracle command is null");
 
-                        string strSQL = string.Format("UPDATE MOBILE_USERS_PLATES SET {0} WHERE MUP_MU_ID = {1} AND MUP_PLATE = '{2}'", strUpdate, ParametersIn["mui"].ToString(), ParametersIn["p"].ToString());
+                        string strSQL = string.Format("UPDATE REMOTE_MOBILE_USERS_PLATES SET {0} WHERE MUP_MU_ID = {1} AND MUP_PLATE = '{2}'", strUpdate, ParametersIn["mui"].ToString(), ParametersIn["p"].ToString());
                         oraCmd3.CommandText = strSQL;
                         oraCmd3.ExecuteNonQuery();
                         bResult = true;
