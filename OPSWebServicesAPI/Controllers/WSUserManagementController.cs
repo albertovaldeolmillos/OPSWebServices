@@ -7437,13 +7437,16 @@ namespace OPSWebServicesAPI.Controllers
 
                         if (bListFines)
                         {
+                            string strTableMobileUsersPlates = "MOBILE_USERS_PLATES";
+                            if (!strContractId.Equals("0"))
+                                strTableMobileUsersPlates = "REMOTE_MOBILE_USERS_PLATES";
                             // Search for fines
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HFIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_VEHICLEID, HFIN_GRP_ID_ZONE, GRP_DESCSHORT, HFIN_DATE, TO_CHAR( HFIN_DATE, 'YYYYMMddhh24miss') FROM FINES_HIS, FINES_DEF, GROUPS ");
                                 strSQLWhere = string.Format("WHERE HFIN_STATUSADMON = {0} AND HFIN_DFIN_ID = DFIN_ID AND DFIN_COD_ID = {1} ",
                                     ConfigurationManager.AppSettings["FineStatusAdmonDef.Pending"].ToString(), ConfigurationManager.AppSettings["FinesDefCode.Fine"].ToString());
-                                strSQLWhere += string.Format("AND HFIN_VEHICLEID IN (SELECT MUP_PLATE FROM REMOTE_MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
+                                strSQLWhere += string.Format("AND HFIN_VEHICLEID IN (SELECT MUP_PLATE FROM " + strTableMobileUsersPlates + " WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HFIN_DATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -7455,7 +7458,7 @@ namespace OPSWebServicesAPI.Controllers
                                 strSQLSelect = string.Format("SELECT FIN_ID, TO_CHAR( FIN_DATE, 'dd/MM/YY hh24:mi'), FIN_VEHICLEID, FIN_GRP_ID_ZONE, GRP_DESCSHORT, FIN_DATE, TO_CHAR( FIN_DATE, 'YYYYMMddhh24miss') FROM FINES, FINES_DEF, GROUPS ");
                                 strSQLWhere = string.Format("WHERE FIN_STATUSADMON = {0} AND FIN_DFIN_ID = DFIN_ID AND DFIN_COD_ID = {1} ",
                                     ConfigurationManager.AppSettings["FineStatusAdmonDef.Pending"].ToString(), ConfigurationManager.AppSettings["FinesDefCode.Fine"].ToString());
-                                strSQLWhere += string.Format("AND FIN_VEHICLEID IN (SELECT MUP_PLATE FROM REMOTE_MOBILE_USERS_PLATES WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
+                                strSQLWhere += string.Format("AND FIN_VEHICLEID IN (SELECT MUP_PLATE FROM " + strTableMobileUsersPlates + " WHERE MUP_MU_ID = {0} AND MUP_VALID = 1 AND MUP_DELETED = 0) ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND FIN_DATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else

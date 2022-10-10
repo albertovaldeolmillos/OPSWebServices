@@ -18725,6 +18725,10 @@ namespace OPSWebServicesAPI.Controllers
                             strUpdate = " MUP_DEVICE_OS = " + ParametersIn["os"].ToString();
                     }
 
+                    string strTableMobileUsersPlates = "MOBILE_USERS_PLATES";
+                    if (nContractId > 0)
+                        strTableMobileUsersPlates = "REMOTE_MOBILE_USERS_PLATES";
+
                     if (strUpdate.Length > 0)
                     {
                         //oraConn = new OracleConnection(sConn);using (OracleConnection oraConn = new OracleConnection(sConn))
@@ -18736,7 +18740,7 @@ namespace OPSWebServicesAPI.Controllers
                         if (oraCmd3 == null)
                             throw new Exception("Oracle command is null");
 
-                        string strSQL = string.Format("UPDATE REMOTE_MOBILE_USERS_PLATES SET {0} WHERE MUP_MU_ID = {1} AND MUP_PLATE = '{2}'", strUpdate, ParametersIn["mui"].ToString(), ParametersIn["p"].ToString());
+                        string strSQL = string.Format("UPDATE  " + strTableMobileUsersPlates + " SET {0} WHERE MUP_MU_ID = {1} AND MUP_PLATE = '{2}'", strUpdate, ParametersIn["mui"].ToString(), ParametersIn["p"].ToString());
                         oraCmd3.CommandText = strSQL;
                         oraCmd3.ExecuteNonQuery();
                         bResult = true;
