@@ -1653,6 +1653,17 @@ namespace OPSWebServicesAPI.Controllers
                                 return response;
                             }
 
+                            // Check user validation
+                            if (!IsUserValidated(nMobileUserId, nContractId))
+                            {
+                                Logger_AddLogMessage(string.Format("RecoverPasswordAPI::User not validated - needs to activate account: parametersIn= {0}", SortedListToString(parametersIn)), LoggerSeverities.Error);
+                                response.isSuccess = false;
+                                int error = (int)ResultType.Result_Error_User_Not_Validated;
+                                response.error = new Error(error, GetSeverityError(error));
+                                response.value = null; //Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
+                                return response;//Convert.ToInt32(ResultType.Result_Error_User_Not_Validated).ToString();
+                            }
+
                             Logger_AddLogMessage(string.Format("RecoverPasswordAPI::Mobile user ID: {0}", nMobileUserId), LoggerSeverities.Info);
 
                             // Generate recovery code
