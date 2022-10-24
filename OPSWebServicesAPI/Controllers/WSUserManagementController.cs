@@ -7155,7 +7155,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HOPE_ID, HOPE_DOPE_ID, HOPE_GRP_ID, HOPE_DPAY_ID, NVL(HOPE_POST_PAY,0), HOPE_VALUE_VIS, TO_CHAR( HOPE_MOVDATE, 'hh24missddMMYY'), HOPE_FIN_ID, TO_CHAR( HFIN_DATE, 'hh24missddMMYY'), HFIN_STATUSADMON, HOPE_MOVDATE, HFIN_VEHICLEID, GRP_DESCSHORT, NVL(GRP_COLOUR, ' ') AS GRP_COLOUR FROM OPERATIONS_HIS, FINES_HIS, GROUPS ");
-                                strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} AND HOPE_DOPE_ID = {1} AND HOPE_FIN_ID = HFIN_ID ",
+                                strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} AND HOPE_DOPE_ID = {1} AND HOPE_FIN_ID = HFIN_ID  AND HOPE_DPAY_ID <> 5 ",
                                     parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HOPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
@@ -7166,7 +7166,7 @@ namespace OPSWebServicesAPI.Controllers
                             else
                             {
                                 strSQLSelect = string.Format("SELECT OPE_ID, OPE_DOPE_ID, OPE_GRP_ID, OPE_DPAY_ID, NVL(OPE_POST_PAY,0), OPE_VALUE_VIS, TO_CHAR( OPE_MOVDATE, 'hh24missddMMYY'), OPE_FIN_ID, TO_CHAR( FIN_DATE, 'hh24missddMMYY'), FIN_STATUSADMON, OPE_MOVDATE, FIN_VEHICLEID, GRP_DESCSHORT, NVL(GRP_COLOUR, ' ') AS GRP_COLOUR FROM OPERATIONS, FINES, GROUPS ");
-                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} AND OPE_DOPE_ID = {1} AND OPE_FIN_ID = FIN_ID ",
+                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} AND OPE_DOPE_ID = {1} AND OPE_FIN_ID = FIN_ID  AND OPE_DPAY_ID <> 5 ",
                                     parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND OPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
@@ -7196,8 +7196,8 @@ namespace OPSWebServicesAPI.Controllers
                                     dataList["zo"] = dataReader.GetInt32(2).ToString();
                                     dataList["pm"] = dataReader.GetInt32(3).ToString();
                                     // *** Temporary patch
-                                    if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
-                                        dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
+                                    //if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
+                                    //    dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
                                     dataList["pp"] = dataReader.GetInt32(4).ToString();
                                     dataList["pa"] = dataReader.GetInt32(5).ToString();
                                     if (!dataReader.IsDBNull(6))
@@ -7224,7 +7224,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HOPE_ID, HOPE_DOPE_ID, HOPE_VEHICLEID, HOPE_GRP_ID, TO_CHAR( HOPE_INIDATE, 'hh24missddMMYY'), TO_CHAR( HOPE_ENDDATE, 'hh24missddMMYY'), HOPE_DPAY_ID, NVL(HOPE_POST_PAY,0), HOPE_VALUE_VIS, TO_CHAR( HOPE_MOVDATE, 'hh24missddMMYY'), HOPE_MOVDATE, CASE WHEN (HOPE_ENDDATE - SYSDATE > 0) THEN 2 ELSE 1 END, HOPE_RECHARGE_TYPE, GRP_DESCSHORT, NVL(GRP_COLOUR, ' ') AS GRP_COLOUR FROM OPERATIONS_HIS, GROUPS ");
-                                strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                                strSQLWhere = string.Format("WHERE HOPE_MOBI_USER_ID = {0}  AND HOPE_DPAY_ID <> 5 ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HOPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -7238,7 +7238,7 @@ namespace OPSWebServicesAPI.Controllers
                             else
                             {
                                 strSQLSelect = string.Format("SELECT OPE_ID, OPE_DOPE_ID, OPE_VEHICLEID, OPE_GRP_ID, TO_CHAR( OPE_INIDATE, 'hh24missddMMYY'), TO_CHAR( OPE_ENDDATE, 'hh24missddMMYY'), OPE_DPAY_ID, NVL(OPE_POST_PAY,0), OPE_VALUE_VIS, TO_CHAR( OPE_MOVDATE, 'hh24missddMMYY'), OPE_MOVDATE, CASE WHEN (OPE_ENDDATE - SYSDATE > 0) THEN 2 ELSE 1 END, OPE_RECHARGE_TYPE, GRP_DESCSHORT, NVL(GRP_COLOUR, ' ') AS GRP_COLOUR FROM OPERATIONS, GROUPS ");
-                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0}  AND OPE_DPAY_ID <> 5 ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND OPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -7277,8 +7277,8 @@ namespace OPSWebServicesAPI.Controllers
                                         dataList["ed"] = dataReader.GetString(5);
                                     dataList["pm"] = dataReader.GetInt32(6).ToString();
                                     // *** Temporary patch
-                                    if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
-                                        dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
+                                    //if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
+                                    //    dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
                                     dataList["pp"] = dataReader.GetInt32(7).ToString();
                                     dataList["pa"] = dataReader.GetInt32(8).ToString();
                                     if (dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Recharge"].ToString())
@@ -7516,7 +7516,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HOPEF_ID, HOPEF_DOPE_ID, HOPEF_GRP_ID, HOPEF_DPAY_ID, NVL(HOPEF_POST_PAY,0), HOPEF_VALUE_VIS, TO_CHAR( HOPEF_MOVDATE, 'dd/MM/YY hh24:mi'), HOPEF_FIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_STATUSADMON, GRP_DESCSHORT, HOPEF_MOVDATE, HFIN_VEHICLEID, TO_CHAR( HOPEF_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS_FULL, FINES_HIS, GROUPS ");
-                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} AND HOPEF_DOPE_ID = {1} AND HOPEF_FIN_ID = HFIN_ID ",
+                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} AND HOPEF_DOPE_ID = {1} AND HOPEF_FIN_ID = HFIN_ID  AND HOPE_DPAY_ID <> 5 ",
                                     parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HOPEF_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
@@ -7527,7 +7527,7 @@ namespace OPSWebServicesAPI.Controllers
                             else
                             {
                                 strSQLSelect = string.Format("SELECT OPE_ID, OPE_DOPE_ID, OPE_GRP_ID, OPE_DPAY_ID, NVL(OPE_POST_PAY,0), OPE_VALUE_VIS, TO_CHAR( OPE_MOVDATE, 'dd/MM/YY hh24:mi'), OPE_FIN_ID, TO_CHAR( FIN_DATE, 'dd/MM/YY hh24:mi'), FIN_STATUSADMON, GRP_DESCSHORT, OPE_MOVDATE, FIN_VEHICLEID, TO_CHAR( OPE_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS, FINES, GROUPS ");
-                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} AND OPE_DOPE_ID = {1} AND OPE_FIN_ID = FIN_ID ",
+                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} AND OPE_DOPE_ID = {1} AND OPE_FIN_ID = FIN_ID  AND OPE_DPAY_ID <> 5 ",
                                     parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND OPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
@@ -7555,8 +7555,8 @@ namespace OPSWebServicesAPI.Controllers
                                     dataList["zo"] = dataReader.GetString(10);
                                     dataList["pm"] = dataReader.GetInt32(3).ToString();
                                     // *** Temporary patch
-                                    if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
-                                        dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
+                                    //if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
+                                    //    dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
                                     dataList["pp"] = dataReader.GetInt32(4).ToString();
                                     dataList["pa"] = dataReader.GetInt32(5).ToString();
                                     if (!dataReader.IsDBNull(6))
@@ -7584,7 +7584,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HOPEF_ID, HOPEF_DOPE_ID, HOPEF_VEHICLEID, HOPEF_GRP_ID, TO_CHAR( HOPEF_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( HOPEF_ENDDATE, 'dd/MM/YY hh24:mi'), HOPEF_DPAY_ID, NVL(HOPEF_POST_PAY,0), HOPEF_VALUE_VIS, TO_CHAR( HOPEF_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, HOPEF_MOVDATE, HOPEF_RECHARGE_TYPE, HOPEF_REFERENCE, TO_CHAR( HOPEF_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( HOPEF_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS_FULL, GROUPS ");
-                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0}  AND HOPE_DPAY_ID <> 5 ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HOPEF_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -7598,7 +7598,7 @@ namespace OPSWebServicesAPI.Controllers
                             else
                             {
                                 strSQLSelect = string.Format("SELECT OPE_ID, OPE_DOPE_ID, OPE_VEHICLEID, OPE_GRP_ID, TO_CHAR( OPE_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( OPE_ENDDATE, 'dd/MM/YY hh24:mi'), OPE_DPAY_ID, NVL(OPE_POST_PAY,0), OPE_VALUE_VIS, TO_CHAR( OPE_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, OPE_MOVDATE, OPE_RECHARGE_TYPE, OPE_REFERENCE, TO_CHAR( OPE_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( OPE_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS, GROUPS ");
-                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0} ", parametersIn["mui"].ToString());
+                                strSQLWhere = string.Format("WHERE OPE_MOBI_USER_ID = {0}  AND OPE_DPAY_ID <> 5 ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND OPE_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
@@ -7639,8 +7639,8 @@ namespace OPSWebServicesAPI.Controllers
                                         dataList["ed"] = dataReader.GetString(5);
                                     dataList["pm"] = dataReader.GetInt32(6).ToString();
                                     // *** Temporary patch
-                                    if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
-                                        dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
+                                    //if (dataList["pm"].ToString().Equals(ConfigurationManager.AppSettings["PayTypesDef.WebPayment"].ToString()))
+                                    //    dataList["pm"] = ConfigurationManager.AppSettings["PayTypesDef.Telephone"].ToString();
                                     dataList["pp"] = dataReader.GetInt32(7).ToString();
                                     dataList["pa"] = dataReader.GetInt32(8).ToString();
                                     if (dataList["ot"].ToString().Equals(ConfigurationManager.AppSettings["OperationsDef.Recharge"].ToString())
@@ -9225,7 +9225,7 @@ namespace OPSWebServicesAPI.Controllers
                         //todavía no existe la multa
                         // existe alguna operación de pago de la misma
 
-                        strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                        strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0} AND OPE_DPAY_ID <> 5 ", Convert.ToInt64(fine_id));
                         oraCmd.CommandText = strSQL;
 
                         if (dataReader != null)

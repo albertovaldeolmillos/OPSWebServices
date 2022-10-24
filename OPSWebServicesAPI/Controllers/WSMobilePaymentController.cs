@@ -11227,7 +11227,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID,-1) FROM OPERATIONS WHERE OPE_ID = {0}", nOperId);
+                    string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID,-1) FROM OPERATIONS WHERE OPE_ID = {0} AND OPE_DPAY_ID <> 5 ", nOperId);
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
@@ -11307,7 +11307,7 @@ namespace OPSWebServicesAPI.Controllers
                 if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                     throw new Exception("Oracle connection is not open");
 
-                string strSQL = string.Format("SELECT OPE_DART_ID, OPE_DOPE_ID, TO_CHAR(OPE_INIDATE, 'hh24missddMMYY'), TO_CHAR(OPE_ENDDATE, 'hh24missddMMYY'), NVL(OPE_MOBI_USER_ID,-1), OPE_LATITUDE, OPE_LONGITUD, OPE_REFERENCE, OPE_GRP_ID, OPE_VALUE_VIS, OPE_DURATION, TO_CHAR(OPE_MOVDATE, 'hh24missddMMYY'), OPE_ADDR_STREET, OPE_ADDR_NUMBER, OPE_UNPARK_INTENT FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                string strSQL = string.Format("SELECT OPE_DART_ID, OPE_DOPE_ID, TO_CHAR(OPE_INIDATE, 'hh24missddMMYY'), TO_CHAR(OPE_ENDDATE, 'hh24missddMMYY'), NVL(OPE_MOBI_USER_ID,-1), OPE_LATITUDE, OPE_LONGITUD, OPE_REFERENCE, OPE_GRP_ID, OPE_VALUE_VIS, OPE_DURATION, TO_CHAR(OPE_MOVDATE, 'hh24missddMMYY'), OPE_ADDR_STREET, OPE_ADDR_NUMBER, OPE_UNPARK_INTENT FROM OPERATIONS WHERE OPE_ID = {0} AND OPE_DPAY_ID <> 5 ", lOperId);
                 oraCmd.CommandText = strSQL;
 
                 dataReader = oraCmd.ExecuteReader();
@@ -13764,7 +13764,7 @@ namespace OPSWebServicesAPI.Controllers
                         //todavía no existe la multa
                         // existe alguna operación de pago de la misma
 
-                        strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                        strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0} AND OPE_DPAY_ID <> 5 ", Convert.ToInt64(fine_id));
                         oraCmd.CommandText = strSQL;
 
                         if (dataReader != null)
@@ -14943,7 +14943,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT OPE_GRP_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                    string strSQL = string.Format("SELECT OPE_GRP_ID FROM OPERATIONS WHERE OPE_ID = {0} AND OPE_DPAY_ID <> 5 ", lOperId);
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
@@ -15020,7 +15020,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT OPE_DART_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                    string strSQL = string.Format("SELECT OPE_DART_ID FROM OPERATIONS WHERE OPE_ID = {0} AND OPE_DPAY_ID <> 5 ", lOperId);
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
@@ -15179,7 +15179,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT OPE_PS_ID FROM OPERATIONS WHERE OPE_ID = {0}", lOperId);
+                    string strSQL = string.Format("SELECT OPE_PS_ID FROM OPERATIONS WHERE OPE_ID = {0} AND OPE_DPAY_ID <> 5 ", lOperId);
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
@@ -16784,7 +16784,7 @@ namespace OPSWebServicesAPI.Controllers
                             //todavía no existe la multa
                             // existe alguna operación de pago de la misma
 
-                            strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0}", Convert.ToInt64(fine_id));
+                            strSQL = String.Format("SELECT count(*) FROM operations WHERE ope_fin_id = {0} AND OPE_DPAY_ID <> 5 ", Convert.ToInt64(fine_id));
                             oraCmd.CommandText = strSQL;
 
                             if (dataReader != null)
@@ -17336,7 +17336,7 @@ namespace OPSWebServicesAPI.Controllers
                         throw new Exception("Oracle connection is not open");
 
 
-                    string strSQL = string.Format("SELECT COUNT(*) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')", strPlate, strDate);
+                    string strSQL = string.Format("SELECT COUNT(*) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')  AND OPE_DPAY_ID <> 5 ", strPlate, strDate);
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
@@ -17415,7 +17415,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT MAX(OPE_ID), NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
+                    string strSQL = string.Format("SELECT MAX(OPE_ID), NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3})  AND OPE_DPAY_ID <> 5 ",
                         strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
                     if (nGroup > 0)
                         strSQL += string.Format("AND OPE_GRP_ID = {0} ", nGroup);
@@ -17509,7 +17509,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                                 throw new Exception("Oracle connection is not open");
 
-                            string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_ID = {0} ", lOperId);
+                            string strSQL = string.Format("SELECT NVL(OPE_MOBI_USER_ID, 0) FROM OPERATIONS WHERE OPE_ID = {0}  AND OPE_DPAY_ID <> 5 ", lOperId);
                             oraCmd.CommandText = strSQL;
 
                             dataReader = oraCmd.ExecuteReader();
@@ -17588,7 +17588,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) AND OPE_DART_ID IN ({4})",
+                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) AND OPE_DART_ID IN ({4})  AND OPE_DPAY_ID <> 5 ",
                         strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString(), strArticlesFilter);
                     oraCmd.CommandText = strSQL;
 
@@ -17739,7 +17739,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3}) ",
+                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_DOPE_ID IN ({1}, {2}, {3})  AND OPE_DPAY_ID <> 5 ",
                         strPlate, ConfigurationManager.AppSettings["OperationsDef.Parking"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Extension"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Refund"].ToString());
                     oraCmd.CommandText = strSQL;
 
@@ -18590,7 +18590,7 @@ namespace OPSWebServicesAPI.Controllers
                     if (oraCmd.Connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("Oracle connection is not open");
 
-                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy')", ParametersIn["p"].ToString(), ParametersIn["d"].ToString());
+                    string strSQL = string.Format("SELECT MAX(OPE_ID) FROM OPERATIONS WHERE OPE_VEHICLEID='{0}' AND OPE_MOVDATE = to_date('{1}','hh24missddmmyy') AND OPE_DPAY_ID <> 5 ", ParametersIn["p"].ToString(), ParametersIn["d"].ToString());
                     oraCmd.CommandText = strSQL;
 
                     dataReader = oraCmd.ExecuteReader();
