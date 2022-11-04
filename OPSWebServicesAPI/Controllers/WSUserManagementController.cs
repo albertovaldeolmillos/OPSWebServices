@@ -7516,7 +7516,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HOPEF_ID, HOPEF_DOPE_ID, HOPEF_GRP_ID, HOPEF_DPAY_ID, NVL(HOPEF_POST_PAY,0), HOPEF_VALUE_VIS, TO_CHAR( HOPEF_MOVDATE, 'dd/MM/YY hh24:mi'), HOPEF_FIN_ID, TO_CHAR( HFIN_DATE, 'dd/MM/YY hh24:mi'), HFIN_STATUSADMON, GRP_DESCSHORT, HOPEF_MOVDATE, HFIN_VEHICLEID, TO_CHAR( HOPEF_MOVDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS_FULL, FINES_HIS, GROUPS ");
-                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} AND HOPEF_DOPE_ID = {1} AND HOPEF_FIN_ID = HFIN_ID  AND HOPE_DPAY_ID <> 5 ",
+                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0} AND HOPEF_DOPE_ID = {1} AND HOPEF_FIN_ID = HFIN_ID  AND HOPEF_DPAY_ID <> 5 ",
                                     parametersIn["mui"].ToString(), ConfigurationManager.AppSettings["OperationsDef.Payment"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HOPEF_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
@@ -7584,7 +7584,7 @@ namespace OPSWebServicesAPI.Controllers
                             if (bUseHistoricData)
                             {
                                 strSQLSelect = string.Format("SELECT HOPEF_ID, HOPEF_DOPE_ID, HOPEF_VEHICLEID, HOPEF_GRP_ID, TO_CHAR( HOPEF_INIDATE, 'dd/MM/YY hh24:mi'), TO_CHAR( HOPEF_ENDDATE, 'dd/MM/YY hh24:mi'), HOPEF_DPAY_ID, NVL(HOPEF_POST_PAY,0), HOPEF_VALUE_VIS, TO_CHAR( HOPEF_MOVDATE, 'dd/MM/YY hh24:mi'), GRP_DESCSHORT, HOPEF_MOVDATE, HOPEF_RECHARGE_TYPE, HOPEF_REFERENCE, TO_CHAR( HOPEF_MOVDATE, 'YYYYMMddhh24miss'), TO_CHAR( HOPEF_INIDATE, 'YYYYMMddhh24miss') FROM OPERATIONS_HIS_FULL, GROUPS ");
-                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0}  AND HOPE_DPAY_ID <> 5 ", parametersIn["mui"].ToString());
+                                strSQLWhere = string.Format("WHERE HOPEF_MOBI_USER_ID = {0}  AND HOPEF_DPAY_ID <> 5 ", parametersIn["mui"].ToString());
                                 if (nDateFormat == DATE_FORMAT_DAYS)
                                     strSQLWhere += string.Format("AND HOPEF_MOVDATE > SYSDATE - {0} ", parametersIn["d"].ToString());
                                 else
