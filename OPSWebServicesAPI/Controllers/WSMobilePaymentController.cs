@@ -2369,6 +2369,11 @@ namespace OPSWebServicesAPI.Controllers
 
             SortedList parametersIn = new SortedList();
 
+            if (parkingConfirmQuery.plate != null && parkingConfirmQuery.plate != "")
+            {
+                parkingConfirmQuery.plate = parkingConfirmQuery.plate.ToUpper();
+            }
+
             string token;
             if (!TokenRequest.TryTokenRequest(Request, out token))
             {
