@@ -1306,6 +1306,58 @@ namespace OPSWebServicesAPI.Controllers
                                 }
                                 else
                                 {
+                                    //Corrección del resultado devuelto por el M1 (Arrasate LUZE --> mañana + tarde)
+                                    //En el caso de que la cantidad mínima sea igual a la cantidad del step 1 se pone:
+                                    //  1- el tiempo y la fecha mínimos en el tiempo y la fecha del step 1 y 
+                                    //  2- el tiempo y la fecha máximos en el tiempo y la fecha del step 2 
+                                    //El resultado devuelto por el M1 (Arrasate LUZE --> sólo tarde) es correcto
+                                    if (parametersOut["lst"] != null && parametersOut["lst"] is SortedList && ((SortedList)parametersOut["lst"]).Count == 2)
+                                    {
+                                        Logger_AddLogMessage("----------2------q1---" + parametersOut["q1"], LoggerSeverities.Info);
+                                        Logger_AddLogMessage("----------2------l1q---" + ((SortedList)((SortedList)parametersOut["lst"])[1])["q"], LoggerSeverities.Info);
+                                        Logger_AddLogMessage("----------2------q2---" + parametersOut["q2"], LoggerSeverities.Info);
+                                        Logger_AddLogMessage("----------2------l2q---" + ((SortedList)((SortedList)parametersOut["lst"])[2])["q"], LoggerSeverities.Info);
+                                        if (Convert.ToInt32(parametersOut["q1"]) == Convert.ToInt32(((SortedList)((SortedList)parametersOut["lst"])[1])["q"]))
+                                        {
+                                            ((SortedList)((SortedList)parametersOut["lst"])[1])["d"] = parametersOut["d1"];
+                                            ((SortedList)((SortedList)parametersOut["lst"])[1])["t"] = parametersOut["t1"];
+                                        }
+                                        if (Convert.ToInt32(parametersOut["q2"]) == Convert.ToInt32(((SortedList)((SortedList)parametersOut["lst"])[2])["q"]))
+                                        {
+                                            ((SortedList)((SortedList)parametersOut["lst"])[2])["d"] = parametersOut["d2"];
+                                            ((SortedList)((SortedList)parametersOut["lst"])[2])["t"] = parametersOut["t2"];
+                                        }
+                                    }
+                                    /*if (parametersOut["lst"] != null && parametersOut["lst"] is SortedList && ((SortedList)parametersOut["lst"]).Count > 0)
+                                    {
+                                        if (((SortedList)parametersOut["lst"]).Count == 1)
+                                        {
+                                            Logger_AddLogMessage("----------1------q1---" + parametersOut["q1"], LoggerSeverities.Info);
+                                            Logger_AddLogMessage("----------1------l1q---" + ((SortedList)((SortedList)parametersOut["lst"])[1])["q"], LoggerSeverities.Info);
+                                            if (parametersOut["q1"].ToString() == ((SortedList)((SortedList)parametersOut["lst"])[1])["q"].ToString())
+                                            {
+                                                ((SortedList)((SortedList)parametersOut["lst"])[1])["d"] = parametersOut["d1"];
+                                                ((SortedList)((SortedList)parametersOut["lst"])[1])["t"] = parametersOut["t1"];
+                                            }
+                                        }
+                                        if (((SortedList)parametersOut["lst"]).Count == 2)
+                                        {
+                                            Logger_AddLogMessage("----------2------q1---" + parametersOut["q1"], LoggerSeverities.Info);
+                                            Logger_AddLogMessage("----------2------l1q---" + ((SortedList)((SortedList)parametersOut["lst"])[1])["q"], LoggerSeverities.Info);
+                                            Logger_AddLogMessage("----------2------q2---" + parametersOut["q2"], LoggerSeverities.Info);
+                                            Logger_AddLogMessage("----------2------l2q---" + ((SortedList)((SortedList)parametersOut["lst"])[2])["q"], LoggerSeverities.Info);
+                                            if (Convert.ToInt32(parametersOut["q1"]) == Convert.ToInt32(((SortedList)((SortedList)parametersOut["lst"])[1])["q"]))
+                                            {
+                                                ((SortedList)((SortedList)parametersOut["lst"])[1])["d"] = parametersOut["d1"];
+                                                ((SortedList)((SortedList)parametersOut["lst"])[1])["t"] = parametersOut["t1"];
+                                            }
+                                            if (Convert.ToInt32(parametersOut["q2"]) == Convert.ToInt32(((SortedList)((SortedList)parametersOut["lst"])[2])["q"]))
+                                            {
+                                                ((SortedList)((SortedList)parametersOut["lst"])[2])["d"] = parametersOut["d2"];
+                                                ((SortedList)((SortedList)parametersOut["lst"])[2])["t"] = parametersOut["t2"];
+                                            }
+                                        }
+                                    }*/
                                     Logger_AddLogMessage(string.Format("QueryParkingOperationWithTimeStepsAPI: OK: parametersOut= {0}", SortedListToString(parametersOut)), LoggerSeverities.Info);
                                 }
 
