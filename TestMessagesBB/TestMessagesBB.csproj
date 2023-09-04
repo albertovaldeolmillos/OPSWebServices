@@ -99,10 +99,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OPS.Comm">
-      <HintPath>..\OPSCS\OPSMessages\bin\Release\OPS.Comm.dll</HintPath>
+      <HintPath>..\OPSCommon\OPSComm\OPSComm\bin\Debug\OPS.Comm.dll</HintPath>
     </Reference>
     <Reference Include="OPSLogger">
-      <HintPath>..\OPSCS\OPSMessages\bin\Release\OPSLogger.dll</HintPath>
+      <HintPath>..\OPSCS\OPSMessages\bin\Debug\OPSLogger.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

@@ -86,15 +86,13 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OPSComm\OPSComm\OPSComm.csproj">
-      <Name>OPSComm</Name>
-      <Project>{09C08710-6D6F-4FB6-9996-03115826FE74}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-    </ProjectReference>
     <ProjectReference Include="..\OPSLogger\OPSLogger.csproj">
       <Project>{8a9b4521-a395-44f7-b3ef-2b89ee90fd44}</Project>
       <Name>OPSLogger</Name>
     </ProjectReference>
+    <Reference Include="OPS.Comm">
+      <HintPath>..\OPSComm\OPSComm\bin\Debug\OPS.Comm.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>

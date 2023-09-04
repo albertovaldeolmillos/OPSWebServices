@@ -114,11 +114,11 @@
   <ItemGroup>
     <Reference Include="OPS.Components, Version=1.2.1.1, Culture=neutral, PublicKeyToken=1171432d5dd60cf0, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Release\OPS.Components.dll</HintPath>
+      <HintPath>bin\Debug\OPS.Components.dll</HintPath>
     </Reference>
     <Reference Include="OPS.ComponentsBD, Version=1.2.1.1, Culture=neutral, PublicKeyToken=6e2de7211c9a9527, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Release\OPS.ComponentsBD.dll</HintPath>
+      <HintPath>bin\Debug\OPS.ComponentsBD.dll</HintPath>
     </Reference>
     <Reference Include="OPSLogger, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2f4989f27bc3dc51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

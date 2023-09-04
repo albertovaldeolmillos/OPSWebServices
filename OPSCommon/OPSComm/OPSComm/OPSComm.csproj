@@ -99,8 +99,7 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <Reference Include="zlibnet, Version=1.3.3.0, Culture=neutral, PublicKeyToken=a9911c577c68b723, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="zlibnet">
       <HintPath>bin\x64\Debug\zlibnet.dll</HintPath>
     </Reference>
   </ItemGroup>
