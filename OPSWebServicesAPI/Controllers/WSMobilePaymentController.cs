@@ -9602,10 +9602,29 @@ namespace OPSWebServicesAPI.Controllers
             if (nContractId == 10 && idSector == 60001)
             {
                 //if ((mes >= 6 && mes <= 8) || (mes == 9 && (diaDelMes >= 1 && diaDelMes <= 15)))
-                if ((mes < 6) || (mes > 9) || (mes == 9 && diaDelMes > 15))
+                /*if ((mes < 6) || (mes > 9) || (mes == 9 && diaDelMes > 15))
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null;
+                    existsException = true;
+                }*/
+                if ((mes < 6) || (mes > 8))
+                {
+                    response.isSuccess = false;
+                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            if (nContractId == 10 && idSector != 60001)
+            {
+                if (mes == 9 && (diaDelMes >= 1 && diaDelMes <= 12))
+                {
+                    response.isSuccess = false;
+                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed;
                     response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     existsException = true;
