@@ -9613,7 +9613,7 @@ namespace OPSWebServicesAPI.Controllers
                 if ((mes < 6) || (mes > 8))
                 {
                     response.isSuccess = false;
-                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September;
+                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_31_August;
                     response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     existsException = true;

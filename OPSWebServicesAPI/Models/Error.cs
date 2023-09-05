@@ -96,7 +96,8 @@ namespace OPSWebServicesAPI.Models
             Result_Error_Parking_Not_Allowed_1_June_30_September = -302,
             Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends = -303,
             Result_Error_Parking_Not_Allowed_1_June_15_September = -304,
-            Result_Error_Parking_Not_Allowed_Outside_Working_Hours = -305
+            Result_Error_Parking_Not_Allowed_Outside_Working_Hours = -305,
+            Result_Error_Parking_Not_Allowed_1_June_31_August= -306
         }
 
         /// <summary>
@@ -193,7 +194,8 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Regulated parking in this zone only works during holiday season, from 1 June to 30 September"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Regulated parking in this zone only works during holiday season, from 1 June to 30 September, and the weekends and festive in May"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Regulated parking in this zone only works during holiday season, from 1 June to 15 September"},
-                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Out of hours. Parking is not permitted"}
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Out of hours. Parking is not permitted"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_31_August, "Regulated parking in this zone only works during holiday season, from 1 June to 31 August"}
             };
 
         /// <summary>
@@ -279,7 +281,8 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "El estacionamiento regulado en esta zona sólo está operativo durante el periodo vacacional, del 1 de junio al 30 de septiembre."},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "El estacionamiento regulado en esta zona sólo está operativo durante el periodo vacacional, del 1 de junio al 30 de septiembre y los fines de semana y festivos de mayo"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "El estacionamiento regulado en esta zona sólo está operativo durante el periodo vacacional, del 1 de junio al 15 de septiembre."},
-                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Fuera de horario. Estacionamiento no permitido."}
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Fuera de horario. Estacionamiento no permitido."},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_31_August, "El estacionamiento regulado en esta zona sólo está operativo durante el periodo vacacional, del 1 de junio al 31 de agosto."}
             };
 
         /// <summary>
@@ -365,7 +368,8 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Gune honetan aparkalekua uda-garian bakarrik funtzionatzen du, ekainaren 1etik irailaren 30ra"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Gune honetan aparkalekua uda-garian bakarrik funtzionatzen du, ekainaren 1etik irailaren 30ra, eta maiatzako asteburu eta jai egunetan"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Gune honetan aparkalekua uda-garian bakarrik funtzionatzen du, ekainaren 1etik irailaren 15ra"},
-                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Ordutik kampo. Ezin duzu aparkatu"}
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "Ordutik kampo. Ezin duzu aparkatu"},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_31_August, "Gune honetan aparkalekua uda-garian bakarrik funtzionatzen du, ekainaren 1etik abustuaren 1ra"}
             };
 
         /// <summary>
@@ -451,7 +455,8 @@ namespace OPSWebServicesAPI.Models
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September, "Le stationnement réglementé dans cette zone ne fonctionne que pendant la saison des vacances, du 1er juin au 30 septembre"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends, "Le stationnement réglementé dans cette zone ne fonctionne que pendant la saison des vacances, du 1er juin au 30 septembre, et les week-ends et jours fériés en mai"},
                 { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_15_September, "Le stationnement réglementé dans cette zone ne fonctionne que pendant la saison des vacances, du 1er juin au 15 septembre"},
-                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "En dehors de ces horaires, le stationnement est interdit."}
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours, "En dehors de ces horaires, le stationnement est interdit."},
+                { (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_31_August, "Le stationnement réglementé dans cette zone ne fonctionne que pendant la saison des vacances, du 1er juin au 31 aout"}
             };
     }
 
