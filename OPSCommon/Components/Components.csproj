@@ -108,12 +108,6 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OPS.Comm">
-      <HintPath>..\OPSComm\OPSComm\bin\Debug\OPS.Comm.dll</HintPath>
-    </Reference>
-    <Reference Include="OPS.ComponentsBD">
-      <HintPath>..\ComponentsBD\bin\Debug\OPS.ComponentsBD.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -216,6 +210,10 @@
     <None Include="Components.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ComponentsBD\ComponentsBD.csproj">
+      <Project>{3d0af4e3-e555-4bda-9cd8-b310df6f3a7e}</Project>
+      <Name>ComponentsBD</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Globalization\Globalization.csproj">
       <Project>{7cac2a66-51f0-4f2c-af92-58631ee4db3b}</Project>
       <Name>Globalization</Name>
@@ -223,6 +221,10 @@
     <ProjectReference Include="..\IndeDataProvider\IndeDataProvider.csproj">
       <Project>{a546d4aa-8fde-42aa-a477-a78daad6c1b3}</Project>
       <Name>IndeDataProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OPSComm\OPSComm\OPSComm.csproj">
+      <Project>{09c08710-6d6f-4fb6-9996-03115826fe74}</Project>
+      <Name>OPSComm</Name>
     </ProjectReference>
     <ProjectReference Include="..\OPSMsgConfig\OPSMsgConfig\OPSMsgConfig.csproj">
       <Project>{cd455982-e262-43e5-976d-209efb2e3447}</Project>

@@ -94,9 +94,11 @@
       <Project>{A546D4AA-8FDE-42AA-A477-A78DAAD6C1B3}</Project>
       <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
     </ProjectReference>
-    <Reference Include="OPS.Comm">
-      <HintPath>..\..\OPSComm\OPSComm\bin\Debug\OPS.Comm.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\OPSComm\OPSComm\OPSComm.csproj">
+      <Name>OPSComm</Name>
+      <Project>{09C08710-6D6F-4FB6-9996-03115826FE74}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
