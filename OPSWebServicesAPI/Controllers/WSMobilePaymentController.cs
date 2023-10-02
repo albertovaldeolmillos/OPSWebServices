@@ -9567,12 +9567,28 @@ namespace OPSWebServicesAPI.Controllers
                 //if (mes >= 5 && mes <= 9)
                 //if (mes < 5 || mes > 9)
                 //{
+                    //response.isSuccess = false;
+                    //int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
+                    //response.error = new Error(error, GetSeverityError(error));
+                    //response.value = null;
+                    //existsException = true;
+                //}
+                if (mes < 6 || mes > 9 || (mes == 5 && diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && diaDelMes > 1))
+                {
+                    response.isSuccess = false;
+                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null;
+                    existsException = true;
+                }
+                else
+                {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Resident_Zone_24h;
                     response.error = new Error(error, GetSeverityError(error));
                     response.value = null;
                     existsException = true;
-                //}
+                }
             }
             if (nContractId == 79 && idSector == 60005)
             {
