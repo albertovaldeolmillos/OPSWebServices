@@ -63,6 +63,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\PDMCompute\bin\x64\Release\PDMCompute.dll</HintPath>
     </Reference>
+    <Reference Include="PDMDatabase">
+      <HintPath>..\PDMCompute\bin\Debug\PDMDatabase.dll</HintPath>
+    </Reference>
     <Reference Include="PDMMessages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=589897a0c993a351, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\PDMMessages\bin\x64\Release\PDMMessages.dll</HintPath>
