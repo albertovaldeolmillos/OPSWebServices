@@ -1311,7 +1311,7 @@ namespace OPSWebServicesAPI.Controllers
                                     //  1- el tiempo y la fecha mínimos en el tiempo y la fecha del step 1 y 
                                     //  2- el tiempo y la fecha máximos en el tiempo y la fecha del step 2 
                                     //El resultado devuelto por el M1 (Arrasate LUZE --> sólo tarde) es correcto
-                                    if (parametersOut["lst"] != null && parametersOut["lst"] is SortedList && ((SortedList)parametersOut["lst"]).Count == 2)
+                                    if (nContractId == 61 && parametersOut["lst"] != null && parametersOut["lst"] is SortedList && ((SortedList)parametersOut["lst"]).Count == 2)
                                     {
                                         Logger_AddLogMessage("----------2------q1---" + parametersOut["q1"], LoggerSeverities.Info);
                                         Logger_AddLogMessage("----------2------l1q---" + ((SortedList)((SortedList)parametersOut["lst"])[1])["q"], LoggerSeverities.Info);
@@ -1328,7 +1328,7 @@ namespace OPSWebServicesAPI.Controllers
                                             ((SortedList)((SortedList)parametersOut["lst"])[2])["t"] = parametersOut["t2"];
                                         }
                                     }
-                                    /*if (parametersOut["lst"] != null && parametersOut["lst"] is SortedList && ((SortedList)parametersOut["lst"]).Count > 0)
+                                    /*if (nContractId == 61 && parametersOut["lst"] != null && parametersOut["lst"] is SortedList && ((SortedList)parametersOut["lst"]).Count > 0)
                                     {
                                         if (((SortedList)parametersOut["lst"]).Count == 1)
                                         {
