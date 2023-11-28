@@ -1306,6 +1306,29 @@ namespace OPSWebServicesAPI.Controllers
                                 }
                                 else
                                 {
+                                    //Corrección del resultado devuelto por el M1 (Zarautz Caravanas)
+                                    //no devuelve correctametne los pasos
+                                    //se cambia para que se devuelvan siempre 5 pasos
+                                    if (nContractId == 3 && parametersIn["g"].ToString() == "23001" && parametersOut["lst"] != null && parametersOut["lst"] is SortedList)
+                                    {
+                                        int minQ = Convert.ToInt32(parametersOut["q1"]);
+                                        string minD = parametersOut["d1"].ToString();
+                                        DateTime minDt = DateTime.ParseExact(minD, "HHmmssddMMyy", null);
+                                        int minT = Convert.ToInt32(parametersOut["t1"]);
+                                        int maxQ = Convert.ToInt32(parametersOut["q2"]);
+                                        string maxD = parametersOut["d2"].ToString();
+                                        int maxT = Convert.ToInt32(parametersOut["t2"]);
+                                        parametersOut["lst"] = null;
+                                        parametersOut["lst"] = new SortedList();
+                                        for (int i = 0; i < 5; i++)
+                                        {
+                                            SortedList aa = new SortedList();
+                                            aa.Add("q", minQ * (i + 1));
+                                            aa.Add("d", minDt.AddDays(i).ToString("HHmmssddMMyy"));
+                                            aa.Add("t", minT * (i + 1));
+                                            ((SortedList)parametersOut["lst"]).Add(i, aa);
+                                        }
+                                    }
                                     //Corrección del resultado devuelto por el M1 (Arrasate LUZE --> mañana + tarde)
                                     //En el caso de que la cantidad mínima sea igual a la cantidad del step 1 se pone:
                                     //  1- el tiempo y la fecha mínimos en el tiempo y la fecha del step 1 y 
