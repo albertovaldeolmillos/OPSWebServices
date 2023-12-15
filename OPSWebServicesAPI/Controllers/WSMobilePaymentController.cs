@@ -9727,6 +9727,19 @@ namespace OPSWebServicesAPI.Controllers
                     existsException = true;
                 }
             }
+            if (nContractId == 5 && idSector == 60001)
+            {
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 19)) ||
+                    (diaDeSemana == DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                    (diaDeSemana == DayOfWeek.Sunday))
+                {
+                    response.isSuccess = false;
+                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null;
+                    existsException = true;
+                }
+            }
             if (nContractId == 5 && (idSector == 60006 || idSector == 60010 || idSector == 60012 || idSector == 60017))
             {
                 response.isSuccess = false;
