@@ -9729,8 +9729,8 @@ namespace OPSWebServicesAPI.Controllers
             }
             if (nContractId == 5 && idSector == 60001)
             {
-                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 19)) ||
-                    (diaDeSemana == DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 9 || hora > 19)) ||
+                    (diaDeSemana == DayOfWeek.Saturday && (hora < 9 || hora > 13 || (hora == 13 && minuto > 30))) ||
                     (diaDeSemana == DayOfWeek.Sunday))
                 {
                     response.isSuccess = false;
