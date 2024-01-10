@@ -9716,8 +9716,8 @@ namespace OPSWebServicesAPI.Controllers
                 //if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 18 || (hora == 18 && minuto > 30 ))) ||
                 //    (diaDeSemana >= DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
                 //    (diaDeSemana >= DayOfWeek.Sunday))
-                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 8 || hora > 18 || (hora == 18 && minuto > 30))) ||
-                    (diaDeSemana == DayOfWeek.Saturday && (hora < 8 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 9 || hora > 18 || (hora == 18 && minuto > 30))) ||
+                    (diaDeSemana == DayOfWeek.Saturday && (hora < 9 || hora > 13 || (hora == 13 && minuto > 30))) ||
                     (diaDeSemana == DayOfWeek.Sunday))
                 {
                     response.isSuccess = false;
@@ -9727,9 +9727,24 @@ namespace OPSWebServicesAPI.Controllers
                     existsException = true;
                 }
             }
-            if (nContractId == 5 && idSector == 60001)
+            //Rondilla + Barrena (Marroi LIM)
+            if (nContractId == 5 && idSector == 60019)
             {
-                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 9 || hora > 19)) ||
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 9 || hora > 18 || (hora == 18 && minuto > 30))) ||
+                    (diaDeSemana == DayOfWeek.Saturday && (hora < 9 || hora > 13 || (hora == 13 && minuto > 30))) ||
+                    (diaDeSemana == DayOfWeek.Sunday))
+                {
+                    response.isSuccess = false;
+                    int error = (int)ResultType.Result_Error_Parking_Not_Allowed_Outside_Working_Hours;
+                    response.error = new Error(error, GetSeverityError(error));
+                    response.value = null;
+                    existsException = true;
+                }
+            }
+            //Rondilla 1-15 (Zuria)
+            if (nContractId == 5 && idSector == 60013)
+            {
+                if ((diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && (hora < 9 || hora > 18 || (hora == 18 && minuto > 30))) ||
                     (diaDeSemana == DayOfWeek.Saturday && (hora < 9 || hora > 13 || (hora == 13 && minuto > 30))) ||
                     (diaDeSemana == DayOfWeek.Sunday))
                 {
