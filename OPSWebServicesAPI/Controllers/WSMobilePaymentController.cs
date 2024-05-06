@@ -9596,7 +9596,7 @@ namespace OPSWebServicesAPI.Controllers
                     //response.value = null;
                     //existsException = true;
                 //}
-                if (mes < 6 || mes > 9 || (mes == 5 && diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && diaDelMes > 1))
+                if (mes < 5 || mes > 9 || (mes == 5 && (diaDeSemana == DayOfWeek.Monday || diaDeSemana == DayOfWeek.Tuesday || diaDeSemana == DayOfWeek.Wednesday ||  diaDeSemana == DayOfWeek.Thursday || diaDeSemana == DayOfWeek.Friday) && diaDelMes > 1))
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends;
@@ -9628,7 +9628,7 @@ namespace OPSWebServicesAPI.Controllers
             if (nContractId == 79 && (idSector == 60003 || idSector == 60004))
             {
                 //if ((mes >= 6 && mes <= 9) || (mes == 5 && diaDeSemana == DayOfWeek.Saturday) || (mes == 5 && diaDeSemana == DayOfWeek.Sunday) || (mes == 5 && diaDelMes == 1))
-                if (mes < 6 || mes > 9 || (mes == 5 && diaDeSemana >= DayOfWeek.Monday && diaDeSemana <= DayOfWeek.Friday && diaDelMes > 1))
+                if (mes < 5 || mes > 9 || (mes == 5 && (diaDeSemana == DayOfWeek.Monday || diaDeSemana == DayOfWeek.Tuesday || diaDeSemana == DayOfWeek.Wednesday || diaDeSemana == DayOfWeek.Thursday || diaDeSemana == DayOfWeek.Friday) && diaDelMes > 1))
                 {
                     response.isSuccess = false;
                     int error = (int)ResultType.Result_Error_Parking_Not_Allowed_1_June_30_September_And_May_Weekends;
